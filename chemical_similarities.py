@@ -47,11 +47,11 @@ def get_similarity(chemicals_list):
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
     smiles_dict = {}
-    for drug in tqdm(drug_list):
-        smiles = CidToSmiles(drug)
+    for chemical in tqdm(chemicals_list):
+        smiles = CidToSmiles(chemical)
         if type(smiles) != str:
             smiles = smiles.decode("utf-8")
-        smiles_dict[drug] = smiles
+        smiles_dict[chemical] = smiles
     return smiles_dict
     ms = {}
     for pubchem, smiles in pubchem_to_smiles.items():
