@@ -33,7 +33,7 @@ def CidToSmiles(cid):
 
 def SmilesToCid(smiles):
     """
-    gets the chemical pubmed ID from the SMILES
+    gets the chemical pubchem ID from the SMILES
     :param smiles: the SMILES code of a chemical
     :return: the pubchem ID
     """
@@ -43,7 +43,7 @@ def SmilesToCid(smiles):
 def get_similarity(chemicals_list):
     """
     gets the similarities between all pair combinations of chemicals in the list
-    :param chemicals_list: a list of chemicals as pubmed ID
+    :param chemicals_list: a list of chemicals as pubchem ID
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
     smiles_dict = {}
