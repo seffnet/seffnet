@@ -74,7 +74,7 @@ def create_similarity_graph(chemicals_list, name = '', version = '1.1.0', author
     :return: BELGraph"""
     chem_sim = get_similarity(chemicals_list)
     chem_sim_graph = BELGraph(name, version, description, authors, contact)
-    for (pubchem_1, pubchem_2), sim in chem_sim.items():
+    for (pubchem_1, pubchem_2), sim in tqdm(chem_sim.items(), desc='Creating BELGraph'):
         if sim < 0.5 :
             continue
         chem_sim_graph.add_unqualified_edge(pybel.dsl.Abundance(namespace='pubchem', name=pubchem_1), pybel.dsl.Abundance(namespace='pubchem', name=pubchem_2), 'similar_to')
