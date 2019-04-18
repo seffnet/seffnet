@@ -47,22 +47,21 @@ def get_similarity(chemicals_list):
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
     smiles_dict = {}
-    for chemical in tqdm(chemicals_list):
+    for chemical in tqdm(chemicals_list, desc='Getting SMILES'):
         smiles = CidToSmiles(chemical)
         if type(smiles) != str:
             smiles = smiles.decode("utf-8")
         smiles_dict[chemical] = smiles
-    return smiles_dict
     ms = {}
-    for pubchem, smiles in pubchem_to_smiles.items():
+    for pubchem, smiles in tqdm(smiles_dict.items(), desc='Creating molecules'):
         ms[pubchem] = Chem.MolFromSmiles(smiles)
     fps = {}
-    for pubchem_id, mol in tqdm(ms.items()):
+    for pubchem_id, mol in tqdm(ms.items(), desc='Create fingerprints'):
         if mol == None:
             continue
         fps[pubchem_id] = MACCSkeys.GenMACCSKeys(mol)  # using MACCS
     chem_sim = {
         (pubchem_id_1, pubchem_id_2): DataStructs.FingerprintSimilarity(mol_1, mol_2)
-        for (pubchem_id_1, mol_1), (pubchem_id_2, mol_2) in tqdm(itt.combinations(fps.items(), 2))
+        for (pubchem_id_1, mol_1), (pubchem_id_2, mol_2) in tqdm(itt.combinations(fps.items(), 2), desc='Calculating Similarities')
     }
     return chem_sim
