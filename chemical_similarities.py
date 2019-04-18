@@ -7,6 +7,7 @@ import urllib.request
 import urllib
 from urllib.error import HTTPError
 from pybel import BELGraph
+import pybel
 
 
 def getresult(url):
