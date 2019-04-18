@@ -8,3 +8,4 @@ This folder contains the graphs that are used for training
 
 ## chemical_similarities.py
 This script contains functions that calculate similarities between chemicals and produce a chemical similarity BELGraph 
+Note: to run these the similarity function you need to have rdkit package
