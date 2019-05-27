@@ -15,6 +15,7 @@ for cluster, chemicals in tqdm(clusters_dict.items()):
         chemical = pybel.dsl.Abundance(namespace='pubchem', name=str(chemical))
         if chemical not in full_graph.nodes():
             continue
+        chemicals_subgraph.append(chemical)
         for neighbor in full_graph.neighbors(chemical):
             chemicals_subgraph.append(neighbor)
     subgraphs_dict[cluster] = list(dict.fromkeys(chemicals_subgraph)) # to remove duplicates
