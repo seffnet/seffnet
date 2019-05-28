@@ -8,7 +8,7 @@ cluster_df = pd.read_csv('/home/bio/groupshare/rana/src/SE_KGE/resources/Cluster
 
 clusters_dict = {}
 for i in range(1,cluster_df.Cluster.nunique()+1):
-  cluster_dict[i] = cluster_df['PubchemID'].loc[cluster_df['Cluster'] == i].tolist()
+  clusters_dict[i] = cluster_df['PubchemID'].loc[cluster_df['Cluster'] == i].tolist()
   
 subgraphs_dict = {}
 for cluster, chemicals in tqdm(clusters_dict.items()):
