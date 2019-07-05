@@ -17,22 +17,26 @@ def parse_args():
 
     return args
 
-def DeepWalkOptimization(args):
+def node2vecOptimization(args):
     def objective(trial):
         dimensions = trial.suggest_int('dimensions', 100, 300)
         walk_length = trial.suggest_int('walk_length', 16, 128)
         number_walks = trial.suggest_int('number_walks', 16, 128)
         window_size = trial.suggest_int('window_size', 1, 10)
+        p = trial.suggest_uniform('p', 0, 4.0)
+        q = trial.suggest_uniform('p', 0, 4.0)
         G, G_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
             args.input,
             args.training,
             args.testing)
-        model = embed_train.train_embed_deepwalk(
+        model = embed_train.train_embed_node2vec(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
             walk_length=walk_length,
             number_walks=number_walks,
-            window_size=window_size)
+            window_size=window_size,
+            p=p,
+            q=q)
         embeddings = model.get_embeddings()
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
@@ -45,12 +49,11 @@ def DeepWalkOptimization(args):
         trial.set_user_attr('f1', f1)
         return 1.0 - mcc
 
-    study = optuna.create_study(storage='sqlite:///deepwalk.db')
+    study = optuna.create_study(storage='sqlite:///node2vec.db')
     study.set_user_attr('Author', 'Rana')
-    study.set_user_attr('Method', 'DeepWalk')
+    study.set_user_attr('Method', 'node2vec')
     study.set_user_attr('Date', '05.07.2019')
     study.optimize(objective, n_trials=20)
 
 if __name__ == "__main__":
-    DeepWalkOptimization(parse_args())
-
+    node2vecOptimization(parse_args())
