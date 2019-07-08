@@ -4,7 +4,7 @@ import networkx as nx
 import tqdm
 
 full_graph = pybel.from_pickle('/home/bio/groupshare/rana/fullgraph_without_sim.pickle')
-cluster_df = pd.read_csv('/home/bio/groupshare/rana/src/SE_KGE/resources/Clustered_chemicals.csv')
+cluster_df = pd.read_csv('/home/bio/groupshare/rana/src/se_kge/resources/Clustered_chemicals.csv')
 
 clusters_dict = {i : cluster_df['PubchemID'].loc[cluster_df['Cluster'] == i].tolist()
                 for i in range(1,cluster_df.Cluster.nunique()+1)}
