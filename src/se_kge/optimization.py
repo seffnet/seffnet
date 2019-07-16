@@ -161,7 +161,7 @@ def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
             dimensions=dimensions,
             order=order,
             epochs=epochs)
-        embeddings = model.get_embeddings()
+        embeddings = model.get_embeddings_train()
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
@@ -173,8 +173,8 @@ def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
         trial.set_user_attr('f1', f1)
         return 1.0 - mcc
 
-    study = optuna.create_study(storage='sqlite:///sdne.db')
+    study = optuna.create_study(storage='sqlite:///line.db')
     study.set_user_attr('Author', 'Rana')
-    study.set_user_attr('Method', 'SDNE')
+    study.set_user_attr('Method', 'LINE')
     study.set_user_attr('Date', datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     study.optimize(objective, n_trials=trial_number)

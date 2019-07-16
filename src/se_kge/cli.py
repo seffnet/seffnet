@@ -1,7 +1,9 @@
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 from bionev import pipeline
 
-from se_kge.optimization import hope_optimization, deepwalk_optimization, node2vec_optimization, grarep_optimization, sdne_optimization
+from se_kge.optimization import hope_optimization, deepwalk_optimization, node2vec_optimization, grarep_optimization, \
+    sdne_optimization, line_optimization
+
 
 def parse_args():
     parser = ArgumentParser(formatter_class=ArgumentDefaultsHelpFormatter,
@@ -61,6 +63,15 @@ def main(args):
 
     elif args.method == 'SDNE':
         sdne_optimization(
+            G=G,
+            G_train=G_train,
+            testing_pos_edges=testing_pos_edges,
+            train_graph_filename=train_graph_filename,
+            trial_number=args.trials
+        )
+
+    elif args.method == 'LINE':
+        line_optimization(
             G=G,
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
