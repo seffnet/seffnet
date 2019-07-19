@@ -1,8 +1,10 @@
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
-from bionev import pipeline
 
-from se_kge.optimization import hope_optimization, deepwalk_optimization, node2vec_optimization, grarep_optimization, \
-    sdne_optimization, line_optimization
+from bionev import pipeline
+from .optimization import (
+    deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
+    node2vec_optimization, sdne_optimization,
+)
 
 
 def parse_args():
@@ -21,6 +23,7 @@ def parse_args():
     args = parser.parse_args()
 
     return args
+
 
 def main():
     args = parse_args()
@@ -79,7 +82,6 @@ def main():
             train_graph_filename=train_graph_filename,
             trial_number=args.trials
         )
-
 
 
 if __name__ == "__main__":
