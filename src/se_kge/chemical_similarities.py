@@ -9,7 +9,10 @@ from urllib.error import HTTPError
 
 import pybel
 
-
+"""
+This script contains functions that calculate similarities between chemicals and produce a chemical similarity BELGraph 
+Note: to run these the similarity function you need to have rdkit package
+"""
 def getresult(url):
     """
     connect with API to get results
