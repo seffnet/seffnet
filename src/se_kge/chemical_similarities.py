@@ -1,18 +1,19 @@
 import itertools as itt
-from rdkit import Chem
-from rdkit.Chem import MACCSkeys
-from rdkit import DataStructs
-import tqdm
-import urllib.request
 import urllib
+import urllib.request
 from urllib.error import HTTPError
 
 import pybel
+from rdkit import Chem, DataStructs
+from rdkit.Chem import MACCSkeys
+from tqdm import tqdm
 
 """
 This script contains functions that calculate similarities between chemicals and produce a chemical similarity BELGraph 
 Note: to run these the similarity function you need to have rdkit package
 """
+
+
 def getresult(url):
     """
     connect with API to get results

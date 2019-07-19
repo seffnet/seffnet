@@ -1,8 +1,7 @@
-from bionev import pipeline
-from bionev import embed_train
 import datetime
 
 import optuna
+from bionev import embed_train, pipeline
 
 
 def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
@@ -150,6 +149,7 @@ def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, 
     study.set_user_attr('Method', 'GraRep')
     study.set_user_attr('Date', datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     study.optimize(objective, n_trials=trial_number)
+
 
 def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
     def objective(trial):
