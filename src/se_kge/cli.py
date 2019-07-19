@@ -22,7 +22,8 @@ def parse_args():
 
     return args
 
-def main(args):
+def main():
+    args = parse_args()
     G, G_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
         args.input,
         args.training,
@@ -82,4 +83,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    main(parse_args())
+    main()
