@@ -5,12 +5,11 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 import pandas as pd
 import networkx as nx
-import time
+from tqdm import tqdm
 
-def find_new_relations(*, entity, saved_model, node_mapping_file, embeddings_file, graph_edgelist=None, entity_type=None, k=30):
+def find_new_relations(*, entity, saved_model, node_mapping_file, embeddings_file, graph=None, entity_type=None, k=30):
     embeddings = load_embedding(embeddings_file)
     node_mapping = pd.read_csv(node_mapping_file, sep=',')
-    graph = nx.read_edgelist(graph_edgelist)
     model = joblib.load(saved_model)
     if entity_type == 'chemical':
         node_list, relations_list = find_chemicals(entity=entity, embeddings=embeddings, node_mapping=node_mapping, graph=graph)
@@ -23,17 +22,17 @@ def find_new_relations(*, entity, saved_model, node_mapping_file, embeddings_fil
         node_list = []
         node_id = node_mapping.loc[node_mapping["NodeName"] == entity, "NodeID"].iloc[0]
         node1 = embeddings[str(node_id)]
-        for node, vector in embeddings.items():
+        for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
             if node == entity:
                 continue
             if graph != None:
                 if graph.has_edge(entity, node) or graph.has_edge(node, entity):
                     continue
-            node2 = np.array(embeddings[node])
-            relation = node1 * node2
+            relation = node1 * np.array(vector)
             relations_list.append(relation.tolist())
             node_list.append(node)
     prediction_list = get_probabilities(node_list=node_list, relations_list=relations_list, model=model, k=k)
+    print("The %d highest %s predictions for %s" % (k, entity_type, entity))
     return prediction_list
 
 def find_chemicals(*, entity, embeddings, graph=None, node_mapping):
@@ -41,7 +40,7 @@ def find_chemicals(*, entity, embeddings, graph=None, node_mapping):
     node_list = []
     node_id = node_mapping.loc[node_mapping["NodeName"] == entity, "NodeID"].iloc[0]
     node1 = embeddings[str(node_id)]
-    for node, vector in embeddings.items():
+    for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         if node == entity:
             continue
         if graph != None:
@@ -50,8 +49,7 @@ def find_chemicals(*, entity, embeddings, graph=None, node_mapping):
         namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
         if namespace != 'pubchem':
             continue
-        node2 = np.array(embeddings[node])
-        relation = node1 * node2
+        relation = node1 * np.array(vector)
         relations_list.append(relation.tolist())
         node_list.append(node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
     return node_list, relations_list
@@ -61,7 +59,7 @@ def find_targets(*, entity, embeddings, graph=None, node_mapping):
     node_list = []
     node_id = node_mapping.loc[node_mapping["NodeName"] == entity, "NodeID"].iloc[0]
     node1 = embeddings[str(node_id)]
-    for node, vector in embeddings.items():
+    for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         if node == entity:
             continue
         if graph != None:
@@ -70,8 +68,7 @@ def find_targets(*, entity, embeddings, graph=None, node_mapping):
         namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
         if namespace != 'uniprot':
             continue
-        node2 = np.array(embeddings[node])
-        relation = node1 * node2
+        relation = node1 * np.array(vector)
         relations_list.append(relation.tolist())
         node_list.append(node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
     return node_list, relations_list
@@ -81,7 +78,7 @@ def find_phenotypes(*, entity, embeddings, graph=None, node_mapping):
     node_list = []
     node_id = node_mapping.loc[node_mapping["NodeName"] == entity, "NodeID"].iloc[0]
     node1 = embeddings[str(node_id)]
-    for node, vector in embeddings.items():
+    for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         if node == entity:
             continue
         if graph != None:
@@ -90,8 +87,7 @@ def find_phenotypes(*, entity, embeddings, graph=None, node_mapping):
         namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
         if namespace != 'umls':
             continue
-        node2 = np.array(embeddings[node])
-        relation = node1 * node2
+        relation = node1 * np.array(vector)
         relations_list.append(relation.tolist())
         node_list.append(node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
     return node_list, relations_list
