@@ -8,6 +8,6 @@ Resources
 ---------
 This folder contains the graphs and materials that are used for training and testing
 
-.. image:: https://travis-ci.com/AldisiRana/SE_KGE.svg?branch=master
+.. |build| image:: https://travis-ci.com/AldisiRana/SE_KGE.svg?branch=master
     :target: https://travis-ci.com/AldisiRana/SE_KGE
     :alt: Development Build Status
