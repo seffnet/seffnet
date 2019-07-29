@@ -22,6 +22,8 @@ def parse_args():
                         help='The embedding learning method')
     parser.add_argument('--trials', default=50, type=int,
                         help='the number of trials done to optimize hyperparameters')
+    parser.add_argument('--dimensions', default=(100, 300), type=tuple,
+                        help='the range of dimensions to be optimized')
     args = parser.parse_args()
 
     return args
@@ -41,7 +43,8 @@ def main():
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=args.trials,
-            seed=seed
+            seed=seed,
+            dimensions_range=args.dimensions
         )
 
     elif args.method == 'DeepWalk':
@@ -51,7 +54,9 @@ def main():
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=args.trials,
-            seed=seed
+            seed=seed,
+            dimensions_range=args.dimensions
+
         )
 
     elif args.method == 'node2vec':
@@ -61,7 +66,8 @@ def main():
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=args.trials,
-            seed=seed
+            seed=seed,
+            dimensions_range=args.dimensions
         )
 
     elif args.method == 'GraRep':
@@ -71,7 +77,8 @@ def main():
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=args.trials,
-            seed=seed
+            seed=seed,
+            dimensions_range=args.dimensions
         )
 
     elif args.method == 'SDNE':
@@ -91,7 +98,8 @@ def main():
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=args.trials,
-            seed=seed
+            seed=seed,
+            dimensions_range=args.dimensions
         )
 
 

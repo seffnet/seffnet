@@ -4,9 +4,9 @@ import optuna
 from bionev import embed_train, pipeline
 
 
-def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
+def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed, dimensions_range):
     def objective(trial):
-        dimensions = trial.suggest_int('dimensions', 100, 300)
+        dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         model = embed_train.train_embed_hope(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions)
@@ -30,9 +30,9 @@ def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
     study.optimize(objective, n_trials=trial_number)
 
 
-def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
+def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed, dimensions_range):
     def objective(trial):
-        dimensions = trial.suggest_int('dimensions', 100, 300)
+        dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_int('walk_length', 16, 128)
         number_walks = trial.suggest_int('number_walks', 16, 128)
         window_size = trial.suggest_int('window_size', 1, 10)
@@ -62,9 +62,9 @@ def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
     study.optimize(objective, n_trials=trial_number)
 
 
-def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
+def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed, dimensions_range):
     def objective(trial):
-        dimensions = trial.suggest_int('dimensions', 100, 300)
+        dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_int('walk_length', 16, 128)
         number_walks = trial.suggest_int('number_walks', 16, 128)
         window_size = trial.suggest_int('window_size', 1, 10)
@@ -128,9 +128,9 @@ def sdne_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
     study.optimize(objective, n_trials=trial_number)
 
 
-def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
+def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed, dimensions_range):
     def objective(trial):
-        dimensions = trial.suggest_int('dimensions', 100, 300)
+        dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         kstep = trial.suggest_int('kstep', 1, 10)
         model = embed_train.train_embed_grarep(
             train_graph_filename=train_graph_filename,
@@ -156,9 +156,9 @@ def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, 
     study.optimize(objective, n_trials=trial_number)
 
 
-def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
+def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed, dimensions_range):
     def objective(trial):
-        dimensions = trial.suggest_int('dimensions', 100, 300)
+        dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         order = trial.suggest_int('order', 1, 3)
         epochs = trial.suggest_int('epochs', 5, 30)
         model = embed_train.train_embed_line(
