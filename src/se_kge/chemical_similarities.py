@@ -21,16 +21,17 @@ from tqdm import tqdm
 def get_result(url):
     """
     Get response from API.
-    
+
     :param url: API url
     :return: reponse body
     """
     if url.lower().startswith('http'):
         req = urllib.request.Request(url)
+        with urllib.request.urlopen(req) as response:
+            return response.read().rstrip
     else:
         raise ValueError from None
-    with urllib.request.urlopen(req) as response:
-        return response.read().rstrip
+
 
 def cid_to_smiles(cid):
     """
