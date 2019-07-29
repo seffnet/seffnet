@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Command line interface for ``se_kge``."""
+
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
 import random

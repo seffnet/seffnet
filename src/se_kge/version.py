@@ -1,3 +1,7 @@
+# -*- coding: utf-8 -*-
+
+"""Version information for ``se_kge``."""
+
 __all__ = [
     'VERSION',
 ]

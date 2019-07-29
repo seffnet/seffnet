@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 import bio2bel_drugbank
 import bio2bel_sider
