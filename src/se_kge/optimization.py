@@ -4,7 +4,7 @@ import optuna
 from bionev import embed_train, pipeline
 
 
-def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
+def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
     def objective(trial):
         dimensions = trial.suggest_int('dimensions', 100, 300)
         model = embed_train.train_embed_hope(
@@ -14,7 +14,8 @@ def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=0)
+                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
         trial.set_user_attr('auc_pr', auc_pr)
@@ -29,7 +30,7 @@ def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
     study.optimize(objective, n_trials=trial_number)
 
 
-def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
+def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
     def objective(trial):
         dimensions = trial.suggest_int('dimensions', 100, 300)
         walk_length = trial.suggest_int('walk_length', 16, 128)
@@ -45,7 +46,8 @@ def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=0)
+                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
         trial.set_user_attr('auc_pr', auc_pr)
@@ -60,7 +62,7 @@ def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
     study.optimize(objective, n_trials=trial_number)
 
 
-def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
+def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
     def objective(trial):
         dimensions = trial.suggest_int('dimensions', 100, 300)
         walk_length = trial.suggest_int('walk_length', 16, 128)
@@ -80,7 +82,8 @@ def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=0)
+                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
         trial.set_user_attr('auc_pr', auc_pr)
@@ -95,7 +98,7 @@ def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
     study.optimize(objective, n_trials=trial_number)
 
 
-def sdne_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
+def sdne_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
     def objective(trial):
         alpha = trial.suggest_uniform('alpha', 0, 0.4)
         beta = trial.suggest_int('beta', 0, 30)
@@ -109,7 +112,8 @@ def sdne_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=0)
+                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
         trial.set_user_attr('auc_pr', auc_pr)
@@ -124,7 +128,7 @@ def sdne_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
     study.optimize(objective, n_trials=trial_number)
 
 
-def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
+def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
     def objective(trial):
         dimensions = trial.suggest_int('dimensions', 100, 300)
         kstep = trial.suggest_int('kstep', 1, 10)
@@ -136,7 +140,8 @@ def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, 
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=0)
+                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
         trial.set_user_attr('auc_pr', auc_pr)
@@ -151,7 +156,7 @@ def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, 
     study.optimize(objective, n_trials=trial_number)
 
 
-def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number):
+def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, trial_number, seed):
     def objective(trial):
         dimensions = trial.suggest_int('dimensions', 100, 300)
         order = trial.suggest_int('order', 1, 3)
@@ -165,7 +170,8 @@ def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
                                                                          original_graph=G,
                                                                          train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=0)
+                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
         trial.set_user_attr('auc_pr', auc_pr)

@@ -1,5 +1,7 @@
 from argparse import ArgumentDefaultsHelpFormatter, ArgumentParser
 
+import random
+
 from bionev import pipeline
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
@@ -31,13 +33,16 @@ def main():
         args.input,
         args.training,
         args.testing)
+    seed = random.randint(1, 10000000)
     if args.method == 'HOPE':
         hope_optimization(
             G=G,
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
-            trial_number=args.trials)
+            trial_number=args.trials,
+            seed=seed
+        )
 
     elif args.method == 'DeepWalk':
         deepwalk_optimization(
@@ -45,7 +50,8 @@ def main():
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
-            trial_number=args.trials
+            trial_number=args.trials,
+            seed=seed
         )
 
     elif args.method == 'node2vec':
@@ -54,7 +60,9 @@ def main():
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
-            trial_number=args.trials)
+            trial_number=args.trials,
+            seed=seed
+        )
 
     elif args.method == 'GraRep':
         grarep_optimization(
@@ -62,7 +70,8 @@ def main():
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
-            trial_number=args.trials
+            trial_number=args.trials,
+            seed=seed
         )
 
     elif args.method == 'SDNE':
@@ -71,7 +80,8 @@ def main():
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
-            trial_number=args.trials
+            trial_number=args.trials,
+            seed=seed
         )
 
     elif args.method == 'LINE':
@@ -80,7 +90,8 @@ def main():
             G_train=G_train,
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
-            trial_number=args.trials
+            trial_number=args.trials,
+            seed=seed
         )
 
 
