@@ -11,10 +11,13 @@ def hope_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
             train_graph_filename=train_graph_filename,
             dimensions=dimensions)
         embeddings = model.get_embeddings()
-        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
-                                                                         original_graph=G,
-                                                                         train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=G,
+            train_graph=G_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=None)
         trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
@@ -43,10 +46,13 @@ def deepwalk_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
             number_walks=number_walks,
             window_size=window_size)
         embeddings = model.get_embeddings()
-        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
-                                                                         original_graph=G,
-                                                                         train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=G,
+            train_graph=G_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=None)
         trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
@@ -79,10 +85,13 @@ def node2vec_optimization(*, G, G_train, testing_pos_edges, train_graph_filename
             p=p,
             q=q)
         embeddings = model.get_embeddings()
-        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
-                                                                         original_graph=G,
-                                                                         train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=G,
+            train_graph=G_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=None)
         trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
@@ -137,10 +146,13 @@ def grarep_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, 
             dimensions=dimensions,
             kstep=kstep)
         embeddings = model.get_embeddings()
-        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
-                                                                         original_graph=G,
-                                                                         train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=G,
+            train_graph=G_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=None)
         trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
@@ -167,10 +179,13 @@ def line_optimization(*, G, G_train, testing_pos_edges, train_graph_filename, tr
             order=order,
             epochs=epochs)
         embeddings = model.get_embeddings_train()
-        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(embeddings=embeddings,
-                                                                         original_graph=G,
-                                                                         train_graph=G_train,
-                                                                         test_pos_edges=testing_pos_edges, seed=seed)
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=G,
+            train_graph=G_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=None)
         trial.set_user_attr('seed', seed)
         trial.set_user_attr('mcc', mcc)
         trial.set_user_attr('auc_roc', auc_roc)
