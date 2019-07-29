@@ -14,9 +14,9 @@ def parse_args():
                             conflict_handler='resolve')
     parser.add_argument('--input', required=True,
                         help='Input graph file. Only accepted edgelist format.')
-    parser.add_argument('--training', required=True,
+    parser.add_argument('--training', default=None,
                         help='training graph file. Only accepted edgelist format.')
-    parser.add_argument('--testing', required=True,
+    parser.add_argument('--testing', default=None,
                         help='testing graph file. Only accepted edgelist format.')
     parser.add_argument('--method', required=True,
                         help='The embedding learning method')
@@ -31,11 +31,17 @@ def parse_args():
 
 def main():
     args = parse_args()
-    G, G_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
-        args.input,
-        args.training,
-        args.testing)
     seed = random.randint(1, 10000000)
+    if args.training and args.testing is not None:
+        G, G_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
+            args.input,
+            args.training,
+            args.testing)
+    else:
+        G, G_train, testing_pos_edges, train_graph_filename = pipeline.split_train_test_graph(
+            args.input,
+            seed
+        )
     if args.method == 'HOPE':
         hope_optimization(
             G=G,
