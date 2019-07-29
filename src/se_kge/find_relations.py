@@ -1,16 +1,7 @@
-import sklearn
-from sklearn.externals import joblib
-from bionev.utils import load_embedding
 import numpy as np
-from sklearn.linear_model import LogisticRegression
-import pandas as pd
-import networkx as nx
 from tqdm import tqdm
 
-def find_new_relations(*, entity, saved_model, node_mapping_file, embeddings_file, graph=None, entity_type=None, k=30):
-    embeddings = load_embedding(embeddings_file)
-    node_mapping = pd.read_csv(node_mapping_file, sep=',')
-    model = joblib.load(saved_model)
+def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=None, entity_type=None, k=30):
     if entity_type == 'chemical':
         node_list, relations_list = find_chemicals(entity=entity, embeddings=embeddings, node_mapping=node_mapping, graph=graph)
     elif entity_type == 'phenotype':
@@ -31,7 +22,7 @@ def find_new_relations(*, entity, saved_model, node_mapping_file, embeddings_fil
             relation = node1 * np.array(vector)
             relations_list.append(relation.tolist())
             node_list.append(node)
-    prediction_list = get_probabilities(node_list=node_list, relations_list=relations_list, model=model, k=k)
+    prediction_list = get_probabilities(node_list=node_list, relations_list=relations_list, model=saved_model, k=k)
     print("The %d highest %s predictions for %s" % (k, entity_type, entity))
     return prediction_list
 
@@ -99,3 +90,4 @@ def get_probabilities(*, node_list, relations_list, model, k):
         all_prob[node_list[i]] = prob_list[i]
     sorted_list = sorted(all_prob.items(), key=lambda kv: kv[1], reverse=True)
     return sorted_list[:k]
+
