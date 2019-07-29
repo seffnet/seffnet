@@ -18,6 +18,20 @@ from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
 
+def get_result(url):
+    """
+    Get response from API.
+    
+    :param url: API url
+    :return: reponse body
+    """
+    if url.lower().startswith('http'):
+        req = urllib.request.Request(url)
+    else:
+        raise ValueError from None
+    with urllib.request.urlopen(req) as response:
+        return response.read().rstrip
+
 def cid_to_smiles(cid):
     """
     Get the SMILES for chemicals in PubChem database.
@@ -25,13 +39,7 @@ def cid_to_smiles(cid):
     :param cid: pubchem ID
     :return: SMILES
     """
-    try:
-        connection = urllib.request.urlopen(
-            "http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/canonicalSMILES/TXT" % cid)
-    except HTTPError:
-        return ""
-    else:
-        return connection.read().rstrip()
+    return get_result("http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/canonicalSMILES/TXT" % cid)
 
 
 def smiles_to_cid(smiles):
@@ -41,13 +49,7 @@ def smiles_to_cid(smiles):
     :param smiles: the SMILES code of a chemical
     :return: the pubchem ID
     """
-    try:
-        connection = urllib.request.urlopen(
-            "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/cids/TXT" % smiles % cid)
-    except HTTPError:
-        return ""
-    else:
-        return connection.read().rstrip()
+    return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/cids/TXT" % smiles)
 
 
 def get_similarity(chemicals_list):
@@ -74,7 +76,7 @@ def get_similarity(chemicals_list):
 
 def get_fingerprints(chemicals_dict):
     """
-    Creates a dictionary containing the fingerprints for every chemical.
+    Create a dictionary containing the fingerprints for every chemical.
 
     :param chemicals_dict: a dictionary with pubchemID as keys and smiles as values
     :return: a dictionary with pubchemID as key and the MACCSkeys fingerprints
@@ -92,7 +94,7 @@ def get_fingerprints(chemicals_dict):
 
 def create_similarity_graph(chemicals_list, name='', version='1.1.0', authors='', contact='', description=''):
     """
-    Create a BELGraph with chemicals as nodes, and similarity as edges
+    Create a BELGraph with chemicals as nodes, and similarity as edges.
 
     :param chemicals_list: a list of chemicals as pubchem ID
     :return: BELGraph
