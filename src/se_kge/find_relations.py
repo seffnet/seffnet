@@ -1,9 +1,13 @@
 # -*- coding: utf-8 -*-
 
 """
+
+Find new relations between entities.
+
 This file contains functions that find predicted relations from a logistic regression model given model embeddings
 The model and embeddings are trained and created from a graph containing drugs, targets and side effects.
 The graph used contained nodeIDs that can be mapped using a tsv file
+
 """
 
 import numpy as np
@@ -12,8 +16,10 @@ from tqdm import tqdm
 
 def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=None, entity_type=None, k=30):
     """
-    Get all the relations of specific entity_type (if chosen) or all types (if None) and finds their probabilities
-    from the saved_model, and return the top k predictions.
+    Find new relations to specific entity.
+
+    Get all the relations of specific entity_type (if chosen) or all types (if None).
+    Finds their probabilities from the saved_model, and return the top k predictions.
 
     :param entity: the entity we want to find predictions with
     :param saved_model: the log regression model created from the graph
@@ -156,8 +162,10 @@ def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mappi
 
 def get_probabilities(*, node_list, relations_list, model, k):
     """
-    Find the probabilities of all the relations in the list from the log model,
-    sorts the found probabilities by highest to lowest, then return the k highest probabilities.
+    Get probabilities from log model.
+
+    Get the probabilities of all the relations in the list from the log model.
+    Also sort the found probabilities by highest to lowest, then return the k highest probabilities.
 
     :param node_list: the list of the nodes with relations to the entity
     :param relations_list: the list of edge embedding of the two nodes
