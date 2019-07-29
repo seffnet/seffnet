@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 
-import numpy as np
-from tqdm import tqdm
-
 """
 This file contains functions that find predicted relations from a logistic regression model given model embeddings
 The model and embeddings are trained and created from a graph containing drugs, targets and side effects.
 The graph used contained nodeIDs that can be mapped using a tsv file
 """
 
+import numpy as np
+from tqdm import tqdm
+
 
 def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=None, entity_type=None, k=30):
     """
-    gets all the relations of specific entity_type (if chosen) or all types (if None)
-    and finds their probabilities from the saved_model, and retruns the top k predictions
+    Get all the relations of specific entity_type (if chosen) or all types (if None) and finds their probabilities
+    from the saved_model, and return the top k predictions.
 
     :param entity: the entity we want to find predictions with
     :param saved_model: the log regression model created from the graph
@@ -56,7 +56,7 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
         for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
             if node == entity:
                 continue
-            if graph != None:
+            if graph is not None:
                 if graph.has_edge(entity, node) or graph.has_edge(node, entity):
                     continue
             relation = entity_vector * np.array(vector)
@@ -69,7 +69,8 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
 
 def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mapping):
     """
-    specific for finding all relations of the entity with chemical entities only
+    Find all relations of the entity with chemical entities only.
+
     :param entity: the entity we want to find predictions with
     :param entity_vector: the vector of the entity
     :param embeddings: the embeddings created from the graph
@@ -78,12 +79,12 @@ def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mappin
     :return node_list: a list of the nodes with relations,
     relations_list: the edge embedding of the two nodes in the relation
     """
-    relations_list=[]
+    relations_list = []
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         if node == entity:
             continue
-        if graph != None:
+        if graph is not None:
             if graph.has_edge(entity, node) or graph.has_edge(node, entity):
                 continue
         namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
@@ -97,7 +98,8 @@ def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mappin
 
 def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping):
     """
-    specific for finding all relations of the entity with targets(proteins) entities only
+    Find all relations of the entity with protein entities only.
+
     :param entity: the entity we want to find predictions with
     :param entity_vector: the vector of the entity
     :param embeddings: the embeddings created from the graph
@@ -106,12 +108,12 @@ def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping)
     :return node_list: a list of the nodes with relations,
     relations_list: the edge embedding of the two nodes in the relation
     """
-    relations_list=[]
+    relations_list = []
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         if node == entity:
             continue
-        if graph != None:
+        if graph is not None:
             if graph.has_edge(entity, node) or graph.has_edge(node, entity):
                 continue
         namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
@@ -125,7 +127,8 @@ def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping)
 
 def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mapping):
     """
-    specific for finding all relations of the entity with phenotype entities only
+    Find all relations of the entity with phenotype entities only.
+
     :param entity: the entity we want to find predictions with
     :param entity_vector: the vector of the entity
     :param embeddings: the embeddings created from the graph
@@ -134,12 +137,12 @@ def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mappi
     :return node_list: a list of the nodes with relations,
     relations_list: the edge embedding of the two nodes in the relation
     """
-    relations_list=[]
+    relations_list = []
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         if node == entity:
             continue
-        if graph != None:
+        if graph is not None:
             if graph.has_edge(entity, node) or graph.has_edge(node, entity):
                 continue
         namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
@@ -153,8 +156,9 @@ def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mappi
 
 def get_probabilities(*, node_list, relations_list, model, k):
     """
-    finds the probabilities of all the relations in the list from the log model,
-    sorts the found probabilities by highest to lowest, then return the k highest probabilities
+    Find the probabilities of all the relations in the list from the log model,
+    sorts the found probabilities by highest to lowest, then return the k highest probabilities.
+
     :param node_list: the list of the nodes with relations to the entity
     :param relations_list: the list of edge embedding of the two nodes
     :param model: the logistic regression model
@@ -162,9 +166,8 @@ def get_probabilities(*, node_list, relations_list, model, k):
     :return sorted_list[:k]: the k first probabilities in the list, type= list of tuples
     """
     all_prob = {}
-    prob_list = model.predict_proba(relations_list)[:,1]
+    prob_list = model.predict_proba(relations_list)[:, 1]
     for i in range(len(node_list)):
         all_prob[node_list[i]] = prob_list[i]
     sorted_list = sorted(all_prob.items(), key=lambda kv: kv[1], reverse=True)
     return sorted_list[:k]
-
