@@ -22,7 +22,7 @@ def parse_args():
                         help='The embedding learning method')
     parser.add_argument('--trials', default=50, type=int,
                         help='the number of trials done to optimize hyperparameters')
-    parser.add_argument('--dimensions', default=(100, 300), type=tuple,
+    parser.add_argument('--dimensions', nargs='+', default=[100, 300], type=int,
                         help='the range of dimensions to be optimized')
     args = parser.parse_args()
 
