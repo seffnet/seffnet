@@ -1,5 +1,12 @@
 # -*- coding: utf-8 -*-
 
+"""
+Chemical similarities calculations
+
+This file contains functions that calculate similarities between chemicals and produce a chemical similarity BELGraph
+Note: to run these the similarity function you need to have rdkit package
+"""
+
 import itertools as itt
 import urllib
 import urllib.request
@@ -10,15 +17,10 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
-"""
-This script contains functions that calculate similarities between chemicals and produce a chemical similarity BELGraph 
-Note: to run these the similarity function you need to have rdkit package
-"""
-
 
 def getresult(url):
     """
-    connect with API to get results
+    Connect with API to get results.
     :param url: the API url
     :return: connection
     """
@@ -30,33 +32,35 @@ def getresult(url):
         return connection.read().rstrip()
 
 
-def CidToSmiles(cid):
+def cid_to_smiles(cid):
     """
-    Gets the SMILES for chemicals in PubChem database
+    Get the SMILES for chemicals in PubChem database.
     :param cid: pubchem ID
     :return: SMILES
     """
-    return getresult("http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/canonicalSMILES/TXT" % cid)
+    url = "http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/canonicalSMILES/TXT" % cid
+    return getresult(url)
 
 
-def SmilesToCid(smiles):
+def smiles_to_cid(smiles):
     """
-    gets the chemical pubchem ID from the SMILES
+    Get the chemical pubchem ID from the SMILES.
     :param smiles: the SMILES code of a chemical
     :return: the pubchem ID
     """
-    return getresult("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/cids/TXT" % smiles)
+    url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/cids/TXT" % smiles
+    return getresult(url)
 
 
 def get_similarity(chemicals_list):
     """
-    gets the similarities between all pair combinations of chemicals in the list
+    Get the similarities between all pair combinations of chemicals in the list.
     :param chemicals_list: a list of chemicals as pubchem ID
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
     smiles_dict = {}
     for chemical in tqdm(chemicals_list, desc='Getting SMILES'):
-        smiles = CidToSmiles(chemical)
+        smiles = cid_to_smiles(chemical)
         if type(smiles) != str:
             smiles = smiles.decode("utf-8")
         smiles_dict[chemical] = smiles
@@ -70,18 +74,25 @@ def get_similarity(chemicals_list):
 
 
 def get_fingerprints(chemicals_dict):
-    """ creates a dictionary containing the fingerprints for every chemical
+    """
+    Creates a dictionary containing the fingerprints for every chemical.
     :param chemicals_dict: a dictionary with pubchemID as keys and smiles as values
     :return: a dictionary with pubchemID as key and the MACCSkeys fingerprints
     """
     ms = {}
     for pubchem, smiles in tqdm(chemicals_dict.items(), desc='Getting fingerprints'):
-        ms[pubchem] = MACCSkeys.GenMACCSKeys(Chem.MolFromSmiles(smiles))
+        if smiles is None:
+            continue
+        mol_from_smile = Chem.MolFromSmiles(smiles)
+        if mol_from_smile in None:
+            continue
+        ms[pubchem] = MACCSkeys.GenMACCSKeys(mol_from_smile)
     return ms
 
 
 def create_similarity_graph(chemicals_list, name='', version='1.1.0', authors='', contact='', description=''):
-    """ Creates a BELGraph with chemicals as nodes, and similarity as edges
+    """
+    Create a BELGraph with chemicals as nodes, and similarity as edges
     :param chemicals_list: a list of chemicals as pubchem ID
     :return: BELGraph"""
     chem_sim = get_similarity(chemicals_list)
