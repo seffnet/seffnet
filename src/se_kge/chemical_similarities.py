@@ -70,6 +70,10 @@ def get_similarity(chemicals_list):
 
 
 def get_fingerprints(chemicals_dict):
+    """ creates a dictionary containing the fingerprints for every chemical
+    :param chemicals_dict: a dictionary with pubchemID as keys and smiles as values
+    :return: a dictionary with pubchemID as key and the MACCSkeys fingerprints
+    """
     ms = {}
     for pubchem, smiles in tqdm(chemicals_dict.items(), desc='Getting fingerprints'):
         ms[pubchem] = MACCSkeys.GenMACCSKeys(Chem.MolFromSmiles(smiles))
