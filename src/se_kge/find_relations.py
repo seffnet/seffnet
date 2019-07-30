@@ -67,7 +67,9 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
                     continue
             relation = entity_vector * np.array(vector)
             relations_list.append(relation.tolist())
-            node_list.append(node)
+            node_name = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0]
+            node_namespace = node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeNamespace"].iloc[0]
+            node_list.append(node_namespace+':'+node_name)
     prediction_list = get_probabilities(node_list=node_list, relations_list=relations_list, model=saved_model, k=k)
     print("The %d highest %s predictions for %s" % (k, entity_type, entity))
     return prediction_list
@@ -98,7 +100,7 @@ def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mappin
             continue
         relation = entity_vector * np.array(vector)
         relations_list.append(relation.tolist())
-        node_list.append(node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
+        node_list.append('pubchem:'+node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
     return node_list, relations_list
 
 
@@ -127,7 +129,7 @@ def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping)
             continue
         relation = entity_vector * np.array(vector)
         relations_list.append(relation.tolist())
-        node_list.append(node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
+        node_list.append('uniprot:'+node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
     return node_list, relations_list
 
 
@@ -156,7 +158,7 @@ def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mappi
             continue
         relation = entity_vector * np.array(vector)
         relations_list.append(relation.tolist())
-        node_list.append(node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
+        node_list.append('umls:'+node_mapping.loc[node_mapping["NodeID"] == int(node), "NodeName"].iloc[0])
     return node_list, relations_list
 
 
