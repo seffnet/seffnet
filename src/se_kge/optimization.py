@@ -2,7 +2,7 @@
 
 import datetime
 from getpass import getuser
-from typing import Union
+from typing import Optional, Union
 
 import optuna
 from bionev import embed_train, pipeline
@@ -14,9 +14,14 @@ from optuna.storages import BaseStorage
 def run_study(
         objective,
         n_trials: int,
+        *,
         storage: Union[None, str, BaseStorage] = None,
+        study_name: Optional[str] = None,
 ) -> Study:
-    study = optuna.create_study(storage=storage)
+    study = optuna.create_study(
+        study_name=study_name,
+        storage=storage,
+    )
     study.set_user_attr('Author', getuser())
     study.set_user_attr('Date', datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
     study.optimize(objective, n_trials=n_trials)
@@ -54,6 +59,7 @@ def hope_optimization(
         seed,
         dimensions_range,
         storage=None,
+        study_name: Optional[str] = None,
 ):
     def objective(trial):
         trial.set_user_attr('method', 'hope')
@@ -66,7 +72,7 @@ def hope_optimization(
         )
         return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
 
-    return run_study(objective, trial_number, storage)
+    return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
 
 def deepwalk_optimization(
@@ -79,6 +85,7 @@ def deepwalk_optimization(
         seed,
         dimensions_range,
         storage=None,
+        study_name: Optional[str] = None,
 ):
     def objective(trial):
         trial.set_user_attr('method', 'deepwalk')
@@ -97,7 +104,7 @@ def deepwalk_optimization(
         )
         return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
 
-    return run_study(objective, trial_number, storage)
+    return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
 
 def node2vec_optimization(
@@ -110,6 +117,7 @@ def node2vec_optimization(
         seed,
         dimensions_range,
         storage=None,
+        study_name: Optional[str] = None,
 ):
     def objective(trial):
         trial.set_user_attr('method', 'node2vec')
@@ -131,7 +139,7 @@ def node2vec_optimization(
             q=q)
         return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
 
-    return run_study(objective, trial_number, storage)
+    return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
 
 def sdne_optimization(
@@ -143,6 +151,7 @@ def sdne_optimization(
         trial_number,
         seed,
         storage=None,
+        study_name: Optional[str] = None,
 ):
     def objective(trial):
         trial.set_user_attr('method', 'sdne')
@@ -159,7 +168,7 @@ def sdne_optimization(
         )
         return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
 
-    return run_study(objective, trial_number, storage)
+    return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
 
 def grarep_optimization(
@@ -172,6 +181,7 @@ def grarep_optimization(
         seed,
         dimensions_range,
         storage=None,
+        study_name: Optional[str] = None,
 ):
     def objective(trial):
         trial.set_user_attr('method', 'grarep')
@@ -186,7 +196,7 @@ def grarep_optimization(
         )
         return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
 
-    return run_study(objective, trial_number, storage)
+    return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
 
 def line_optimization(
@@ -199,6 +209,7 @@ def line_optimization(
         seed,
         dimensions_range,
         storage=None,
+        study_name: Optional[str] = None,
 ):
     def objective(trial):
         trial.set_user_attr('method', 'line')
@@ -215,4 +226,4 @@ def line_optimization(
         )
         return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
 
-    return run_study(objective, trial_number, storage)
+    return run_study(objective, trial_number, storage=storage, study_name=study_name)

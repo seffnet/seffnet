@@ -28,7 +28,8 @@ def main():
 @click.option('--dimensions-high', type=int, help='the range of dimensions to be optimized')
 @click.option('--seed', type=int, default=random.randint(1, 10000000))
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
-def optimize(input_path, training, testing, method, trials, dimensions_low, dimensions_high, seed, storage):
+@click.option('--name', help="Name for the study")
+def optimize(input_path, training, testing, method, trials, dimensions_low, dimensions_high, seed, storage, name):
     """Run the optimization pipeline for a given method and graph."""
     if training and testing is not None:
         graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
@@ -51,6 +52,7 @@ def optimize(input_path, training, testing, method, trials, dimensions_low, dime
             seed=seed,
             dimensions_range=(dimensions_low, dimensions_high),
             storage=storage,
+            study_name=name,
         )
 
     elif method == 'DeepWalk':
@@ -63,6 +65,7 @@ def optimize(input_path, training, testing, method, trials, dimensions_low, dime
             seed=seed,
             dimensions_range=(dimensions_low, dimensions_high),
             storage=storage,
+            study_name=name,
         )
 
     elif method == 'node2vec':
@@ -75,6 +78,7 @@ def optimize(input_path, training, testing, method, trials, dimensions_low, dime
             seed=seed,
             dimensions_range=(dimensions_low, dimensions_high),
             storage=storage,
+            study_name=name,
         )
 
     elif method == 'GraRep':
@@ -87,6 +91,7 @@ def optimize(input_path, training, testing, method, trials, dimensions_low, dime
             seed=seed,
             dimensions_range=(dimensions_low, dimensions_high),
             storage=storage,
+            study_name=name,
         )
 
     elif method == 'SDNE':
@@ -98,6 +103,7 @@ def optimize(input_path, training, testing, method, trials, dimensions_low, dime
             trial_number=trials,
             seed=seed,
             storage=storage,
+            study_name=name,
         )
 
     elif method == 'LINE':
@@ -110,6 +116,7 @@ def optimize(input_path, training, testing, method, trials, dimensions_low, dime
             seed=seed,
             dimensions_range=(dimensions_low, dimensions_high),
             storage=storage,
+            study_name=name,
         )
 
     else:
