@@ -175,9 +175,12 @@ def get_probabilities(*, node_list, relations_list, model, k):
     :param k: the number of relations to be output
     :return sorted_list[:k]: the k first probabilities in the list, type= list of tuples
     """
-    all_prob = {}
+    all_prob = []
+    output_dict={}
     prob_list = model.predict_proba(relations_list)[:, 1]
     for i in range(len(node_list)):
-        all_prob[node_list[i]] = prob_list[i]
-    sorted_list = sorted(all_prob.items(), key=lambda kv: kv[1], reverse=True)
-    return sorted_list[:k]
+        all_prob.append((node_list[i],prob_list[i]))
+    sorted_list = sorted(all_prob, key=lambda kv: kv[1], reverse=True)
+    for tup in sorted_list[:k]:
+        output_dict[tup[0]] = tup[1]
+    return output_dict
