@@ -16,6 +16,7 @@ from tqdm import tqdm
 
 from se_kge.get_pubchem_compounds import cid_to_smiles
 
+
 def get_similarity(chemicals_list):
     """
     Get the similarities between all pair combinations of chemicals in the list.
