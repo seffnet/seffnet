@@ -21,8 +21,8 @@ def get_drugbank_graph():
     drugbank_manager = bio2bel_drugbank.Manager()
     if drugbank_manager.is_populated() == False:
         drugbank_manager.populate()
-    drugbank_manager.enrich_targets()
     drugbank_graph = drugbank_manager.to_bel()
+    drugbank_manager.enrich_targets(drugbank_graph)
     return drugbank_graph
 
 def combine_pubchem_drugbank(pubchem_drugbank_mapping_file, drugbank_graph, sider_graph):
