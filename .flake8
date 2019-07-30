@@ -21,6 +21,8 @@ ignore =
     S311
     # Complains about pickles
     S301, S403
+    # Complains about URLs
+    S310
 exclude =
     .tox,
     .git,
