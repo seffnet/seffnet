@@ -8,50 +8,13 @@ Note: to run these the similarity function you need to have rdkit package
 """
 
 import itertools as itt
-import urllib
-import urllib.request
-from urllib.error import HTTPError
 
 import pybel
 from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
-
-def get_result(url):
-    """
-    Get response from API.
-
-    :param url: API url
-    :return: reponse body
-    """
-    if url.lower().startswith('http'):
-        req = urllib.request.Request(url)
-        with urllib.request.urlopen(req) as response:
-            return response.read().rstrip
-    else:
-        raise ValueError from None
-
-
-def cid_to_smiles(cid):
-    """
-    Get the SMILES for chemicals in PubChem database.
-
-    :param cid: pubchem ID
-    :return: SMILES
-    """
-    return get_result("http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/canonicalSMILES/TXT" % cid)
-
-
-def smiles_to_cid(smiles):
-    """
-    Get the chemical pubchem ID from the SMILES.
-
-    :param smiles: the SMILES code of a chemical
-    :return: the pubchem ID
-    """
-    return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/cids/TXT" % smiles)
-
+from se_kge.get_pubchem_compounds import cid_to_smiles
 
 def get_similarity(chemicals_list):
     """
@@ -65,6 +28,8 @@ def get_similarity(chemicals_list):
         smiles = cid_to_smiles(chemical)
         if type(smiles) != str:
             smiles = smiles.decode("utf-8")
+        if smiles is None:
+            continue
         smiles_dict[chemical] = smiles
     fps = get_fingerprints(smiles_dict)
     chem_sim = {
@@ -84,10 +49,8 @@ def get_fingerprints(chemicals_dict):
     """
     ms = {}
     for pubchem, smiles in tqdm(chemicals_dict.items(), desc='Getting fingerprints'):
-        if smiles is None:
-            continue
         mol_from_smile = Chem.MolFromSmiles(smiles)
-        if mol_from_smile in None:
+        if mol_from_smile is None:
             continue
         ms[pubchem] = MACCSkeys.GenMACCSKeys(mol_from_smile)
     return ms
@@ -105,6 +68,6 @@ def create_similarity_graph(chemicals_list, name='', version='1.1.0', authors=''
     for (pubchem_1, pubchem_2), sim in tqdm(chem_sim.items(), desc='Creating BELGraph'):
         if sim < 0.5:
             continue
-        chem_sim_graph.add_unqualified_edge(pybel.dsl.Abundance(namespace='pubchem', name=pubchem_1),
-                                            pybel.dsl.Abundance(namespace='pubchem', name=pubchem_2), 'association')
+        chem_sim_graph.add_unqualified_edge(pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_1),
+                                            pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_2), 'association')
     return chem_sim_graph
