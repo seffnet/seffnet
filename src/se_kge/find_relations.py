@@ -14,14 +14,15 @@ import numpy as np
 from tqdm import tqdm
 
 
-def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=None, entity_type=None, k=30):
+def find_new_relations(*, entity_name=None, entity_identifier=None, saved_model, node_mapping, embeddings, graph=None, entity_type=None, k=30):
     """
     Find new relations to specific entity.
 
     Get all the relations of specific entity_type (if chosen) or all types (if None).
     Finds their probabilities from the saved_model, and return the top k predictions.
 
-    :param entity: the entity we want to find predictions with
+    :param entity_name: the entity we want to find predictions with
+    :param entity_identifier: the identifier of the entity we want to find predictions with
     :param saved_model: the log regression model created from the graph
     :param node_mapping: a dataframe containing the original names of the nodes mapped to their IDs on the graph
     :param embeddings: the embeddings created from the graph
@@ -30,12 +31,24 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
     :param k: the amount of relations we want to find for the entity
     :return: a list of tuples containing the predicted entities and their probabilities
     """
-    node_id = node_mapping.loc[node_mapping["identifier"] == entity, "node_id"].iloc[0]
-    entity_vector = embeddings[str(node_id)]
+    if entity_name is not None:
+        entity_id = node_mapping.loc[node_mapping["name"] == entity_name, "node_id"].iloc[0]
+    elif entity_identifier is not None:
+        entity_id = node_mapping.loc[node_mapping["identifier"] == entity_identifier, "node_id"].iloc[0]
+    else:
+        return 'No input entity for prediction'
+    entity_info = {
+        'node_id': int(entity_id),
+        'namespace': node_mapping.loc[node_mapping["node_id"] == int(entity_id), "namespace"].iloc[0],
+        'identifier': node_mapping.loc[node_mapping["node_id"] == int(entity_id), "identifier"].iloc[0],
+        'name': node_mapping.loc[node_mapping["node_id"] == int(entity_id), "name"].iloc[0]
+    }
+
+    entity_vector = embeddings[str(entity_id)]
     if entity_type == 'chemical':
         node_list, relations_list = find_chemicals(
             entity_vector=entity_vector,
-            entity=entity,
+            entity_id=entity_id,
             embeddings=embeddings,
             node_mapping=node_mapping,
             graph=graph
@@ -43,7 +56,7 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
     elif entity_type == 'phenotype':
         node_list, relations_list = find_phenotypes(
             entity_vector=entity_vector,
-            entity=entity,
+            entity_id=entity_id,
             embeddings=embeddings,
             node_mapping=node_mapping,
             graph=graph
@@ -51,7 +64,7 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
     elif entity_type == 'target':
         node_list, relations_list = find_targets(
             entity_vector=entity_vector,
-            entity=entity,
+            entity_id=entity_id,
             embeddings=embeddings,
             node_mapping=node_mapping,
             graph=graph
@@ -59,30 +72,31 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
     else:
         relations_list = []
         node_list = []
-        for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-            node_info = {}
-            if node == entity:
+        for node_2, vector in tqdm(embeddings.items(), desc="creating relations list"):
+            if node_2 == entity_id:
                 continue
             if graph is not None:
-                if graph.has_edge(entity, node) or graph.has_edge(node, entity):
+                if graph.has_edge(entity_id, node_2) or graph.has_edge(node_2, entity_id):
                     continue
             relation = entity_vector * np.array(vector)
             relations_list.append(relation.tolist())
-            node_info['node_id'] = int(node)
-            node_info['namespace'] = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
-            node_info['identifier'] = node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0]
-            node_info['name'] = node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+            node_info = {
+                'node_id': int(node_2),
+                'namespace': node_mapping.loc[node_mapping["node_id"] == int(node_2), "namespace"].iloc[0],
+                'identifier': node_mapping.loc[node_mapping["node_id"] == int(node_2), "identifier"].iloc[0],
+                'name': node_mapping.loc[node_mapping["node_id"] == int(node_2), "name"].iloc[0]
+            }
             node_list.append(node_info)
     prediction_list = get_probabilities(node_list=node_list, relations_list=relations_list, model=saved_model, k=k)
-    print("The %d highest %s predictions for %s" % (k, entity_type, entity))
+    print("The %d highest %s predictions for %s" % (k, entity_type, entity_info))
     return prediction_list
 
 
-def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mapping):
+def find_chemicals(*, entity_id, entity_vector, embeddings, graph=None, node_mapping):
     """
     Find all relations of the entity with chemical entities only.
 
-    :param entity: the entity we want to find predictions with
+    :param entity_id: the entity we want to find predictions with
     :param entity_vector: the vector of the entity
     :param embeddings: the embeddings created from the graph
     :param graph: the graph that was used to train the model
@@ -94,10 +108,10 @@ def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mappin
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         node_info = {}
-        if node == entity:
+        if node == entity_id:
             continue
         if graph is not None:
-            if graph.has_edge(entity, node) or graph.has_edge(node, entity):
+            if graph.has_edge(entity_id, node) or graph.has_edge(node, entity_id):
                 continue
         namespace = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
         if namespace != 'pubchem':
@@ -112,11 +126,11 @@ def find_chemicals(*, entity, entity_vector, embeddings, graph=None, node_mappin
     return node_list, relations_list
 
 
-def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping):
+def find_targets(*, entity_vector, entity_id, embeddings, graph=None, node_mapping):
     """
     Find all relations of the entity with protein entities only.
 
-    :param entity: the entity we want to find predictions with
+    :param entity_id: the entity we want to find predictions with
     :param entity_vector: the vector of the entity
     :param embeddings: the embeddings created from the graph
     :param graph: the graph that was used to train the model
@@ -128,10 +142,10 @@ def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping)
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         node_info = {}
-        if node == entity:
+        if node == entity_id:
             continue
         if graph is not None:
-            if graph.has_edge(entity, node) or graph.has_edge(node, entity):
+            if graph.has_edge(entity_id, node) or graph.has_edge(node, entity_id):
                 continue
         namespace = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
         if namespace != 'uniprot':
@@ -146,11 +160,11 @@ def find_targets(*, entity_vector, entity, embeddings, graph=None, node_mapping)
     return node_list, relations_list
 
 
-def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mapping):
+def find_phenotypes(*, entity_vector, entity_id, embeddings, graph=None, node_mapping):
     """
     Find all relations of the entity with phenotype entities only.
 
-    :param entity: the entity we want to find predictions with
+    :param entity_id: the entity we want to find predictions with
     :param entity_vector: the vector of the entity
     :param embeddings: the embeddings created from the graph
     :param graph: the graph that was used to train the model
@@ -162,10 +176,10 @@ def find_phenotypes(*, entity_vector, entity, embeddings, graph=None, node_mappi
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
         node_info = {}
-        if node == entity:
+        if node == entity_id:
             continue
         if graph is not None:
-            if graph.has_edge(entity, node) or graph.has_edge(node, entity):
+            if graph.has_edge(entity_id, node) or graph.has_edge(node, entity_id):
                 continue
         namespace = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
         if namespace != 'umls':

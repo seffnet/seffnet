@@ -39,7 +39,7 @@ def home():
 
 
 @api.route('/find/<entity>')
-def find(entity):
+def find(entity_identifier):
     """Find new entities.
 
     ---
@@ -64,7 +64,7 @@ def find(entity):
     k = request.args.get('k', 30, type=int)
 
     res = find_new_relations(
-        entity=entity,
+        entity_identifier=entity_identifier,
         embeddings=current_app.config['embeddings'],
         node_mapping=current_app.config['node_mapping'],
         saved_model=current_app.config['model'],
