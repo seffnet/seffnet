@@ -54,21 +54,30 @@ def cid_to_synonyms(cid):
 
 
 def get_gene_names(uniprot_list):
+    """
+    Get gene names from uniport ID.
+    :param uniprot_list: a list of uniprot IDs
+    :return: a dictionary with the uniprotID as key and gene name as value
+    """
     url = 'https://www.uniprot.org/uploadlists/'
     uniprot_ids = ''
     for prot in uniprot_list:
         uniprot_ids += prot + ' '
 
     params = {
-        'from': 'ACC + ID',
-        'to': 'ENSEMBL_ID',
+        'from': 'ACC+ID',
+        'to': 'GENENAME',
         'format': 'tab',
         'query': uniprot_ids
     }
-
     data = urllib.parse.urlencode(params)
-    data = data.encode('utf - 8')
+    data = data.encode('utf-8')
     req = urllib.request.Request(url, data)
     with urllib.request.urlopen(req) as f:
-        response = f.read()
-    print(response.decode('utf - 8'))
+        response = f.read().decode('utf-8')
+    results = response.split('\n')
+    dict_proteins = {}
+    for string in results[1:-1]:
+        pair = string.split('\t')
+        dict_proteins[pair[0]] = pair[1]
+    return dict_proteins
