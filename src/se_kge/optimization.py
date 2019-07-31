@@ -21,6 +21,7 @@ def run_study(
     study = optuna.create_study(
         study_name=study_name,
         storage=storage,
+        load_if_exists=True
     )
     study.set_user_attr('Author', getuser())
     study.set_user_attr('Date', datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
