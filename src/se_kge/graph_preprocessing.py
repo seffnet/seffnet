@@ -41,5 +41,6 @@ def combine_pubchem_drugbank(pubchem_drugbank_mapping_file, drugbank_graph, side
     for node in tqdm(rm_nodes, desc='Removing nodes that were not relabeled'):
         drugbank_relabel.remove_node(node)
     full_graph = sider_graph + drugbank_relabel
+    full_graph.remove_nodes_from(list(nx.isolates(full_graph)))
     print('The number of nodes in the combined graph is %d' % len(full_graph.nodes()))
     return full_graph
