@@ -30,7 +30,7 @@ def find_new_relations(*, entity, saved_model, node_mapping, embeddings, graph=N
     :param k: the amount of relations we want to find for the entity
     :return: a list of tuples containing the predicted entities and their probabilities
     """
-    node_id = node_mapping.loc[node_mapping["NodeName"] == entity, "NodeID"].iloc[0]
+    node_id = node_mapping.loc[node_mapping["identifier"] == entity, "node_id"].iloc[0]
     entity_vector = embeddings[str(node_id)]
     if entity_type == 'chemical':
         node_list, relations_list = find_chemicals(
@@ -199,6 +199,9 @@ def get_probabilities(*, node_list, relations_list, model, k):
     for i in range(len(node_list)):
         all_prob.append((node_list[i], prob_list[i]))
     sorted_list = sorted(all_prob, key=lambda kv: kv[1], reverse=True)
+    i = 1
     for tup in sorted_list[:k]:
-        output_dict[tup[0]] = tup[1]
+        tup[0]['probability'] = tup[1]
+        output_dict[i] = tup[0]
+        i += 1
     return output_dict
