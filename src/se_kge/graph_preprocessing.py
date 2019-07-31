@@ -31,7 +31,7 @@ def combine_pubchem_drugbank(pubchem_drugbank_mapping_file, drugbank_graph, side
         index_col=False, dtype={'PubchemID': str, 'Smiles': str, 'DrugbankID': str})
     drugbank_to_pubchem = {}
     for ind, row in tqdm(drugbank_pubchem_mapping.iterrows(), desc='create pubchem-drugbank mapping dictionary'):
-        drugbank_to_pubchem[pybel.dsl.Abundance(namespace='drugbank', name=row['DrugbankID'])] = pybel.dsl.Abundance(namespace='pubchem', identifier=row['PubchemID'])
+        drugbank_to_pubchem[pybel.dsl.Abundance(namespace='drugbank', name=row['DrugbankName'])] = pybel.dsl.Abundance(namespace='pubchem', identifier=row['PubchemID'])
     drugbank_relabel = nx.relabel_nodes(drugbank_graph, drugbank_to_pubchem)
     rm_nodes = []
     for node in drugbank_relabel.nodes():

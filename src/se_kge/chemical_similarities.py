@@ -14,7 +14,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
-from se_kge.get_pubchem_compounds import cid_to_smiles
+from se_kge.get_url_requests import cid_to_smiles
 
 
 def get_similarity(chemicals_list):

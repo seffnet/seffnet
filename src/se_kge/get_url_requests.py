@@ -1,10 +1,10 @@
-
 """
-Handle pubchem requests.
+Handle databases url requests.
 """
 
 import urllib
 import urllib.request
+import urllib.parse
 from urllib.error import HTTPError
 
 
@@ -52,3 +52,23 @@ def cid_to_synonyms(cid):
 
     return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/IUPACName/TXT" % cid)
 
+
+def get_gene_names(uniprot_list):
+    url = 'https://www.uniprot.org/uploadlists/'
+    uniprot_ids = ''
+    for prot in uniprot_list:
+        uniprot_ids += prot + ' '
+
+    params = {
+        'from': 'ACC + ID',
+        'to': 'ENSEMBL_ID',
+        'format': 'tab',
+        'query': uniprot_ids
+    }
+
+    data = urllib.parse.urlencode(params)
+    data = data.encode('utf - 8')
+    req = urllib.request.Request(url, data)
+    with urllib.request.urlopen(req) as f:
+        response = f.read()
+    print(response.decode('utf - 8'))
