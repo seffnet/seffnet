@@ -1,5 +1,9 @@
 # -*- coding: utf-8 -*-
 
+"""
+Hyperparameters optimization for NRL models.
+"""
+
 import datetime
 from getpass import getuser
 from typing import Optional, Union
@@ -18,6 +22,15 @@ def run_study(
         storage: Union[None, str, BaseStorage] = None,
         study_name: Optional[str] = None,
 ) -> Study:
+    """
+    Run study for models.
+
+    :param objective: the function for running the trial
+    :param n_trials: the number of trials to run
+    :param storage: the database that stores the studies and trials
+    :param study_name: the name of the study
+    :return: returns the study
+    """
     study = optuna.create_study(
         study_name=study_name,
         storage=storage,
@@ -30,6 +43,17 @@ def run_study(
 
 
 def predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial):
+    """
+    Predict and evaluate the NRL model.
+
+    :param model: NRL model
+    :param graph: the complete graph
+    :param graph_train: the graph to train the model
+    :param testing_pos_edges: the edges used for testing
+    :param seed: random seed
+    :param trial: the trial used for the model
+    :return: the value needed for minimization
+    """
     if isinstance(model, LINE):
         embeddings = model.get_embeddings_train()
     else:
@@ -62,6 +86,20 @@ def hope_optimization(
         storage=None,
         study_name: Optional[str] = None,
 ):
+    """
+    Optimize HOPE method.
+
+    :param graph: the complete input graph
+    :param graph_train: the training graph
+    :param testing_pos_edges:  the testing edges
+    :param train_graph_filename: the path for training graph
+    :param trial_number: the number of trials
+    :param seed: the seed
+    :param dimensions_range: the range for dimension parameter
+    :param storage: the database that stores the studies and trials
+    :param study_name: the name of the study
+    :return: the study
+    """
     def objective(trial):
         trial.set_user_attr('method', 'hope')
         trial.set_user_attr('seed', seed)
@@ -88,6 +126,20 @@ def deepwalk_optimization(
         storage=None,
         study_name: Optional[str] = None,
 ):
+    """
+       Optimize DeepWalk method.
+
+       :param graph: the complete input graph
+       :param graph_train: the training graph
+       :param testing_pos_edges:  the testing edges
+       :param train_graph_filename: the path for training graph
+       :param trial_number: the number of trials
+       :param seed: the seed
+       :param dimensions_range: the range for dimension parameter
+       :param storage: the database that stores the studies and trials
+       :param study_name: the name of the study
+       :return: the study
+       """
     def objective(trial):
         trial.set_user_attr('method', 'deepwalk')
         trial.set_user_attr('seed', seed)
@@ -120,6 +172,20 @@ def node2vec_optimization(
         storage=None,
         study_name: Optional[str] = None,
 ):
+    """
+       Optimize node2vec method.
+
+       :param graph: the complete input graph
+       :param graph_train: the training graph
+       :param testing_pos_edges:  the testing edges
+       :param train_graph_filename: the path for training graph
+       :param trial_number: the number of trials
+       :param seed: the seed
+       :param dimensions_range: the range for dimension parameter
+       :param storage: the database that stores the studies and trials
+       :param study_name: the name of the study
+       :return: the study
+       """
     def objective(trial):
         trial.set_user_attr('method', 'node2vec')
         trial.set_user_attr('seed', seed)
@@ -154,6 +220,20 @@ def sdne_optimization(
         storage=None,
         study_name: Optional[str] = None,
 ):
+    """
+       Optimize SDNE method.
+
+       :param graph: the complete input graph
+       :param graph_train: the training graph
+       :param testing_pos_edges:  the testing edges
+       :param train_graph_filename: the path for training graph
+       :param trial_number: the number of trials
+       :param seed: the seed
+       :param dimensions_range: the range for dimension parameter
+       :param storage: the database that stores the studies and trials
+       :param study_name: the name of the study
+       :return: the study
+       """
     def objective(trial):
         trial.set_user_attr('method', 'sdne')
         trial.set_user_attr('seed', seed)
@@ -184,6 +264,20 @@ def grarep_optimization(
         storage=None,
         study_name: Optional[str] = None,
 ):
+    """
+       Optimize GraRep method.
+
+       :param graph: the complete input graph
+       :param graph_train: the training graph
+       :param testing_pos_edges:  the testing edges
+       :param train_graph_filename: the path for training graph
+       :param trial_number: the number of trials
+       :param seed: the seed
+       :param dimensions_range: the range for dimension parameter
+       :param storage: the database that stores the studies and trials
+       :param study_name: the name of the study
+       :return: the study
+       """
     def objective(trial):
         trial.set_user_attr('method', 'grarep')
         trial.set_user_attr('seed', seed)
@@ -212,6 +306,20 @@ def line_optimization(
         storage=None,
         study_name: Optional[str] = None,
 ):
+    """
+       Optimize LINE method.
+
+       :param graph: the complete input graph
+       :param graph_train: the training graph
+       :param testing_pos_edges:  the testing edges
+       :param train_graph_filename: the path for training graph
+       :param trial_number: the number of trials
+       :param seed: the seed
+       :param dimensions_range: the range for dimension parameter
+       :param storage: the database that stores the studies and trials
+       :param study_name: the name of the study
+       :return: the study
+       """
     def objective(trial):
         trial.set_user_attr('method', 'line')
         trial.set_user_attr('seed', seed)
