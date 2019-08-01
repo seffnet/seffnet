@@ -93,8 +93,8 @@ def deepwalk_optimization(
         trial.set_user_attr('seed', seed)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
-        walk_length = trial.suggest_int('walk_length', 16, 128)
-        number_walks = trial.suggest_int('number_walks', 16, 128)
+        walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
+        number_walks = trial.suggest_categorical('number_walks', [8, 16, 32, 64, 128, 256])
         window_size = trial.suggest_int('window_size', 1, 10)
         model = embed_train.train_embed_deepwalk(
             train_graph_filename=train_graph_filename,
@@ -125,8 +125,8 @@ def node2vec_optimization(
         trial.set_user_attr('seed', seed)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
-        walk_length = trial.suggest_int('walk_length', 16, 128)
-        number_walks = trial.suggest_int('number_walks', 16, 128)
+        walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
+        number_walks = trial.suggest_categorical('number_walks', [8, 16, 32, 64, 128, 256])
         window_size = trial.suggest_int('window_size', 1, 10)
         p = trial.suggest_uniform('p', 0, 4.0)
         q = trial.suggest_uniform('q', 0, 4.0)
@@ -160,7 +160,7 @@ def sdne_optimization(
 
         alpha = trial.suggest_uniform('alpha', 0, 0.4)
         beta = trial.suggest_int('beta', 0, 30)
-        epochs = trial.suggest_int('epochs', 5, 30)
+        epochs = trial.suggest_categorical('epochs', [5, 10, 15, 20, 25, 30])
         model = embed_train.train_embed_sdne(
             train_graph_filename=train_graph_filename,
             alpha=alpha,
@@ -217,8 +217,8 @@ def line_optimization(
         trial.set_user_attr('seed', seed)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
-        order = trial.suggest_int('order', 1, 3)
-        epochs = trial.suggest_int('epochs', 5, 30)
+        order = trial.suggest_categorical('order', [1, 2, 3])
+        epochs = trial.suggest_categorical('epochs', [5, 10, 15, 20, 25, 30])
         model = embed_train.train_embed_line(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
