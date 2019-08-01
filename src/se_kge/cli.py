@@ -148,9 +148,14 @@ def train():
 
 
 @main.command()
-def web():
+@click.option('--host')
+@click.option('--port', type=int)
+def web(host, port):
     """Run the se_kge RESTful API."""
-    # TODO
+    from .web import get_app, api
+    _app = get_app()
+    _app.register_blueprint(api)
+    _app.run(host=host, port=port)
 
 
 if __name__ == "__main__":

@@ -4,6 +4,7 @@
 
 import logging
 import os
+from functools import lru_cache
 
 import networkx as nx
 import pandas as pd
@@ -38,6 +39,20 @@ def home():
     """
 
 
+@lru_cache(maxsize=1000)
+def _find_relations_helper(entity_identifier, entity_type, k):
+    """Return memoized results for finding new relations."""
+    return find_new_relations(
+        entity_identifier=entity_identifier,
+        embeddings=current_app.config['embeddings'],
+        node_mapping=current_app.config['node_mapping'],
+        saved_model=current_app.config['model'],
+        graph=current_app.config['graph'],
+        entity_type=entity_type,
+        k=k,
+    )
+
+
 @api.route('/find/<entity_identifier>')
 def find(entity_identifier):
     """Find new entities.
@@ -64,12 +79,8 @@ def find(entity_identifier):
     entity_type = request.args.get('entity_type', 'phenotype')
     k = request.args.get('k', 30, type=int)
 
-    res = find_new_relations(
+    res = _find_relations_helper(
         entity_identifier=entity_identifier,
-        embeddings=current_app.config['embeddings'],
-        node_mapping=current_app.config['node_mapping'],
-        saved_model=current_app.config['model'],
-        graph=current_app.config['graph'],
         entity_type=entity_type,
         k=k,
     )
