@@ -14,7 +14,17 @@ import numpy as np
 from tqdm import tqdm
 
 
-def find_new_relations(*, entity_name=None, entity_identifier=None, saved_model, node_mapping, embeddings, graph=None, entity_type=None, k=30):
+def find_new_relations(
+        *,
+        entity_name=None,
+        entity_identifier=None,
+        saved_model,
+        node_mapping,
+        embeddings,
+        graph=None,
+        entity_type=None,
+        k: int = 30,
+):
     """
     Find new relations to specific entity.
 

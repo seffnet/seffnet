@@ -6,15 +6,8 @@
 
 [flake8]
 ignore =
-    # max line length
-    E501
-    F401
-    # docstring in magic method
-    D105
     # Line break after operator
     W504
-    # Docstring in __init__
-    D107
     # Complaining about assert statements
     S101
     # Complains about random number generators
