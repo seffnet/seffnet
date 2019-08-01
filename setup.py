@@ -1,4 +1,4 @@
-"""Setup module"""
+"""Setup module."""
 
 import setuptools
 

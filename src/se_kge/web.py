@@ -41,7 +41,7 @@ def home():
 @api.route('/find/<entity>')
 def find(entity_identifier):
     """Find new entities.
-
+    
     ---
     parameters:
       - name: entity

@@ -1,12 +1,11 @@
 # -*- coding: utf-8 -*-
 
-""""Pre-processing of Graphs used for NRL models."""
-
-import networkx as nx
-import pandas as pd
+"""Pre-processing of Graphs used for NRL models."""
 
 import bio2bel_drugbank
 import bio2bel_sider
+import networkx as nx
+import pandas as pd
 import pybel
 import pybel.dsl
 from tqdm import tqdm

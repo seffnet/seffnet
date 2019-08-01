@@ -1,10 +1,9 @@
-"""
-Handle databases url requests.
-"""
+
+""" Handle databases url requests."""
 
 import urllib
-import urllib.request
 import urllib.parse
+import urllib.request
 from urllib.error import HTTPError
 
 
@@ -46,16 +45,17 @@ def smiles_to_cid(smiles):
 def cid_to_synonyms(cid):
     """
     Get the synonymes of chemical in PubChem database.
+
     :param cid: pubchem identifier
     :return: IUPAC name of the chemical
     """
-
     return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/IUPACName/TXT" % cid)
 
 
 def get_gene_names(uniprot_list):
     """
     Get gene names from uniport ID.
+
     :param uniprot_list: a list of uniprot IDs
     :return: a dictionary with the uniprotID as key and gene name as value
     """
