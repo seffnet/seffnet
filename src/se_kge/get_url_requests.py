@@ -1,5 +1,6 @@
+# -*- coding: utf-8 -*-
 
-""" Handle databases url requests."""
+"""Handle databases url requests."""
 
 import urllib
 import urllib.parse
@@ -44,7 +45,7 @@ def smiles_to_cid(smiles):
 
 def cid_to_synonyms(cid):
     """
-    Get the synonymes of chemical in PubChem database.
+    Get the synonyms of chemical in PubChem database.
 
     :param cid: pubchem identifier
     :return: IUPAC name of the chemical

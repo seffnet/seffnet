@@ -41,7 +41,7 @@ def home():
 @api.route('/find/<entity>')
 def find(entity_identifier):
     """Find new entities.
-    
+
     ---
     parameters:
       - name: entity
@@ -59,6 +59,7 @@ def find(entity_identifier):
         description: The number of predictions to return
         required: false
         type: integer
+
     """
     entity_type = request.args.get('entity_type', 'phenotype')
     k = request.args.get('k', 30, type=int)
@@ -77,6 +78,7 @@ def find(entity_identifier):
 
 
 def get_app() -> Flask:
+    """Make the SE_KGE web app."""
     # Load embedding
     embedding_filepath = os.path.join(RESOURCES, "240719_node2vec_fullgraph.embeddings")
     logger.info(f'Loading embeddings from {embedding_filepath}')
