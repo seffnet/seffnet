@@ -35,6 +35,7 @@ def get_smiles(chemicals_list):
         smiles_dict[chemical] = smiles
     return smiles_dict
 
+
 def get_similarity(smiles_dict):
     """
     Get the similarities between all pair combinations of chemicals in the list.
@@ -67,7 +68,16 @@ def get_fingerprints(chemicals_dict):
     return ms
 
 
-def create_similarity_graph(chemicals_list, mapping_file=None, similarity=0.5, name='', version='1.1.0', authors='', contact='', description=''):
+def create_similarity_graph(
+        chemicals_list,
+        mapping_file=None,
+        similarity=0.5,
+        name='',
+        version='1.1.0',
+        authors='',
+        contact='',
+        description=''
+):
     """
     Create a BELGraph with chemicals as nodes, and similarity as edges.
 
@@ -79,13 +89,14 @@ def create_similarity_graph(chemicals_list, mapping_file=None, similarity=0.5, n
     if mapping_file is None:
         smiles_dict = get_smiles(chemicals_list)
     else:
-        chemicals_mapping = pd.read_csv(mapping_file, sep=",", dtype={'PubchemID':str, 'Smiles':str}, index_col=False)
+        chemicals_mapping = pd.read_csv(mapping_file, sep=",", dtype={'PubchemID': str, 'Smiles': str}, index_col=False)
         smiles_dict = {}
         for chemical in tqdm(chemicals_list, desc="Getting SMILES"):
             if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical].empty:
                 smiles_dict[chemical] = cid_to_smiles(chemical)
             else:
-                smiles_dict[chemical] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical, "Smiles"].iloc[0]
+                smiles_dict[chemical] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical,
+                                                              "Smiles"].iloc[0]
     chem_sim = get_similarity(smiles_dict)
     chem_sim_graph = pybel.BELGraph(name, version, description, authors, contact)
     for (pubchem_1, pubchem_2), sim in tqdm(chem_sim.items(), desc='Creating BELGraph'):
