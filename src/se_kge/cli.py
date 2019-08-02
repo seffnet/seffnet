@@ -3,6 +3,7 @@
 """Command line interface for ``se_kge``."""
 
 import json
+import logging
 import random
 import sys
 
@@ -148,9 +149,16 @@ def train():
 
 
 @main.command()
-def web():
+@click.option('--host')
+@click.option('--port', type=int)
+def web(host, port):
     """Run the se_kge RESTful API."""
-    # TODO
+    from .web import create_app, api
+    logging.basicConfig(level=logging.INFO)
+    logging.getLogger('se_kge.web').setLevel(logging.INFO)
+    _app = create_app()
+    _app.register_blueprint(api)
+    _app.run(host=host, port=port)
 
 
 if __name__ == "__main__":

@@ -15,7 +15,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
-from se_kge.get_url_requests import cid_to_smiles
+from .get_url_requests import cid_to_smiles
 
 
 def get_smiles(chemicals_list):
@@ -28,7 +28,7 @@ def get_smiles(chemicals_list):
     smiles_dict = {}
     for chemical in tqdm(chemicals_list, desc='Getting SMILES'):
         smiles = cid_to_smiles(chemical)
-        if type(smiles) != str:
+        if not isinstance(smiles, str):
             smiles = smiles.decode("utf-8")
         if smiles is None:
             continue
@@ -91,7 +91,9 @@ def create_similarity_graph(chemicals_list, mapping_file=None, similarity=0.5, n
     for (pubchem_1, pubchem_2), sim in tqdm(chem_sim.items(), desc='Creating BELGraph'):
         if sim < similarity:
             continue
-        chem_sim_graph.add_unqualified_edge(pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_1),
-                                            pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_2),
-                                            'association')
+        chem_sim_graph.add_unqualified_edge(
+            pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_1),
+            pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_2),
+            'association',
+        )
     return chem_sim_graph

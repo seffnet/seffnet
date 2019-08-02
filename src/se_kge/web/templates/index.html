@@ -1,0 +1,29 @@
+{% extends "bootstrap/base.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+{% import "bootstrap/utils.html" as util %}
+
+{% block title %}SE KGE{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 50px;">
+      <div class="jumbotron">
+        <h1>Side Effects Prediction</h1>
+        <p>
+            Unravel the potential side effects of novel chemical matter and hypothesize their aetiologies.
+        </p>
+      </div>
+
+      <div class="panel panel-default">
+          <div class="panel-body">
+          <p>
+            Check the <a href="{{ test_url }}">results</a> for 3-Hydroxy-4-trimethylammoniobutanoate
+            (pubchem:85)
+          </p>
+
+          {{ wtf.quick_form(form, form_type='horizontal', button_map={'submit_button': 'btn btn-primary'}) }}  
+          </div>
+      </div>
+    </div>
+{% endblock %}
