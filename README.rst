@@ -2,7 +2,7 @@ SE_KGE |build|
 ==============
 Structure
 ---------
-- ``notebooks``: Notebooks that use biokeen and pykeen to train and evaluate models
+- ``notebooks``: Notebooks that were used during the preprocessing and creation of graphs, and the training and evaluation of models
 - ``resources``: The graphs and materials that are used for training and testing
 
 Usage
