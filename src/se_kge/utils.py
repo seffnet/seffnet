@@ -15,6 +15,7 @@ def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
         'id': study.study_id,
         'start': study.start_datetime,
         'best': {
+            'trial_attr': study.best_trial.user_attrs,
             'params': study.best_params,
             'trial': study.best_trial.number,
             'value': study.best_value,
