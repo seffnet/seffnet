@@ -63,13 +63,13 @@ def predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, tri
         test_pos_edges=testing_pos_edges,
         seed=seed,
     )
-    trial.set_user_attr('mcc', mcc)
-    trial.set_user_attr('auc_roc', auc_roc)
-    trial.set_user_attr('auc_pr', auc_pr)
-    trial.set_user_attr('accuracy', accuracy)
-    trial.set_user_attr('f1', f1)
+    trial.set_user_attr('mcc', round(mcc, 3))
+    trial.set_user_attr('auc_roc', round(auc_roc, 3))
+    trial.set_user_attr('auc_pr', round(auc_pr, 3))
+    trial.set_user_attr('accuracy', round(accuracy, 3))
+    trial.set_user_attr('f1', round(f1, 3))
 
-    return 1.0 - mcc
+    return round(1.0 - mcc, 3)
 
 
 def hope_optimization(
