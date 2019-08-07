@@ -48,7 +48,7 @@ def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
     drugbank_name = []
     drugbank_id = []
     drug_smiles = []
-    for i, drug in tqdm(enumerate(root)):
+    for i, drug in tqdm(enumerate(root), desc="Getting DrugBank info"):
         assert drug.tag == ns + 'drug'
         if drug.findtext(smiles_template.format(ns=ns)) is None:
             continue
@@ -56,7 +56,7 @@ def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
         drug_smiles.append(drug.findtext(smiles_template.format(ns=ns)))
         drugbank_id.append(drug.findtext(ns + "drugbank-id"))
     pubchem_ids = []
-    for smile in tqdm(drug_smiles):
+    for smile in tqdm(drug_smiles, desc="Getting PubChemID"):
         pubchem = smiles_to_cid(smile)
         if not isinstance(pubchem, str):
             pubchem = pubchem.decode("utf-8")
