@@ -8,7 +8,7 @@ import optuna
 import pandas as pd
 from se_kge.get_url_requests import smiles_to_cid
 from tqdm import tqdm
-from xlrd.xlsx import ET
+import xml.etree.ElementTree as ET
 
 
 def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
@@ -34,11 +34,11 @@ def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
 
 def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
     """
-    Create a csv file containing chemical mapping information.
+    Create a tsv file containing chemical mapping information.
     The csv file will contain 4 columns: pubchemID, drugbankID, drugbankName and the SMILES.
 
     :param drugbank_file: to get this file you need to register in drugbank and download full database.xml file
-    :param mapping_filepath: the path in which the csv mapping file will be saved
+    :param mapping_filepath: the path in which the tsv mapping file will be saved
     :return: a dataframe with the mapping information
     """
     tree = ET.parse(drugbank_file)
@@ -57,7 +57,11 @@ def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
         drugbank_id.append(drug.findtext(ns + "drugbank-id"))
     pubchem_ids = []
     for smile in tqdm(drug_smiles):
-        pubchem_ids.append(smiles_to_cid(smile))
-    mapping_df = pd.DataFrame(list(zip(pubchem_ids, drugbank_id, drugbank_name, drug_smiles)), columns =['PubchemID', 'DrugbankID', 'DrugbankName','Smiles'])
-    mapping_df.to_csv(mapping_filepath, sep='/t', index=False)
+        pubchem = smiles_to_cid(smile)
+        if not isinstance(pubchem, str):
+            pubchem = pubchem.decode("utf-8")
+        pubchem_ids.append(pubchem)
+    mapping_dict = {'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name, 'Smiles': drug_smiles}
+    mapping_df = pd.DataFrame(mapping_dict)
+    mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
     return mapping_df
