@@ -1,6 +1,6 @@
-## 50%_chemsim_graphs
+## chemsim_50_graphs
 contains graphs created with chemicals that have 50% similarities
-## 70%_chemsim_graphs
+## chemsim_70_graphs
 contains graphs created with chemicals that have 70% similarities
 ## basic_graphs
 contains the graphs created from SIDER and DrugBank datasets
