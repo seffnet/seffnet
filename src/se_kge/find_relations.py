@@ -10,8 +10,59 @@ The graph used contained nodeIDs that can be mapped using a tsv file
 
 """
 
+from operator import itemgetter
 import numpy as np
+import pandas as pd
+import networkx as nx
 from tqdm import tqdm
+
+from sklearn.externals import joblib
+from bionev.utils import load_embedding
+
+
+class Predictor:
+    def __init__(self, *, model, mapping, embeddings, graph=None):
+        self.model = model
+        self.mapping = mapping
+        self.embeddings = embeddings
+        self.graph = graph
+
+    @classmethod
+    def from_paths(cls, *, model_path, embeddings_path, mapping_path, graph_path=None):
+        embeddings = load_embedding(embeddings_path)
+        model = joblib.load(model_path)
+        if graph_path is not None:
+            graph = nx.read_edgelist(graph_path)
+        else:
+            graph = None
+        node_mapping = pd.read_csv(mapping_path, sep='\t')
+        return Predictor(model=model, mapping=node_mapping, graph=graph, embeddings=embeddings)
+
+    def find_new_relations(
+            self,
+            entity_name=None,
+            entity_identifier=None,
+            entity_type=None,
+            k: int = 30,
+    ):
+        return find_new_relations(
+            entity_name=entity_name,
+            entity_identifier=entity_identifier,
+            entity_type=entity_type,
+            k=k,
+            saved_model=self.model,
+            node_mapping=self.mapping,
+            embeddings=self.embeddings,
+            graph=self.graph
+        )
+
+    def find_new_relation(self, node_id_1, node_id_2) -> float:
+        x = []
+        node1 = np.array(self.embeddings[node_id_1])
+        node2 = np.array(self.embeddings[node_id_2])
+        x1 = node1 * node2
+        x.append(x1.tolist())
+        return self.model.predict_proba(x)[:, 1][0]
 
 
 def find_new_relations(
@@ -98,8 +149,14 @@ def find_new_relations(
             }
             node_list.append(node_info)
     prediction_list = get_probabilities(node_list=node_list, relations_list=relations_list, model=saved_model, k=k)
-    print("The %d highest %s predictions for %s" % (k, entity_type, entity_info))
-    return prediction_list
+    return {
+        'query': {
+            'entity': entity_info,
+            'k': k,
+            'type': entity_type,
+        },
+        'predictions': prediction_list,
+    }
 
 
 def find_chemicals(*, entity_id, entity_vector, embeddings, graph=None, node_mapping):
@@ -204,7 +261,7 @@ def find_phenotypes(*, entity_vector, entity_id, embeddings, graph=None, node_ma
     return node_list, relations_list
 
 
-def get_probabilities(*, node_list, relations_list, model, k):
+def get_probabilities(*, node_list, relations_list, model, k=None):
     """
     Get probabilities from log model.
 
@@ -217,15 +274,16 @@ def get_probabilities(*, node_list, relations_list, model, k):
     :param k: the number of relations to be output
     :return sorted_list[:k]: the k first probabilities in the list, type= list of tuples
     """
-    all_prob = []
-    output_dict = {}
     prob_list = model.predict_proba(relations_list)[:, 1]
-    for i in range(len(node_list)):
-        all_prob.append((node_list[i], prob_list[i]))
-    sorted_list = sorted(all_prob, key=lambda kv: kv[1], reverse=True)
-    i = 1
-    for tup in sorted_list[:k]:
-        tup[0]['probability'] = tup[1]
-        output_dict[i] = tup[0]
-        i += 1
-    return output_dict
+    all_prob = [
+        {
+            'probability': prob,
+            **node
+        }
+        for node, prob in zip(node_list, prob_list)
+    ]
+    sorted_list = sorted(all_prob, key=itemgetter('probability'), reverse=True)
+    if k is not None:
+        return sorted_list[:k]
+    else:
+        return sorted_list
