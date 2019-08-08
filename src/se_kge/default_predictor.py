@@ -1,5 +1,6 @@
-from .find_relations import Predictor
 import os
+
+from .find_relations import Predictor
 
 resources_path = os.path.join(os.pardir, "resources")
 
