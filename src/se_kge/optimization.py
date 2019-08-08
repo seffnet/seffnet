@@ -145,7 +145,7 @@ def deepwalk_optimization(
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
         number_walks = trial.suggest_categorical('number_walks', [8, 16, 32, 64, 128, 256])
-        window_size = trial.suggest_int('window_size', 1, 10)
+        window_size = trial.suggest_int('window_size', 2, 10)
         model = embed_train.train_embed_deepwalk(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
@@ -191,7 +191,7 @@ def node2vec_optimization(
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
         number_walks = trial.suggest_categorical('number_walks', [8, 16, 32, 64, 128, 256])
-        window_size = trial.suggest_int('window_size', 1, 10)
+        window_size = trial.suggest_int('window_size', 2, 10)
         p = trial.suggest_uniform('p', 0, 4.0)
         q = trial.suggest_uniform('q', 0, 4.0)
         model = embed_train.train_embed_node2vec(
