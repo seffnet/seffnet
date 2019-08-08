@@ -89,7 +89,7 @@ def create_similarity_graph(
     if mapping_file is None:
         smiles_dict = get_smiles(chemicals_list)
     else:
-        chemicals_mapping = pd.read_csv(mapping_file, sep=",", dtype={'PubchemID': str, 'Smiles': str}, index_col=False)
+        chemicals_mapping = pd.read_csv(mapping_file, sep="\t", dtype={'PubchemID': str, 'Smiles': str}, index_col=False)
         smiles_dict = {}
         for chemical in tqdm(chemicals_list, desc="Getting SMILES"):
             if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical].empty:
