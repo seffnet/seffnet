@@ -21,10 +21,10 @@ from tqdm import tqdm
 
 
 class Predictor:
-    """Class for making predictions"""
+    """Class for making predictions."""
 
     def __init__(self, *, model, mapping, embeddings, graph=None):
-        """Constructor for Predictor class"""
+        """Set constructor for Predictor class."""
         self.model = model
         self.mapping = mapping
         self.embeddings = embeddings
