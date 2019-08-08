@@ -56,13 +56,53 @@ class Predictor:
             graph=self.graph
         )
 
-    def find_new_relation(self, node_id_1, node_id_2) -> float:
-        x = []
-        node1 = np.array(self.embeddings[node_id_1])
-        node2 = np.array(self.embeddings[node_id_2])
+    def find_new_relation(
+            self,
+            *,
+            node_id_1=None,
+            node_id_2=None,
+            entity_name_1=None,
+            entity_name_2=None,
+            entity_id_1=None,
+            entity_id_2=None,
+    ) -> dict:
+        if node_id_1 is not None:
+            pass
+        elif entity_name_1 is not None:
+            node_id_1 = self.mapping.loc[self.mapping["name"] == entity_name_1, "node_id"].iloc[0]
+        elif entity_id_1 is not None:
+            node_id_1 = self.mapping.loc[self.mapping["identifier"] == entity_id_1, "node_id"].iloc[0]
+        else:
+            raise Exception("You need to provide information about the entity (node_id, entity_id or entity_name)")
+        node1 = np.array(self.embeddings[str(node_id_1)])
+        if node_id_2 is not None:
+            pass
+        elif entity_name_2 is not None:
+            node_id_2 = self.mapping.loc[self.mapping["name"] == entity_name_2, "node_id"].iloc[0]
+        elif entity_id_2 is not None:
+            node_id_2 = self.mapping.loc[self.mapping["identifier"] == entity_id_2, "node_id"].iloc[0]
+        else:
+            raise Exception("You need to provide information about the entity (node_id, entity_id or entity_name)")
+        node2 = np.array(self.embeddings[str(node_id_2)])
         x1 = node1 * node2
-        x.append(x1.tolist())
-        return self.model.predict_proba(x)[:, 1][0]
+        x = [x1.tolist()]
+        return {
+            'entity_1':
+                {
+                    'node_id': node_id_1,
+                    'namespace': self.mapping.loc[self.mapping["node_id"] == int(node_id_1), "namespace"].iloc[0],
+                    'name': self.mapping.loc[self.mapping["node_id"] == int(node_id_1), "name"].iloc[0],
+                    'identifier': self.mapping.loc[self.mapping["node_id"] == int(node_id_1), "identifier"].iloc[0]
+                },
+            'entity_2':
+                {
+                    'node_id': node_id_2,
+                    'namespace': self.mapping.loc[self.mapping["node_id"] == int(node_id_2), "namespace"].iloc[0],
+                    'name': self.mapping.loc[self.mapping["node_id"] == int(node_id_2), "name"].iloc[0],
+                    'identifier': self.mapping.loc[self.mapping["node_id"] == int(node_id_2), "identifier"].iloc[0]
+                },
+            'probability': self.model.predict_proba(x)[:, 1][0]
+        }
 
 
 def find_new_relations(
