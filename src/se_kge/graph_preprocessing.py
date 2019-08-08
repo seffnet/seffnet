@@ -39,7 +39,7 @@ def get_drugbank_graph():
     return drugbank_graph
 
 
-def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path, sider_graph_path):
+def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path=None, sider_graph_path=None):
     """
     Combine the SIDER and DrugBank graphs.
 
@@ -48,6 +48,14 @@ def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path, sider_graph_p
     :param sider_graph_path: the path to sider graph
     :return: BELGraph
     """
+    if drugbank_graph_path is not None:
+        drugbank_graph = pybel.from_pickle(drugbank_graph_path)
+    else:
+        drugbank_graph = get_drugbank_graph()
+    if sider_graph_path is not None:
+        sider_graph = pybel.from_pickle(sider_graph_path)
+    else:
+        sider_graph = get_sider_graph()
     drugbank_pubchem_mapping = pd.read_csv(
         mapping_path, sep="\t",
         index_col=False, dtype={'PubchemID': str, 'Smiles': str, 'DrugbankID': str})
@@ -60,14 +68,14 @@ def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path, sider_graph_p
             identifier=row['DrugbankID'])] = pybel.dsl.Abundance(
             namespace='pubchem',
             identifier=row['PubchemID'])
-    drugbank_relabel = nx.relabel_nodes(drugbank_graph_path, drugbank_to_pubchem)
+    drugbank_relabel = nx.relabel_nodes(drugbank_graph, drugbank_to_pubchem)
     rm_nodes = []
     for node in drugbank_relabel.nodes():
         if node.namespace == 'drugbank':
             rm_nodes.append(node)
     for node in tqdm(rm_nodes, desc='Removing nodes that were not relabeled'):
         drugbank_relabel.remove_node(node)
-    full_graph = sider_graph_path + drugbank_relabel
+    full_graph = sider_graph + drugbank_relabel
     full_graph.remove_nodes_from(list(nx.isolates(full_graph)))
     return full_graph
 
