@@ -2,10 +2,10 @@
 
 """Pre-processing of Graphs used for NRL models."""
 
-import xml.etree.ElementTree as ET
 
 import bio2bel_drugbank
 import bio2bel_sider
+from defusedxml import ElementTree
 import networkx as nx
 import pandas as pd
 import pybel
@@ -130,7 +130,7 @@ def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
     :param mapping_filepath: the path in which the tsv mapping file will be saved
     :return: a dataframe with the mapping information
     """
-    tree = ET.parse(drugbank_file)
+    tree = ElementTree.parse(drugbank_file)
     root = tree.getroot()
     ns = '{http://www.drugbank.ca}'
     smiles_template = "{ns}calculated-properties/{ns}property[{ns}kind='SMILES']/{ns}value"
