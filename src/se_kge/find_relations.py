@@ -12,16 +12,16 @@ The graph used contained nodeIDs that can be mapped using a tsv file
 
 from operator import itemgetter
 
+from bionev.utils import load_embedding
 import networkx as nx
 import numpy as np
 import pandas as pd
 from sklearn.externals import joblib
 from tqdm import tqdm
 
-from bionev.utils import load_embedding
-
 
 class Predictor:
+    """Class for making predictions"""
     def __init__(self, *, model, mapping, embeddings, graph=None):
         self.model = model
         self.mapping = mapping
@@ -30,6 +30,7 @@ class Predictor:
 
     @classmethod
     def from_paths(cls, *, model_path, embeddings_path, mapping_path, graph_path=None):
+        """Return the predictor for embeddings."""
         embeddings = load_embedding(embeddings_path)
         model = joblib.load(model_path)
         if graph_path is not None:
@@ -46,6 +47,7 @@ class Predictor:
             entity_type=None,
             k: int = 30,
     ):
+        """Return the predictions for an entity."""
         return find_new_relations(
             entity_name=entity_name,
             entity_identifier=entity_identifier,
@@ -67,6 +69,7 @@ class Predictor:
             entity_id_1=None,
             entity_id_2=None,
     ) -> dict:
+        """Get the probability of having a relation between two entities."""
         if node_id_1 is not None:
             pass
         elif entity_name_1 is not None:
