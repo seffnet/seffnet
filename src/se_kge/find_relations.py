@@ -12,17 +12,19 @@ The graph used contained nodeIDs that can be mapped using a tsv file
 
 from operator import itemgetter
 
-from bionev.utils import load_embedding
 import networkx as nx
 import numpy as np
 import pandas as pd
+from bionev.utils import load_embedding
 from sklearn.externals import joblib
 from tqdm import tqdm
 
 
 class Predictor:
     """Class for making predictions"""
+
     def __init__(self, *, model, mapping, embeddings, graph=None):
+        """Constructor for Predictor class"""
         self.model = model
         self.mapping = mapping
         self.embeddings = embeddings

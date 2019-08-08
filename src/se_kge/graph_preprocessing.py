@@ -5,10 +5,10 @@
 import bio2bel_drugbank
 import bio2bel_sider
 import networkx as nx
-from defusedxml import ElementTree
 import pandas as pd
 import pybel
 import pybel.dsl
+from defusedxml import ElementTree
 from tqdm import tqdm
 
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Default predictor for se_kge"""
+"""Default predictor for se_kge."""
 
 import os
 
