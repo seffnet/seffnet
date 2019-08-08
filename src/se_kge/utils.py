@@ -1,16 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """Utilities for ``se_kge``."""
-import os
 from typing import Any, Mapping
 
-import networkx as nx
 import optuna
-import pandas as pd
-import pybel
-from se_kge.get_url_requests import smiles_to_cid, cid_to_synonyms, get_gene_names
-from tqdm import tqdm
-import xml.etree.ElementTree as ET
 
 
 def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
@@ -32,4 +25,3 @@ def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
             'value': study.best_value,
         },
     }
-

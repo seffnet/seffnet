@@ -2,15 +2,17 @@
 
 """Pre-processing of Graphs used for NRL models."""
 
+import xml.etree.ElementTree as ET
+
 import bio2bel_drugbank
 import bio2bel_sider
 import networkx as nx
 import pandas as pd
 import pybel
 import pybel.dsl
-from se_kge.get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 from tqdm import tqdm
-import xml.etree.ElementTree as ET
+
+from se_kge.get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
 
 def get_sider_graph():
@@ -59,7 +61,13 @@ def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path=None, sider_gr
     drugbank_pubchem_mapping = pd.read_csv(
         mapping_path, sep="\t",
         index_col=False, dtype={'PubchemID': str, 'Smiles': str, 'DrugbankID': str})
-    drugbank_pubchem_mapping = drugbank_pubchem_mapping.dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
+    drugbank_pubchem_mapping = drugbank_pubchem_mapping.dropna(
+        axis=0,
+        how='any',
+        thresh=None,
+        subset=None,
+        inplace=False
+    )
     drugbank_to_pubchem = {}
     for ind, row in tqdm(drugbank_pubchem_mapping.iterrows(), desc='create pubchem-drugbank mapping dictionary'):
         drugbank_to_pubchem[pybel.dsl.Abundance(
@@ -83,8 +91,8 @@ def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path=None, sider_gr
 def create_graph_mapping(graph_path):
     """
     Create graph mapping.
-    The method will get a graph, relabel its nodes and map the nodes to their original names.
 
+    The method will get a graph, relabel its nodes and map the nodes to their original names.
     :param graph_path: the path to a graph
     :return: a relabeled graph and a dataframe with the node information
     """
@@ -116,8 +124,8 @@ def create_graph_mapping(graph_path):
 def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
     """
     Create a tsv file containing chemical mapping information.
-    The csv file will contain 4 columns: pubchemID, drugbankID, drugbankName and the SMILES.
 
+    The csv file will contain 4 columns: pubchemID, drugbankID, drugbankName and the SMILES.
     :param drugbank_file: to get this file you need to register in drugbank and download full database.xml file
     :param mapping_filepath: the path in which the tsv mapping file will be saved
     :return: a dataframe with the mapping information
@@ -147,4 +155,3 @@ def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
     mapping_df = pd.DataFrame(mapping_dict)
     mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
     return mapping_df
-

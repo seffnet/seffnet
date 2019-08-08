@@ -11,13 +11,13 @@ The graph used contained nodeIDs that can be mapped using a tsv file
 """
 
 from operator import itemgetter
+
+from bionev.utils import load_embedding
+import networkx as nx
 import numpy as np
 import pandas as pd
-import networkx as nx
-from tqdm import tqdm
-
 from sklearn.externals import joblib
-from bionev.utils import load_embedding
+from tqdm import tqdm
 
 
 class Predictor:
@@ -214,7 +214,6 @@ def find_chemicals(*, entity_id, entity_vector, embeddings, graph=None, node_map
     relations_list = []
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-        node_info = {}
         if node == entity_id:
             continue
         if graph is not None:
@@ -225,10 +224,12 @@ def find_chemicals(*, entity_id, entity_vector, embeddings, graph=None, node_map
             continue
         relation = entity_vector * np.array(vector)
         relations_list.append(relation.tolist())
-        node_info['node_id'] = int(node)
-        node_info['namespace'] = namespace
-        node_info['identifier'] = node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0]
-        node_info['name'] = node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+        node_info = {
+            'node_id': int(node),
+            'namespace': namespace,
+            'identifier': node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0],
+            'name': node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+        }
         node_list.append(node_info)
     return node_list, relations_list
 
@@ -248,7 +249,6 @@ def find_targets(*, entity_vector, entity_id, embeddings, graph=None, node_mappi
     relations_list = []
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-        node_info = {}
         if node == entity_id:
             continue
         if graph is not None:
@@ -259,10 +259,12 @@ def find_targets(*, entity_vector, entity_id, embeddings, graph=None, node_mappi
             continue
         relation = entity_vector * np.array(vector)
         relations_list.append(relation.tolist())
-        node_info['node_id'] = int(node)
-        node_info['namespace'] = namespace
-        node_info['identifier'] = node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0]
-        node_info['name'] = node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+        node_info = {
+            'node_id': int(node),
+            'namespace': namespace,
+            'identifier': node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0],
+            'name': node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+        }
         node_list.append(node_info)
     return node_list, relations_list
 
@@ -282,7 +284,6 @@ def find_phenotypes(*, entity_vector, entity_id, embeddings, graph=None, node_ma
     relations_list = []
     node_list = []
     for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-        node_info = {}
         if node == entity_id:
             continue
         if graph is not None:
@@ -293,10 +294,12 @@ def find_phenotypes(*, entity_vector, entity_id, embeddings, graph=None, node_ma
             continue
         relation = entity_vector * np.array(vector)
         relations_list.append(relation.tolist())
-        node_info['node_id'] = int(node)
-        node_info['namespace'] = namespace
-        node_info['identifier'] = node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0]
-        node_info['name'] = node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+        node_info = {
+            'node_id': int(node),
+            'namespace': namespace,
+            'identifier': node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0],
+            'name': node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
+        }
         node_list.append(node_info)
     return node_list, relations_list
 
