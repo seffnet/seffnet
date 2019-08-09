@@ -38,7 +38,7 @@ def _load_embedding(path: str) -> Embeddings:
 
 
 RESULTS_TYPE_TO_NAMESPACE = {
-    'chemical': 'pubchem',
+    'chemical': 'pubchem.compound',
     'phenotype': 'umls',
     'target': 'uniprot',
 }

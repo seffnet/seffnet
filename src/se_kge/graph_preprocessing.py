@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 """Pre-processing of Graphs used for NRL models."""
+import os
 
 import bio2bel_drugbank
 import bio2bel_sider
@@ -9,6 +10,7 @@ import pandas as pd
 import pybel
 import pybel.dsl
 from defusedxml import ElementTree
+from se_kge.constants import DEFAULT_MAPPING_PATH
 from tqdm import tqdm
 
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
@@ -78,7 +80,7 @@ def combine_pubchem_drugbank(
             namespace='drugbank',
             name=row['DrugbankName'],
             identifier=row['DrugbankID'])] = pybel.dsl.Abundance(
-            namespace='pubchem',
+            namespace='pubchem.compound',
             identifier=row['PubchemID'])
     drugbank_relabel = nx.relabel_nodes(drugbank_graph, drugbank_to_pubchem)
     rm_nodes = []
@@ -92,12 +94,13 @@ def combine_pubchem_drugbank(
     return full_graph
 
 
-def create_graph_mapping(graph_path):
+def create_graph_mapping(*, graph_path, mapping_file_path=os.path.join(DEFAULT_MAPPING_PATH)):
     """
     Create graph mapping.
 
     The method will get a graph, relabel its nodes and map the nodes to their original names.
     :param graph_path: the path to a graph
+    :param mapping_file_path: the path to save the node_mapping_df
     :return: a relabeled graph and a dataframe with the node information
     """
     graph = pybel.from_pickle(graph_path)
@@ -110,7 +113,7 @@ def create_graph_mapping(graph_path):
     protein_list = []
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
-        if node.namespace == 'pubchem':
+        if node.namespace == 'pubchem.compound':
             name = cid_to_synonyms(node.identifier)
             if not isinstance(name, str):
                 name = name.decode("utf-8")
@@ -121,8 +124,9 @@ def create_graph_mapping(graph_path):
     protein_to_gene = get_gene_names(protein_list)
     for protein, gene in tqdm(protein_to_gene.items(), desc='Enrich proteins'):
         node_mapping_df.loc[node_mapping_df['identifier'] == protein, 'name'] = gene
+    node_mapping_df.to_csv(mapping_file_path, index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
-    return graph_id, node_mapping_df
+    return graph_id, relabel_graph
 
 
 def create_chemicals_mapping_file(

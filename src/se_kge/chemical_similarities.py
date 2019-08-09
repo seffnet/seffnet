@@ -75,7 +75,7 @@ def create_similarity_graph(
         mapping_file=os.path.abspath(os.path.join(
             RESOURCES,
             "mapping",
-            "fullgraph_nodes_mapping.tsv")
+            "drugbank_pubchem_mapping.tsv")
         ),
         similarity=0.5,
         name='',
@@ -112,8 +112,8 @@ def create_similarity_graph(
         if sim < similarity:
             continue
         chem_sim_graph.add_unqualified_edge(
-            pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_1),
-            pybel.dsl.Abundance(namespace='pubchem', identifier=pubchem_2),
+            pybel.dsl.Abundance(namespace='pubchem.compound', identifier=pubchem_1),
+            pybel.dsl.Abundance(namespace='pubchem.compound', identifier=pubchem_2),
             'association',
         )
     return chem_sim_graph
