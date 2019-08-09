@@ -9,7 +9,7 @@ The graph used contained nodeIDs that can be mapped using a tsv file
 
 from dataclasses import dataclass
 from operator import itemgetter
-from typing import Mapping, Optional, Tuple
+from typing import Any, List, Mapping, Optional, Tuple
 
 import networkx as nx
 import numpy as np
@@ -24,6 +24,7 @@ __all__ = [
     'Predictor',
 ]
 
+NodeInfo = Mapping[str, str]
 Embeddings = Mapping[str, np.ndarray]
 
 
@@ -50,11 +51,14 @@ class Predictor:
     model: LogisticRegression
     embeddings: Embeddings
 
-    node_id_to_info: Mapping[str, Mapping[str, str]]
+    node_id_to_info: Mapping[str, NodeInfo]
     node_curie_to_id: Mapping[Tuple[str, str], str]
     node_name_to_id: Mapping[str, str]
 
     graph: Optional[nx.Graph] = None
+
+    #: The precision at which results are reported
+    precision: int = 3
 
     @classmethod
     def from_paths(
@@ -100,7 +104,7 @@ class Predictor:
             node_curie: Optional[str] = None,
             result_type: Optional[str] = None,
             k: Optional[int] = 30,
-    ):
+    ) -> Mapping[str, Any]:
         """Find new relations to specific entity.
 
         Get all the relations of specific entity_type (if chosen) or all types (if None).
@@ -137,10 +141,10 @@ class Predictor:
             'predictions': prediction_list,
         }
 
-    def _lookup_node_id_by_name(self, entity_name: str):
+    def _lookup_node_id_by_name(self, entity_name: str) -> str:
         return self.node_name_to_id.get(entity_name)
 
-    def _lookup_node_id_by_curie(self, entity_curie: str):
+    def _lookup_node_id_by_curie(self, entity_curie: str) -> str:
         namespace, identifier = entity_curie.split(':', 1)
         return self.node_curie_to_id.get((namespace, identifier))
 
@@ -148,7 +152,7 @@ class Predictor:
         # FIXME is this a 0 or a 1?!?!
         return self.model.predict_proba(q)[:, 0]
 
-    def _get_entity_json(self, node_id: str):
+    def _get_entity_json(self, node_id: str) -> NodeInfo:
         return self.node_id_to_info.get(node_id)
 
     def _lookup_node(
@@ -175,8 +179,7 @@ class Predictor:
             target_id: Optional[str] = None,
             target_curie: Optional[str] = None,
             target_name: Optional[str] = None,
-
-    ) -> dict:
+    ) -> Mapping[str, Any]:
         """Get the probability of having a relation between two entities."""
         source_id = self._lookup_node(node_id=source_id, node_curie=source_curie, node_name=source_name)
         target_id = self._lookup_node(node_id=target_id, node_curie=target_curie, node_name=target_name)
@@ -184,8 +187,8 @@ class Predictor:
         return {
             'source': self._get_entity_json(source_id),
             'target': self._get_entity_json(target_id),
-            'p': round(p, 3),
-            'mlp': -round(np.log10(p), 3),
+            'p': round(p, self.precision),
+            'mlp': -round(np.log10(p), self.precision),
         }
 
     def get_edge_embedding(self, source_id: str, target_id: str) -> np.ndarray:
@@ -202,9 +205,8 @@ class Predictor:
             *,
             source_id: str,
             namespace: Optional[str] = None,
-    ):
+    ) -> Tuple[List[NodeInfo], List[np.ndarray]]:
         node_list, relations_list = [], []
-
         source_vector = self.embeddings[source_id]
 
         for target_id, target_vector in self.embeddings.items():
@@ -232,7 +234,7 @@ class Predictor:
             nodes,
             relations,
             k: Optional[int] = None,
-    ):
+    ) -> List[Mapping[str, Any]]:
         """Get probabilities from logistic regression classifier.
 
         Get the probabilities of all the relations in the list from the log model.
@@ -246,8 +248,8 @@ class Predictor:
         probabilities = self._predict_helper(relations)
         results = [
             {
-                'p': round(p, 3),
-                'mlp': -round(np.log10(p), 3),
+                'p': round(p, self.precision),
+                'mlp': -round(np.log10(p), self.precision),
                 **node
             }
             for node, p in zip(nodes, probabilities)
