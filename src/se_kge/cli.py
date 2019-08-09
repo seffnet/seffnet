@@ -181,7 +181,7 @@ def optimize(
               help='The epochs for deep learning methods')
 @click.option('--kstep', type=float, default=30,
               help='The kstep parameter for GraRep')
-@click.option('--order', default=30, type=click.Choice([1, 2, 3]),
+@click.option('--order', default=2, type=click.Choice([1, 2, 3]),
               help='The order parameter for LINE')
 def train(
         input_path,
