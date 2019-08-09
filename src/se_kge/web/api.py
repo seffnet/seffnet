@@ -3,6 +3,7 @@
 """Create the API."""
 
 from functools import lru_cache
+from typing import Optional
 
 from flask import Blueprint, current_app, jsonify, redirect, render_template, request, url_for
 
@@ -33,7 +34,7 @@ def home():
 
 
 @lru_cache(maxsize=1000)
-def find_relations_proxy(entity_identifier, entity_type, k):
+def find_relations_proxy(entity_identifier, entity_type, k: Optional[int] = 30):
     """Return memoized results for finding new relations."""
     return find_new_relations(
         entity_identifier=entity_identifier,
