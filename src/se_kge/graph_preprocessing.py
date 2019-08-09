@@ -10,9 +10,9 @@ import pandas as pd
 import pybel
 import pybel.dsl
 from defusedxml import ElementTree
-from se_kge.constants import DEFAULT_MAPPING_PATH
 from tqdm import tqdm
 
+from .constants import DEFAULT_MAPPING_PATH
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
 
