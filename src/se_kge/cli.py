@@ -30,8 +30,8 @@ def main():
 @main.command()
 @click.option('--input-path', default=DEFAULT_GRAPH_PATH,
               help='Input graph file. Only accepted edgelist format.')
-@click.option('--training', default=None, help='training graph file. Only accepted edgelist format.')
-@click.option('--testing', default=None, help='testing graph file. Only accepted edgelist format.')
+@click.option('--training', help='training graph file. Only accepted edgelist format.')
+@click.option('--testing', help='testing graph file. Only accepted edgelist format.')
 @click.option('--method', required=True,
               type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
               help='The NRL method to train the model')
@@ -147,19 +147,14 @@ def optimize(
 
 
 @main.command()
-@click.option('--input-path', default=DEFAULT_GRAPH_PATH,
-              help='Input graph file. Only accepted edgelist format.')
-@click.option('--training', default=None,
-              help='training graph file. Only accepted edgelist format.')
-@click.option('--testing', default=None,
-              help='testing graph file. Only accepted edgelist format.')
-@click.option('--evaluation', default=False,
-              help='If true, a testing set will be used to evaluate model.')
-@click.option('--evaluation-path', default=None,
+@click.option('--input-path', default=DEFAULT_GRAPH_PATH, help='Input graph file. Only accepted edgelist format.')
+@click.option('--training', help='training graph file. Only accepted edgelist format.')
+@click.option('--testing', help='testing graph file. Only accepted edgelist format.')
+@click.option('--evaluation', is_flag=True, help='If true, a testing set will be used to evaluate model.')
+@click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
               help='The path to save evaluation results.')
-@click.option('--embeddings-path', default=None,
-              help='The path to save the embeddings file')
-@click.option('--model-path', default=None,
+@click.option('--embeddings-path', help='The path to save the embeddings file')
+@click.option('--model-path',
               help='The path to save the prediction model')
 @click.option('--seed', type=int, default=random.randint(1, 10000000))
 @click.option('--method', required=True,
@@ -192,7 +187,7 @@ def train(
         training,
         testing,
         evaluation,
-        evaluation_path,
+        evaluation_file,
         embeddings_path,
         model_path,
         seed,
@@ -262,11 +257,7 @@ def train(
             f1=f1,
             mcc=mcc,
         )
-        if evaluation_path is not None:
-            with open(evaluation_path, 'a+') as wf:
-                print(json.dumps(_results, sort_keys=True), file=wf)
-        else:
-            return _results
+        json.dump(_results, evaluation_file, sort_keys=True, indent=2)
 
     else:
         model = embedding_training(
@@ -293,7 +284,7 @@ def train(
             seed=seed,
             save_model=model_path
         )
-        return 'Training is finished.'
+        click.echo('Training is finished.')
 
 
 @main.command()
