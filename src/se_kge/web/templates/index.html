@@ -8,22 +8,22 @@
 
 {% block content %}
     <div class="container" style="margin-top: 50px;">
-      <div class="jumbotron">
-        <h1>Side Effects Prediction</h1>
-        <p>
-            Unravel the potential side effects of novel chemical matter and hypothesize their aetiologies.
-        </p>
-      </div>
+        <div class="jumbotron">
+            <h1>Side Effects Prediction</h1>
+            <p>
+                Unravel the potential side effects of novel chemical matter and hypothesize their aetiologies.
+            </p>
+        </div>
 
-      <div class="panel panel-default">
-          <div class="panel-body">
-          <p>
-            Check the <a href="{{ test_url }}">results</a> for 3-Hydroxy-4-trimethylammoniobutanoate
-            (pubchem:85)
-          </p>
+        <div class="panel panel-default">
+            <div class="panel-body">
+                <p>
+                    Check the <a href="{{ test_url }}">results</a> for 3-Hydroxy-4-trimethylammoniobutanoate
+                    (<a href="https://identifiers.org/pubchem.compound:85">pubchem:85</a>)
+                </p>
 
-          {{ wtf.quick_form(form, form_type='horizontal', button_map={'submit_button': 'btn btn-primary'}) }}  
-          </div>
-      </div>
+                {{ wtf.quick_form(form, form_type='horizontal', button_map={'submit_button': 'btn btn-primary'}) }}
+            </div>
+        </div>
     </div>
 {% endblock %}

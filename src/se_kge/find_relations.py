@@ -7,26 +7,54 @@ The model and embeddings are trained and created from a graph containing drugs, 
 The graph used contained nodeIDs that can be mapped using a tsv file
 """
 
+from dataclasses import dataclass
 from operator import itemgetter
-from typing import Optional
+from typing import Mapping, Optional, Tuple
 
 import networkx as nx
 import numpy as np
 import pandas as pd
 from bionev.utils import load_embedding
 from sklearn.externals import joblib
-from tqdm import tqdm
+from sklearn.linear_model import LogisticRegression
+
+__all__ = [
+    'Embeddings',
+    'ENTITY_TYPE_TO_NAMESPACE',
+    'Predictor',
+]
+
+Embeddings = Mapping[str, np.ndarray]
 
 
+def _load_embedding(path: str) -> Embeddings:
+    """Load an embedding then fix its data types."""
+    rv = load_embedding(path)
+    return {
+        str(node_id): np.array(node_vector)
+        for node_id, node_vector in rv.items()
+    }
+
+
+ENTITY_TYPE_TO_NAMESPACE = {
+    'chemical': 'pubchem',
+    'phenotype': 'umls',
+    'target': 'uniprot',
+}
+
+
+@dataclass
 class Predictor:
     """Class for making predictions."""
 
-    def __init__(self, *, model, mapping, embeddings, graph=None) -> None:
-        """Set constructor for Predictor class."""
-        self.model = model
-        self.mapping = mapping
-        self.embeddings = embeddings
-        self.graph = graph
+    model: LogisticRegression
+    embeddings: Embeddings
+
+    node_id_to_info: Mapping[str, Mapping[str, str]]
+    node_curie_to_id: Mapping[Tuple[str, str], str]
+    node_name_to_id: Mapping[str, str]
+
+    graph: Optional[nx.Graph] = None
 
     @classmethod
     def from_paths(
@@ -38,323 +66,194 @@ class Predictor:
             graph_path: Optional[str] = None,
     ) -> 'Predictor':
         """Return the predictor for embeddings."""
-        embeddings = load_embedding(embeddings_path)
         model = joblib.load(model_path)
-        if graph_path is not None:
-            graph = nx.read_edgelist(graph_path)
-        else:
-            graph = None
-        node_mapping = pd.read_csv(mapping_path, sep='\t')
-        return Predictor(model=model, mapping=node_mapping, graph=graph, embeddings=embeddings)
+        mapping = pd.read_csv(mapping_path, sep='\t', dtype={'node_id': str})
+
+        node_id_to_info = {}
+        node_curie_to_id = {}
+        node_name_to_id = {}
+        for node_id, namespace, identifier, name in mapping.values:
+            node_id_to_info[node_id] = dict(
+                node_id=node_id,
+                namespace=namespace,
+                identifier=identifier,
+                name=name,
+            )
+            node_curie_to_id[namespace, identifier] = node_id
+            node_name_to_id[name] = node_id
+
+        embeddings = _load_embedding(embeddings_path)
+        graph = graph_path and nx.read_edgelist(graph_path)
+        return cls(
+            model=model,
+            graph=graph,
+            embeddings=embeddings,
+            node_id_to_info=node_id_to_info,
+            node_curie_to_id=node_curie_to_id,
+            node_name_to_id=node_name_to_id,
+        )
 
     def find_new_relations(
             self,
-            entity_name=None,
-            entity_identifier=None,
-            entity_type=None,
+            node_id: Optional[str] = None,
+            node_name: Optional[str] = None,
+            node_curie: Optional[str] = None,
+            result_type: Optional[str] = None,
             k: Optional[int] = 30,
     ):
-        """Return the predictions for an entity."""
-        return find_new_relations(
-            entity_name=entity_name,
-            entity_identifier=entity_identifier,
-            entity_type=entity_type,
-            k=k,
-            saved_model=self.model,
-            node_mapping=self.mapping,
-            embeddings=self.embeddings,
-            graph=self.graph
+        """Find new relations to specific entity.
+
+        Get all the relations of specific entity_type (if chosen) or all types (if None).
+        Finds their probabilities from the saved_model, and return the top k predictions.
+
+        :param node_id: the internal identifier of the node in the model
+        :param node_name: the entity we want to find predictions with
+        :param node_curie: the CURIE (namespace:identifier) of the entity we want to find predictions with
+        :param result_type: can be 'phenotype', 'chemical', 'target', or None
+        :param k: the amount of relations we want to find for the entity
+        :return: a list of tuples containing the predicted entities and their probabilities
+        """
+        node_id = self._lookup_node(node_id=node_id, node_curie=node_curie, node_name=node_name)
+        node_info = self._get_entity_json(node_id)
+
+        namespace = ENTITY_TYPE_TO_NAMESPACE.get(result_type)
+
+        node_list, relations_list = self._find_relations_helper(
+            source_id=node_id,
+            namespace=namespace,
         )
 
+        prediction_list = self.get_probabilities(
+            nodes=node_list,
+            relations=relations_list,
+            k=k,
+        )
+        return {
+            'query': {
+                'entity': node_info,
+                'k': k,
+                'type': result_type,
+            },
+            'predictions': prediction_list,
+        }
+
     def _lookup_node_id_by_name(self, entity_name: str):
-        return self.mapping.loc[self.mapping["name"] == entity_name, "node_id"].iloc[0]
+        return self.node_name_to_id.get(entity_name)
 
-    def _lookup_node_id_by_id(self, entity_id: str):
-        return self.mapping.loc[self.mapping["identifier"] == entity_id, "node_id"].iloc[0]
+    def _lookup_node_id_by_curie(self, entity_curie: str):
+        namespace, identifier = entity_curie.split(':', 1)
+        return self.node_curie_to_id.get((namespace, identifier))
 
-    def _get_embedding_by_node_id(self, node_id) -> np.ndarray:
-        return np.array(self.embeddings[str(node_id)])
+    def _predict_helper(self, q):
+        # FIXME is this a 0 or a 1?!?!
+        return self.model.predict_proba(q)[:, 0]
+
+    def _get_entity_json(self, node_id: str):
+        return self.node_id_to_info.get(node_id)
+
+    def _lookup_node(
+            self,
+            node_id: Optional[str] = None,
+            node_name: Optional[str] = None,
+            node_curie: Optional[str] = None,
+    ) -> str:
+        if node_id is not None:
+            return node_id
+        elif node_name is not None:
+            return self._lookup_node_id_by_name(node_name)
+        elif node_curie is not None:
+            return self._lookup_node_id_by_curie(node_curie)
+        else:
+            raise ValueError("You need to provide information about the entity (node_id, entity_id, or entity_name)")
 
     def find_new_relation(
             self,
             *,
-            node_id_1=None,
-            node_id_2=None,
-            entity_name_1: Optional[str] = None,
-            entity_name_2: Optional[str] = None,
-            entity_id_1: Optional[str] = None,
-            entity_id_2: Optional[str] = None,
+            source_id: Optional[str] = None,
+            source_curie: Optional[str] = None,
+            source_name: Optional[str] = None,
+            target_id: Optional[str] = None,
+            target_curie: Optional[str] = None,
+            target_name: Optional[str] = None,
+
     ) -> dict:
         """Get the probability of having a relation between two entities."""
-        if node_id_1 is not None:
-            pass
-        elif entity_name_1 is not None:
-            node_id_1 = self._lookup_node_id_by_name(entity_name_1)
-        elif entity_id_1 is not None:
-            node_id_1 = self._lookup_node_id_by_id(entity_id_1)
-        else:
-            raise Exception("You need to provide information about the entity (node_id, entity_id, or entity_name)")
-        node_1_embedding = self._get_embedding_by_node_id(node_id_1)
-
-        if node_id_2 is not None:
-            pass
-        elif entity_name_2 is not None:
-            node_id_2 = self._lookup_node_id_by_name(entity_name_2)
-        elif entity_id_2 is not None:
-            node_id_2 = self._lookup_node_id_by_id(entity_id_2)
-        else:
-            raise Exception("You need to provide information about the entity (node_id, entity_id, or entity_name)")
-        node_2_embedding = self._get_embedding_by_node_id(node_id_2)
-
-        edge_embedding = node_1_embedding * node_2_embedding
-        p = self.model.predict_proba([edge_embedding.tolist()])[:, 1][0]
+        source_id = self._lookup_node(node_id=source_id, node_curie=source_curie, node_name=source_name)
+        target_id = self._lookup_node(node_id=target_id, node_curie=target_curie, node_name=target_name)
+        p = self.get_edge_probability(source_id, target_id)
         return {
-            'entity_1': self._get_entity_json(node_id_1),
-            'entity_2': self._get_entity_json(node_id_2),
-            'probability': p,
-            'mlp': -np.log10(p),
+            'source': self._get_entity_json(source_id),
+            'target': self._get_entity_json(target_id),
+            'p': round(p, 3),
+            'mlp': -round(np.log10(p), 3),
         }
 
-    def _get_entity_json(self, node_id):
-        _idx = self.mapping["node_id"] == int(node_id)
-        return {
-            'node_id': int(node_id),
-            'namespace': self.mapping.loc[_idx, "namespace"].iloc[0],
-            'name': self.mapping.loc[_idx, "name"].iloc[0],
-            'identifier': self.mapping.loc[_idx, "identifier"].iloc[0],
-        }
+    def get_edge_embedding(self, source_id: str, target_id: str) -> np.ndarray:
+        """Get the embedding of the edge between the two nodes."""
+        return self.embeddings[source_id] * self.embeddings[target_id]
 
+    def get_edge_probability(self, source_id: str, target_id: str) -> float:
+        """Get the probability of the edge between the two nodes."""
+        edge_embedding = self.get_edge_embedding(source_id, target_id)
+        return self._predict_helper([edge_embedding.tolist()])[0]
 
-def find_new_relations(
-        *,
-        entity_name: Optional[str] = None,
-        entity_identifier: Optional[str] = None,
-        saved_model,
-        node_mapping,
-        embeddings,
-        graph=None,
-        entity_type: Optional[str] = None,
-        k: Optional[int] = 30,
-):
-    """
-    Find new relations to specific entity.
+    def _find_relations_helper(
+            self,
+            *,
+            source_id: str,
+            namespace: Optional[str] = None,
+    ):
+        node_list, relations_list = [], []
 
-    Get all the relations of specific entity_type (if chosen) or all types (if None).
-    Finds their probabilities from the saved_model, and return the top k predictions.
+        source_vector = self.embeddings[source_id]
 
-    :param entity_name: the entity we want to find predictions with
-    :param entity_identifier: the identifier of the entity we want to find predictions with
-    :param saved_model: the log regression model created from the graph
-    :param node_mapping: a dataframe containing the original names of the nodes mapped to their IDs on the graph
-    :param embeddings: the embeddings created from the graph
-    :param graph: the graph that was used to train the model
-    :param entity_type: can be phenotype, chemical or target
-    :param k: the amount of relations we want to find for the entity
-    :return: a list of tuples containing the predicted entities and their probabilities
-    """
-    if entity_name is not None:
-        entity_id = node_mapping.loc[node_mapping["name"] == entity_name, "node_id"].iloc[0]
-    elif entity_identifier is not None:
-        entity_id = node_mapping.loc[node_mapping["identifier"] == entity_identifier, "node_id"].iloc[0]
-    else:
-        return 'No input entity for prediction'
-
-    entity_info = {
-        'node_id': int(entity_id),
-        'namespace': node_mapping.loc[node_mapping["node_id"] == int(entity_id), "namespace"].iloc[0],
-        'identifier': node_mapping.loc[node_mapping["node_id"] == int(entity_id), "identifier"].iloc[0],
-        'name': node_mapping.loc[node_mapping["node_id"] == int(entity_id), "name"].iloc[0]
-    }
-
-    entity_vector = embeddings[str(entity_id)]
-    if entity_type == 'chemical':
-        node_list, relations_list = find_chemicals(
-            entity_vector=entity_vector,
-            entity_id=entity_id,
-            embeddings=embeddings,
-            node_mapping=node_mapping,
-            graph=graph,
-        )
-    elif entity_type == 'phenotype':
-        node_list, relations_list = find_phenotypes(
-            entity_vector=entity_vector,
-            entity_id=entity_id,
-            embeddings=embeddings,
-            node_mapping=node_mapping,
-            graph=graph,
-        )
-    elif entity_type == 'target':
-        node_list, relations_list = find_targets(
-            entity_vector=entity_vector,
-            entity_id=entity_id,
-            embeddings=embeddings,
-            node_mapping=node_mapping,
-            graph=graph,
-        )
-    else:
-        relations_list = []
-        node_list = []
-        for node_2, vector in tqdm(embeddings.items(), desc="creating relations list"):
-            if node_2 == entity_id:
+        for target_id, target_vector in self.embeddings.items():
+            if source_id == target_id:
                 continue
-            if graph is not None:
-                if graph.has_edge(entity_id, node_2) or graph.has_edge(node_2, entity_id):
-                    continue
-            relation = entity_vector * np.array(vector)
-            relations_list.append(relation.tolist())
-            node_info = {
-                'node_id': int(node_2),
-                'namespace': node_mapping.loc[node_mapping["node_id"] == int(node_2), "namespace"].iloc[0],
-                'identifier': node_mapping.loc[node_mapping["node_id"] == int(node_2), "identifier"].iloc[0],
-                'name': node_mapping.loc[node_mapping["node_id"] == int(node_2), "name"].iloc[0]
-            }
+
+            if self.graph is not None and (
+                    self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id)):
+                continue
+
+            node_info = self._get_entity_json(target_id)
+            if namespace is not None and node_info['namespace'] != namespace:
+                continue
+
             node_list.append(node_info)
 
-    prediction_list = get_probabilities(
-        node_list=node_list,
-        relations_list=relations_list,
-        model=saved_model,
-        k=k,
-    )
-    return {
-        'query': {
-            'entity': entity_info,
-            'k': k,
-            'type': entity_type,
-        },
-        'predictions': prediction_list,
-    }
+            relation = source_vector * target_vector
+            relations_list.append(relation.tolist())
 
+        return node_list, relations_list
 
-def find_chemicals(*, entity_id, entity_vector, embeddings, graph=None, node_mapping):
-    """
-    Find all relations of the entity with chemical entities only.
+    def get_probabilities(
+            self,
+            *,
+            nodes,
+            relations,
+            k: Optional[int] = None,
+    ):
+        """Get probabilities from logistic regression classifier.
 
-    :param entity_id: the entity we want to find predictions with
-    :param entity_vector: the vector of the entity
-    :param embeddings: the embeddings created from the graph
-    :param graph: the graph that was used to train the model
-    :param node_mapping: a dataframe containing the original names of the nodes mapped to their IDs on the graph
-    :return node_list: a list of the nodes with relations,
-    relations_list: the edge embedding of the two nodes in the relation
-    """
-    relations_list = []
-    node_list = []
-    for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-        if node == entity_id:
-            continue
-        if graph is not None:
-            if graph.has_edge(entity_id, node) or graph.has_edge(node, entity_id):
-                continue
-        namespace = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
-        if namespace != 'pubchem':
-            continue
-        relation = entity_vector * np.array(vector)
-        relations_list.append(relation.tolist())
-        node_info = {
-            'node_id': int(node),
-            'namespace': namespace,
-            'identifier': node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0],
-            'name': node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
-        }
-        node_list.append(node_info)
-    return node_list, relations_list
+        Get the probabilities of all the relations in the list from the log model.
+        Also sort the found probabilities by highest to lowest, then return the k highest probabilities.
 
-
-def find_targets(*, entity_vector, entity_id, embeddings, graph=None, node_mapping):
-    """
-    Find all relations of the entity with protein entities only.
-
-    :param entity_id: the entity we want to find predictions with
-    :param entity_vector: the vector of the entity
-    :param embeddings: the embeddings created from the graph
-    :param graph: the graph that was used to train the model
-    :param node_mapping: a dataframe containing the original names of the nodes mapped to their IDs on the graph
-    :return node_list: a list of the nodes with relations,
-    relations_list: the edge embedding of the two nodes in the relation
-    """
-    relations_list = []
-    node_list = []
-    for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-        if node == entity_id:
-            continue
-        if graph is not None:
-            if graph.has_edge(entity_id, node) or graph.has_edge(node, entity_id):
-                continue
-        namespace = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
-        if namespace != 'uniprot':
-            continue
-        relation = entity_vector * np.array(vector)
-        relations_list.append(relation.tolist())
-        node_info = {
-            'node_id': int(node),
-            'namespace': namespace,
-            'identifier': node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0],
-            'name': node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
-        }
-        node_list.append(node_info)
-    return node_list, relations_list
-
-
-def find_phenotypes(*, entity_vector, entity_id, embeddings, graph=None, node_mapping):
-    """
-    Find all relations of the entity with phenotype entities only.
-
-    :param entity_id: the entity we want to find predictions with
-    :param entity_vector: the vector of the entity
-    :param embeddings: the embeddings created from the graph
-    :param graph: the graph that was used to train the model
-    :param node_mapping: a dataframe containing the original names of the nodes mapped to their IDs on the graph
-    :return node_list: a list of the nodes with relations,
-    relations_list: the edge embedding of the two nodes in the relation
-    """
-    relations_list = []
-    node_list = []
-    for node, vector in tqdm(embeddings.items(), desc="creating relations list"):
-        if node == entity_id:
-            continue
-        if graph is not None:
-            if graph.has_edge(entity_id, node) or graph.has_edge(node, entity_id):
-                continue
-        namespace = node_mapping.loc[node_mapping["node_id"] == int(node), "namespace"].iloc[0]
-        if namespace != 'umls':
-            continue
-        relation = entity_vector * np.array(vector)
-        relations_list.append(relation.tolist())
-        node_info = {
-            'node_id': int(node),
-            'namespace': namespace,
-            'identifier': node_mapping.loc[node_mapping["node_id"] == int(node), "identifier"].iloc[0],
-            'name': node_mapping.loc[node_mapping["node_id"] == int(node), "name"].iloc[0]
-        }
-        node_list.append(node_info)
-    return node_list, relations_list
-
-
-def get_probabilities(*, node_list, relations_list, model, k: Optional[int] = None):
-    """
-    Get probabilities from log model.
-
-    Get the probabilities of all the relations in the list from the log model.
-    Also sort the found probabilities by highest to lowest, then return the k highest probabilities.
-
-    :param node_list: the list of the nodes with relations to the entity
-    :param relations_list: the list of edge embedding of the two nodes
-    :param model: the logistic regression model
-    :param k: the number of relations to be output
-    :return sorted_list[:k]: the k first probabilities in the list, type= list of tuples
-    """
-    prob_list = model.predict_proba(relations_list)[:, 1]
-    all_prob = [
-        {
-            'probability': prob,
-            'mlp': -np.log10(prob),
-            **node
-        }
-        for node, prob in zip(node_list, prob_list)
-    ]
-    sorted_list = sorted(all_prob, key=itemgetter('probability'), reverse=True)
-    if k is not None:
-        return sorted_list[:k]
-    else:
-        return sorted_list
+        :param nodes: the list of the nodes with relations to the entity
+        :param relations: the list of edge embedding of the two nodes
+        :param k: the number of relations to be output
+        :return: the k first probabilities in the list, type= list of tuples
+        """
+        probabilities = self._predict_helper(relations)
+        results = [
+            {
+                'p': round(p, 3),
+                'mlp': -round(np.log10(p), 3),
+                **node
+            }
+            for node, p in zip(nodes, probabilities)
+        ]
+        results = sorted(results, key=itemgetter('p'))
+        if k is not None:
+            return results[:k]
+        else:
+            return results
