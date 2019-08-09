@@ -1,25 +1,26 @@
 # -*- coding: utf-8 -*-
 
 """Command line interface for ``se_kge``."""
+
 import datetime
 import getpass
 import json
 import logging
-import os
 import random
 import sys
 
 import click
 import networkx as nx
-from bionev.embed_train import embedding_training
 from bionev import pipeline
+from bionev.embed_train import embedding_training
 
+from .constants import DEFAULT_GRAPH_PATH
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
 )
-from .constants import RESOURCES
 from .utils import study_to_json
+
 
 @click.group()
 def main():
@@ -27,10 +28,7 @@ def main():
 
 
 @main.command()
-@click.option('--input-path', default=os.path.abspath(os.path.join(
-                  RESOURCES,
-                  "chemsim_50_graphs",
-                  "fullgraph_with_chemsim_50.edgelist")),
+@click.option('--input-path', default=DEFAULT_GRAPH_PATH,
               help='Input graph file. Only accepted edgelist format.')
 @click.option('--training', default=None, help='training graph file. Only accepted edgelist format.')
 @click.option('--testing', default=None, help='testing graph file. Only accepted edgelist format.')
@@ -149,11 +147,7 @@ def optimize(
 
 
 @main.command()
-@click.option('--input-path',
-              default=os.path.abspath(os.path.join(
-                  RESOURCES,
-                  "chemsim_50_graphs",
-                  "fullgraph_with_chemsim_50.edgelist")),
+@click.option('--input-path', default=DEFAULT_GRAPH_PATH,
               help='Input graph file. Only accepted edgelist format.')
 @click.option('--training', default=None,
               help='training graph file. Only accepted edgelist format.')
@@ -191,8 +185,7 @@ def optimize(
               help='The epochs for deep learning methods')
 @click.option('--kstep', type=float, default=30,
               help='The kstep parameter for GraRep')
-@click.option('--order', type=float, default=30,
-              type=click.Choice([1, 2, 3]),
+@click.option('--order', default=30, type=click.Choice([1, 2, 3]),
               help='The order parameter for LINE')
 def train(
         input_path,
@@ -217,7 +210,6 @@ def train(
         order,
 ):
     """Train my model."""
-
     if evaluation:
         if training and testing is not None:
             graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
@@ -302,7 +294,6 @@ def train(
             save_model=model_path
         )
         return 'Training is finished.'
-
 
 
 @main.command()

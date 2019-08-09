@@ -2,20 +2,16 @@
 
 """Default predictor for se_kge."""
 
-import os
-
+from .constants import DEFAULT_EMBEDDINGS_PATH, DEFAULT_GRAPH_PATH, DEFAULT_MAPPING_PATH, DEFAULT_MODEL_PATH
 from .find_relations import Predictor
-from .constants import RESOURCES
 
-embeddings_path = os.path.abspath(
-    os.path.join(RESOURCES, "predictive_model", "070819_node2vec_embeddings_complete01.embeddings"))
-model_path = os.path.abspath(os.path.join(RESOURCES, "predictive_model", "070819_node2vec_model_complete01.pkl"))
-graph_path = os.path.abspath(os.path.join(RESOURCES, "chemsim_50_graphs", "fullgraph_with_chemsim_50.edgelist"))
-mapping_path = os.path.abspath(os.path.join(RESOURCES, "mapping", "fullgraph_nodes_mapping.tsv"))
+__all__ = [
+    'predictor',
+]
 
 predictor = Predictor.from_paths(
-    model_path=model_path,
-    embeddings_path=embeddings_path,
-    graph_path=graph_path,
-    mapping_path=mapping_path,
+    model_path=DEFAULT_MODEL_PATH,
+    embeddings_path=DEFAULT_EMBEDDINGS_PATH,
+    graph_path=DEFAULT_GRAPH_PATH,
+    mapping_path=DEFAULT_MAPPING_PATH,
 )

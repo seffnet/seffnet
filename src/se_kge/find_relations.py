@@ -120,7 +120,7 @@ class Predictor:
     def _get_entity_json(self, node_id):
         _idx = self.mapping["node_id"] == int(node_id)
         return {
-            'node_id': node_id,
+            'node_id': int(node_id),
             'namespace': self.mapping.loc[_idx, "namespace"].iloc[0],
             'name': self.mapping.loc[_idx, "name"].iloc[0],
             'identifier': self.mapping.loc[_idx, "identifier"].iloc[0],
