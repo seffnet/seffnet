@@ -7,8 +7,6 @@ The model and embeddings are trained and created from a graph containing drugs, 
 The graph used contained nodeIDs that can be mapped using a tsv file
 """
 
-from __future__ import annotations
-
 from operator import itemgetter
 from typing import Optional
 
@@ -38,7 +36,7 @@ class Predictor:
             embeddings_path: str,
             mapping_path: str,
             graph_path: Optional[str] = None,
-    ) -> Predictor:
+    ) -> 'Predictor':
         """Return the predictor for embeddings."""
         embeddings = load_embedding(embeddings_path)
         model = joblib.load(model_path)
