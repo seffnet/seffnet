@@ -15,6 +15,7 @@ from bionev import pipeline
 from bionev.embed_train import embedding_training
 
 from .constants import DEFAULT_GRAPH_PATH
+from .find_relations import ENTITY_TYPE_TO_NAMESPACE
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
@@ -288,10 +289,30 @@ def train(
 
 
 @main.command()
+@click.argument('curie')
+@click.option('-n', '--number-predictions', type=int, default=30)
+@click.option('-t', '--result-type', type=click.Choice(ENTITY_TYPE_TO_NAMESPACE))
+def predict(curie: str, number_predictions: int, result_type: str):
+    """Predict for a given entity."""
+    from .default_predictor import predictor
+
+    if number_predictions <= 0:
+        number_predictions = None
+
+    results = predictor.find_new_relations(
+        node_curie=curie,
+        k=number_predictions,
+        result_type=result_type,
+    )
+    for result in results['predictions']:
+        click.echo(json.dumps(result, indent=2, sort_keys=True))
+
+
+@main.command()
 @click.option('--host')
 @click.option('--port', type=int)
 def web(host, port):
-    """Run the se_kge RESTful API."""
+    """Run the RESTful API."""
     from .web import create_app, api
     logging.basicConfig(level=logging.INFO)
     logging.getLogger('se_kge.web').setLevel(logging.INFO)
