@@ -8,6 +8,7 @@ Note: to run these the similarity function you need to have rdkit package
 """
 
 import itertools as itt
+import os
 
 import pandas as pd
 import pybel
@@ -15,6 +16,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
+from .constants import RESOURCES
 from .get_url_requests import cid_to_smiles
 
 
@@ -70,7 +72,11 @@ def get_fingerprints(chemicals_dict):
 
 def create_similarity_graph(
         chemicals_list,
-        mapping_file=None,
+        mapping_file=os.path.abspath(os.path.join(
+            RESOURCES,
+            "mapping",
+            "fullgraph_nodes_mapping.tsv")
+        ),
         similarity=0.5,
         name='',
         version='1.1.0',
@@ -86,9 +92,7 @@ def create_similarity_graph(
     :param mapping_file: an existing dataframe with pubchemIDs and Smiles
     :return: BELGraph
     """
-    if mapping_file is None:
-        smiles_dict = get_smiles(chemicals_list)
-    else:
+    if os.path.exists(mapping_file):
         chemicals_mapping = pd.read_csv(
             mapping_file,
             sep="\t", dtype={'PubchemID': str, 'Smiles': str},
@@ -100,6 +104,8 @@ def create_similarity_graph(
             else:
                 smiles_dict[chemical] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical,
                                                               "Smiles"].iloc[0]
+    else:
+        smiles_dict = get_smiles(chemicals_list)
     chem_sim = get_similarity(smiles_dict)
     chem_sim_graph = pybel.BELGraph(name, version, description, authors, contact)
     for (pubchem_1, pubchem_2), sim in tqdm(chem_sim.items(), desc='Creating BELGraph'):
