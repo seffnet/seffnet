@@ -2,9 +2,6 @@
 
 """Create the API."""
 
-from functools import lru_cache
-from typing import Optional
-
 from flask import Blueprint, current_app, jsonify, redirect, render_template, request, url_for
 
 from .forms import QueryForm
@@ -28,26 +25,31 @@ def home():
 
     return redirect(url_for(
         '.find',
-        entity_identifier=form.entity_identifier.data,
-        entity_type=form.entity_type.data,
+        curie=form.curie.data,
+        results_type=form.results_type.data,
     ))
-
-
-@lru_cache(maxsize=1000)
-def find_relations_proxy(node_curie: str, result_type: Optional[str] = None, k: Optional[int] = 30):
-    """Return memoized results for finding new relations."""
-    predictor: Predictor = current_app.config['predictor']
-    return predictor.find_new_relations(
-        node_curie=node_curie,
-        result_type=result_type,
-        k=k,
-    )
 
 
 @api.route('/list')
 def list_nodes():
     """Return all entities as JSON."""
-    return jsonify(current_app.config['predictor'].node_id_to_info)
+    offset = request.args.get('offset', 0, type=int)
+    pagesize = request.args.get('size', 30, type=int)
+
+    v = list(current_app.config['predictor'].node_id_to_info.values())
+    nodes = v[offset:offset + pagesize]
+
+    next_offset = offset + pagesize
+    if next_offset > len(v):
+        pagesize -= (next_offset - len(v))
+
+    return jsonify(
+        links={
+            'next': url_for('.list_nodes', offset=next_offset, pagesize=pagesize),
+            'last': url_for('.list_nodes', offset=offset - pagesize, pagesize=pagesize),
+        },
+        nodes=nodes,
+    )
 
 
 @api.route('/find/<curie>')
@@ -61,7 +63,7 @@ def find(curie: str):
         description: The entity's CURIE
         required: true
         type: string
-      - name: entity_type
+      - name: results_type
         in: query
         description: The type of the entities for the incident relations that get predicted
         required: false
@@ -73,13 +75,28 @@ def find(curie: str):
         type: integer
 
     """
-    entity_type = request.args.get('result_type', 'phenotype')
+    results_type = request.args.get('results_type', 'phenotype')
     k = request.args.get('k', 30, type=int) or None
 
-    result = find_relations_proxy(
+    predictor: Predictor = current_app.config['predictor']
+    result = predictor.find_new_relations(
         node_curie=curie,
-        result_type=entity_type,
+        results_type=results_type,
         k=k,
     )
+
+    if result is None:
+        return jsonify({
+            'query': {
+                'curie': curie,
+                'results_type': results_type,
+                'k': k,
+            },
+            'message': 'Not found',
+        })
+
+    # Add those sweet sweet identifiers.org links
+    for prediction in result['predictions']:
+        prediction['url'] = f'https://identifiers.org/{prediction["namespace"]}:{prediction["identifier"]}'
 
     return jsonify(result)

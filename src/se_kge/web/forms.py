@@ -14,12 +14,14 @@ __all__ = [
 class QueryForm(FlaskForm):
     """Builds the form for querying the model."""
 
-    entity_identifier = StringField('Entity', validators=[DataRequired()])
-    entity_type = RadioField(
+    curie = StringField('Entity', validators=[DataRequired()])
+    results_type = RadioField(
         'Type',
         choices=[
+            ('chemical', 'Look for chemicals'),
             ('phenotype', 'Look for side effects'),
             ('target', 'Look for targets'),
+            (None, 'Look for everythhing'),
         ],
         default='phenotype',
     )

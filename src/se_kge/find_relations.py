@@ -20,7 +20,7 @@ from sklearn.linear_model import LogisticRegression
 
 __all__ = [
     'Embeddings',
-    'ENTITY_TYPE_TO_NAMESPACE',
+    'RESULTS_TYPE_TO_NAMESPACE',
     'Predictor',
 ]
 
@@ -37,7 +37,7 @@ def _load_embedding(path: str) -> Embeddings:
     }
 
 
-ENTITY_TYPE_TO_NAMESPACE = {
+RESULTS_TYPE_TO_NAMESPACE = {
     'chemical': 'pubchem',
     'phenotype': 'umls',
     'target': 'uniprot',
@@ -102,9 +102,9 @@ class Predictor:
             node_id: Optional[str] = None,
             node_name: Optional[str] = None,
             node_curie: Optional[str] = None,
-            result_type: Optional[str] = None,
+            results_type: Optional[str] = None,
             k: Optional[int] = 30,
-    ) -> Mapping[str, Any]:
+    ) -> Optional[Mapping[str, Any]]:
         """Find new relations to specific entity.
 
         Get all the relations of specific entity_type (if chosen) or all types (if None).
@@ -113,19 +113,18 @@ class Predictor:
         :param node_id: the internal identifier of the node in the model
         :param node_name: the entity we want to find predictions with
         :param node_curie: the CURIE (namespace:identifier) of the entity we want to find predictions with
-        :param result_type: can be 'phenotype', 'chemical', 'target', or None
+        :param results_type: can be 'phenotype', 'chemical', 'target', or None
         :param k: the amount of relations we want to find for the entity
         :return: a list of tuples containing the predicted entities and their probabilities
         """
         node_id = self._lookup_node(node_id=node_id, node_curie=node_curie, node_name=node_name)
+        if node_id is None:
+            return
+
         node_info = self._get_entity_json(node_id)
 
-        namespace = ENTITY_TYPE_TO_NAMESPACE.get(result_type)
-
-        node_list, relations_list = self._find_relations_helper(
-            source_id=node_id,
-            namespace=namespace,
-        )
+        namespace = RESULTS_TYPE_TO_NAMESPACE.get(results_type)
+        node_list, relations_list = self._find_relations_helper(node_id, namespace=namespace)
 
         prediction_list = self.get_probabilities(
             nodes=node_list,
@@ -136,7 +135,7 @@ class Predictor:
             'query': {
                 'entity': node_info,
                 'k': k,
-                'type': result_type,
+                'type': results_type,
             },
             'predictions': prediction_list,
         }
@@ -202,7 +201,6 @@ class Predictor:
 
     def _find_relations_helper(
             self,
-            *,
             source_id: str,
             namespace: Optional[str] = None,
     ) -> Tuple[List[NodeInfo], List[np.ndarray]]:
