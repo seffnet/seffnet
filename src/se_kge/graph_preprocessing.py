@@ -40,7 +40,12 @@ def get_drugbank_graph():
     return drugbank_graph
 
 
-def combine_pubchem_drugbank(*, mapping_path, drugbank_graph_path=None, sider_graph_path=None):
+def combine_pubchem_drugbank(
+        *,
+        mapping_path,
+        drugbank_graph_path=None,
+        sider_graph_path=None
+):
     """
     Combine the SIDER and DrugBank graphs.
 
@@ -120,7 +125,11 @@ def create_graph_mapping(graph_path):
     return graph_id, node_mapping_df
 
 
-def create_chemicals_mapping_file(drugbank_file, mapping_filepath):
+def create_chemicals_mapping_file(
+        *,
+        drugbank_file,
+        mapping_filepath
+):
     """
     Create a tsv file containing chemical mapping information.
 
