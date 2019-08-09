@@ -1,21 +1,25 @@
 # -*- coding: utf-8 -*-
 
 """Command line interface for ``se_kge``."""
-
+import datetime
+import getpass
 import json
 import logging
+import os
 import random
 import sys
 
 import click
+import networkx as nx
+from bionev.embed_train import embedding_training
 from bionev import pipeline
 
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
 )
+from .constants import RESOURCES
 from .utils import study_to_json
-
 
 @click.group()
 def main():
@@ -23,13 +27,18 @@ def main():
 
 
 @main.command()
-@click.option('--input-path', required=True, help='Input graph file. Only accepted edgelist format.')
+@click.option('--input-path', default=os.path.abspath(os.path.join(
+                  RESOURCES,
+                  "chemsim_50_graphs",
+                  "fullgraph_with_chemsim_50.edgelist")),
+              help='Input graph file. Only accepted edgelist format.')
 @click.option('--training', default=None, help='training graph file. Only accepted edgelist format.')
 @click.option('--testing', default=None, help='testing graph file. Only accepted edgelist format.')
-@click.option('--method', required=True, help='The embedding learning method')
+@click.option('--method', required=True,
+              type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
+              help='The NRL method to train the model')
 @click.option('--trials', default=50, type=int, help='the number of trials done to optimize hyperparameters')
-@click.option('--dimensions-low', default=100, type=int, help='the range of dimensions to be optimized')
-@click.option('--dimensions-high', default=300, type=int, help='the range of dimensions to be optimized')
+@click.option('--dimensions-range', default=(100, 300), type=(int, int), help='the range of dimensions to be optimized')
 @click.option('--seed', type=int, default=random.randint(1, 10000000))
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
 @click.option('--name', help="Name for the study")
@@ -40,8 +49,7 @@ def optimize(
         testing,
         method,
         trials,
-        dimensions_low,
-        dimensions_high,
+        dimensions_range,
         seed,
         storage,
         name,
@@ -67,7 +75,7 @@ def optimize(
             train_graph_filename=train_graph_filename,
             trial_number=trials,
             seed=seed,
-            dimensions_range=(dimensions_low, dimensions_high),
+            dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
         )
@@ -80,7 +88,7 @@ def optimize(
             train_graph_filename=train_graph_filename,
             trial_number=trials,
             seed=seed,
-            dimensions_range=(dimensions_low, dimensions_high),
+            dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
         )
@@ -93,7 +101,7 @@ def optimize(
             train_graph_filename=train_graph_filename,
             trial_number=trials,
             seed=seed,
-            dimensions_range=(dimensions_low, dimensions_high),
+            dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
         )
@@ -106,7 +114,7 @@ def optimize(
             train_graph_filename=train_graph_filename,
             trial_number=trials,
             seed=seed,
-            dimensions_range=(dimensions_low, dimensions_high),
+            dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
         )
@@ -123,7 +131,7 @@ def optimize(
             study_name=name,
         )
 
-    elif method == 'LINE':
+    else:
         study = line_optimization(
             graph=graph,
             graph_train=graph_train,
@@ -131,21 +139,170 @@ def optimize(
             train_graph_filename=train_graph_filename,
             trial_number=trials,
             seed=seed,
-            dimensions_range=(dimensions_low, dimensions_high),
+            dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
         )
-
-    else:
-        raise ValueError(f'Invalid method: {method}')
 
     study_json = study_to_json(study)
     json.dump(study_json, output, indent=2, sort_keys=True)
 
 
 @main.command()
-def train():
+@click.option('--input-path',
+              default=os.path.abspath(os.path.join(
+                  RESOURCES,
+                  "chemsim_50_graphs",
+                  "fullgraph_with_chemsim_50.edgelist")),
+              help='Input graph file. Only accepted edgelist format.')
+@click.option('--training', default=None,
+              help='training graph file. Only accepted edgelist format.')
+@click.option('--testing', default=None,
+              help='testing graph file. Only accepted edgelist format.')
+@click.option('--evaluation', default=False,
+              help='If true, a testing set will be used to evaluate model.')
+@click.option('--evaluation-path', default=None,
+              help='The path to save evaluation results.')
+@click.option('--embeddings-path', default=None,
+              help='The path to save the embeddings file')
+@click.option('--model-path', default=None,
+              help='The path to save the prediction model')
+@click.option('--seed', type=int, default=random.randint(1, 10000000))
+@click.option('--method', required=True,
+              type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
+              help='The NRL method to train the model')
+@click.option('--dimensions', type=int, default=200,
+              help='The dimensions of embeddings.')
+@click.option('--number-walks', type=int, default=8,
+              help='The number of walks for random-walk methods.')
+@click.option('--walk-length', type=int, default=32,
+              help='The walk length for random-walk methods.')
+@click.option('--window-size', type=int, default=3,
+              help='The window size for random-walk methods.')
+@click.option('--p', type=float, default=1.5,
+              help='The p parameter for node2vec.')
+@click.option('--q', type=float, default=0.8,
+              help='The q parameter for node2vec.')
+@click.option('--alpha', type=float, default=0.3,
+              help='The alpha parameter for SDNE')
+@click.option('--beta', type=int, default=2,
+              help='The beta parameter for SDNE')
+@click.option('--epochs', type=float, default=30,
+              help='The epochs for deep learning methods')
+@click.option('--kstep', type=float, default=30,
+              help='The kstep parameter for GraRep')
+@click.option('--order', type=float, default=30,
+              type=click.Choice([1, 2, 3]),
+              help='The order parameter for LINE')
+def train(
+        input_path,
+        training,
+        testing,
+        evaluation,
+        evaluation_path,
+        embeddings_path,
+        model_path,
+        seed,
+        method,
+        dimensions,
+        number_walks,
+        walk_length,
+        window_size,
+        p,
+        q,
+        alpha,
+        beta,
+        epochs,
+        kstep,
+        order,
+):
     """Train my model."""
+
+    if evaluation:
+        if training and testing is not None:
+            graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
+                input_path,
+                training,
+                testing,
+            )
+        else:
+            graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.split_train_test_graph(
+                input_path,
+                seed
+            )
+        model = embedding_training(
+            train_graph_filename=train_graph_filename,
+            method=method,
+            dimensions=dimensions,
+            number_walks=number_walks,
+            walk_length=walk_length,
+            window_size=window_size,
+            p=p,
+            q=q,
+            alpha=alpha,
+            beta=beta,
+            epochs=epochs,
+            kstep=kstep,
+            order=order,
+            seed=seed,
+        )
+        model.save_embeddings(embeddings_path)
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=model.get_embeddings(),
+            original_graph=graph,
+            train_graph=graph_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=model_path
+        )
+        _results = dict(
+            input=input_path,
+            method=method,
+            dimension=dimensions,
+            user=getpass.getuser(),
+            date=datetime.datetime.now().strftime('%Y-%m-%d-%H%M%S'),
+            seed=seed,
+        )
+        _results['results'] = dict(
+            auc_roc=auc_roc,
+            auc_pr=auc_pr,
+            accuracy=accuracy,
+            f1=f1,
+            mcc=mcc,
+        )
+        if evaluation_path is not None:
+            with open(evaluation_path, 'a+') as wf:
+                print(json.dumps(_results, sort_keys=True), file=wf)
+        else:
+            return _results
+
+    else:
+        model = embedding_training(
+            train_graph_filename=input_path,
+            method=method,
+            dimensions=dimensions,
+            number_walks=number_walks,
+            walk_length=walk_length,
+            window_size=window_size,
+            p=p,
+            q=q,
+            alpha=alpha,
+            beta=beta,
+            epochs=epochs,
+            kstep=kstep,
+            order=order,
+            seed=seed,
+        )
+        model.save_embeddings(embeddings_path)
+        original_graph = nx.read_edgelist(input_path)
+        pipeline.create_prediction_model(
+            embeddings=model.get_embeddings(),
+            original_graph=original_graph,
+            seed=seed,
+            save_model=model_path
+        )
+        return 'Training is finished.'
+
 
 
 @main.command()
