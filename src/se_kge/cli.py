@@ -8,10 +8,10 @@ import random
 import sys
 
 import click
-from se_kge.graph_preprocessing import get_mapped_graph
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
+from .graph_preprocessing import get_mapped_graph
 from .utils import do_evaluation, do_optimization, train_model
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
@@ -235,6 +235,7 @@ def rebuild():
 
     click.secho('Rebuilding combined graph with node_ids', fg='blue', bold=True)
     fullgraph_id = get_mapped_graph(fullgraph)
+    click.echo(str(fullgraph_id.summary_str()))
     click.echo('Mapped graph and mapping dataframe are created!')
 
 
