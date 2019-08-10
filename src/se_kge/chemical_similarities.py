@@ -9,6 +9,8 @@ Note: to run these the similarity function you need to have rdkit package
 
 import itertools as itt
 import os
+from collections import Iterable, Mapping
+from typing import Any
 
 import pandas as pd
 import pybel
@@ -20,32 +22,32 @@ from .constants import PUBCHEM_NAMESPACE, RESOURCES
 from .get_url_requests import cid_to_smiles
 
 
-def get_smiles(chemicals_list):
+def get_smiles(pubchem_ids: Iterable[str]) -> Mapping[str, str]:
     """
     Get SMILES of a list of chemicals.
 
-    :param chemicals_list: a list of chemicals as pubchem ID
+    :param pubchem_ids: a list of chemicals as pubchem ID
     :return: a dictionary with pubchemID as key and smiles as value
     """
-    smiles_dict = {}
-    for chemical in tqdm(chemicals_list, desc='Getting SMILES'):
-        smiles = cid_to_smiles(chemical)
+    pubchem_id_to_smiles = {}
+    for pubchem_id in tqdm(pubchem_ids, desc='Getting SMILES'):
+        smiles = cid_to_smiles(pubchem_id)
         if not isinstance(smiles, str):
             smiles = smiles.decode("utf-8")
         if smiles is None:
             continue
-        smiles_dict[chemical] = smiles
-    return smiles_dict
+        pubchem_id_to_smiles[pubchem_id] = smiles
+    return pubchem_id_to_smiles
 
 
-def get_similarity(smiles_dict):
+def get_similarity(pubchem_id_to_smiles: Mapping[str, str]) -> Mapping[str, float]:
     """
     Get the similarities between all pair combinations of chemicals in the list.
 
-    :param smiles_dict: a dictionary with pubchemID as key and smiles as value
+    :param pubchem_id_to_smiles: a dictionary with pubchemID as key and smiles as value
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
-    fps = get_fingerprints(smiles_dict)
+    fps = get_fingerprints(pubchem_id_to_smiles)
     chem_sim = {
         (pubchem_id_1, pubchem_id_2): DataStructs.FingerprintSimilarity(mol_1, mol_2)
         for (pubchem_id_1, mol_1), (pubchem_id_2, mol_2) in
@@ -54,24 +56,24 @@ def get_similarity(smiles_dict):
     return chem_sim
 
 
-def get_fingerprints(chemicals_dict):
+def get_fingerprints(pubchem_id_to_smiles: Mapping[str, str]) -> Mapping[str, Any]:
     """
     Create a dictionary containing the fingerprints for every chemical.
 
-    :param chemicals_dict: a dictionary with pubchemID as keys and smiles as values
+    :param pubchem_id_to_smiles: a dictionary with pubchemID as keys and smiles as values
     :return: a dictionary with pubchemID as key and the MACCSkeys fingerprints
     """
-    ms = {}
-    for pubchem, smiles in tqdm(chemicals_dict.items(), desc='Getting fingerprints'):
+    pubchem_id_to_fingerprint = {}
+    for pubchem_id, smiles in tqdm(pubchem_id_to_smiles.items(), desc='Getting fingerprints'):
         mol_from_smile = Chem.MolFromSmiles(smiles)
         if mol_from_smile is None:
             continue
-        ms[pubchem] = MACCSkeys.GenMACCSKeys(mol_from_smile)
-    return ms
+        pubchem_id_to_fingerprint[pubchem_id] = MACCSkeys.GenMACCSKeys(mol_from_smile)
+    return pubchem_id_to_fingerprint
 
 
 def create_similarity_graph(
-        chemicals_list,
+        pubchem_ids: Iterable[str],
         mapping_file=os.path.abspath(os.path.join(
             RESOURCES,
             "mapping",
@@ -82,38 +84,41 @@ def create_similarity_graph(
         version='1.1.0',
         authors='',
         contact='',
-        description=''
-):
+        description='',
+) -> pybel.BELGraph:
     """
     Create a BELGraph with chemicals as nodes, and similarity as edges.
 
-    :param chemicals_list: a list of chemicals as pubchem ID
+    :param pubchem_ids: a list of chemicals as pubchem ID
     :param similarity: the percent in which the chemicals are similar
     :param mapping_file: an existing dataframe with pubchemIDs and Smiles
-    :return: BELGraph
     """
     if os.path.exists(mapping_file):
         chemicals_mapping = pd.read_csv(
             mapping_file,
-            sep="\t", dtype={'PubchemID': str, 'Smiles': str},
-            index_col=False)
-        smiles_dict = {}
-        for chemical in tqdm(chemicals_list, desc="Getting SMILES"):
-            if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical].empty:
-                smiles_dict[chemical] = cid_to_smiles(chemical)
+            sep="\t",
+            dtype={'PubchemID': str, 'Smiles': str},
+            index_col=False,
+        )
+        pubchem_id_to_smiles = {}
+        for pubchem_id in tqdm(pubchem_ids, desc="Getting SMILES"):
+            if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id].empty:
+                pubchem_id_to_smiles[pubchem_id] = cid_to_smiles(pubchem_id)
             else:
-                smiles_dict[chemical] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == chemical,
-                                                              "Smiles"].iloc[0]
+                pubchem_id_to_smiles[pubchem_id] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id,
+                                                                         "Smiles"].iloc[0]
     else:
-        smiles_dict = get_smiles(chemicals_list)
-    chem_sim = get_similarity(smiles_dict)
-    chem_sim_graph = pybel.BELGraph(name, version, description, authors, contact)
-    for (pubchem_1, pubchem_2), sim in tqdm(chem_sim.items(), desc='Creating BELGraph'):
+        pubchem_id_to_smiles = get_smiles(pubchem_ids)
+
+    similarities = get_similarity(pubchem_id_to_smiles)
+
+    bel_graph = pybel.BELGraph(name, version, description, authors, contact)
+    for (source_pubchem_id, target_pubchem_id), sim in tqdm(similarities.items(), desc='Creating BELGraph'):
         if sim < similarity:
             continue
-        chem_sim_graph.add_unqualified_edge(
-            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=pubchem_1),
-            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=pubchem_2),
+        bel_graph.add_unqualified_edge(
+            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=source_pubchem_id),
+            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
             'association',
         )
-    return chem_sim_graph
+    return bel_graph
