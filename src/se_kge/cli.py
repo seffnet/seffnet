@@ -321,5 +321,19 @@ def web(host, port):
     _app.run(host=host, port=port)
 
 
+@main.command()
+def rebuild():
+    """Build all resources from scratch."""
+    from .graph_preprocessing import get_drugbank_graph, get_sider_graph
+
+    click.secho('Rebuilding DrugBank', fg='blue', bold=True)
+    drugbank_graph = get_drugbank_graph(rebuild=True, drug_namespace='pubchem.compound')
+    click.echo(drugbank_graph.summary_str())
+
+    click.secho('Rebuilding SIDER', fg='blue', bold=True)
+    sider_graph = get_sider_graph(rebuild=True)
+    click.echo(sider_graph.summary_str())
+
+
 if __name__ == "__main__":
     main()
