@@ -14,8 +14,8 @@ from tqdm import tqdm
 import bio2bel_drugbank
 import bio2bel_sider
 from .constants import (
-    DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DRUGBANK_NAMESPACE,
-    PUBCHEM_NAMESPACE, UNIPROT_NAMESPACE,
+    DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DRUGBANK_NAMESPACE, PUBCHEM_NAMESPACE,
+    RESOURCES, UNIPROT_NAMESPACE,
 )
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
@@ -29,10 +29,14 @@ def get_sider_graph() -> pybel.BELGraph:
     if not sider_manager.is_populated():
         sider_manager.populate()
     sider_graph = sider_manager.to_bel()
+
+    if os.path.exists(RESOURCES):
+        pybel.to_pickle(sider_graph, DEFAULT_SIDER_PICKLE)
+
     return sider_graph
 
 
-def get_drugbank_graph():
+def get_drugbank_graph() -> pybel.BELGraph:
     """Get the DrugBank graph."""
     if os.path.exists(DEFAULT_DRUGBANK_PICKLE):
         return pybel.from_pickle(DEFAULT_DRUGBANK_PICKLE)
@@ -41,6 +45,10 @@ def get_drugbank_graph():
     if not drugbank_manager.is_populated():
         drugbank_manager.populate()
     drugbank_graph = drugbank_manager.to_bel()
+
+    if os.path.exists(RESOURCES):
+        pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_PICKLE)
+
     return drugbank_graph
 
 
