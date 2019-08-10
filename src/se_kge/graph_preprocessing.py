@@ -11,8 +11,6 @@ import pybel.dsl
 from defusedxml import ElementTree
 from tqdm import tqdm
 
-import bio2bel_drugbank
-import bio2bel_sider
 from .constants import (
     DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DRUGBANK_NAMESPACE, PUBCHEM_NAMESPACE,
     RESOURCES, UNIPROT_NAMESPACE,
@@ -20,10 +18,12 @@ from .constants import (
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
 
-def get_sider_graph() -> pybel.BELGraph:
+def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
     """Get the SIDER graph."""
-    if os.path.exists(DEFAULT_SIDER_PICKLE):
+    if not rebuild and os.path.exists(DEFAULT_SIDER_PICKLE):
         return pybel.from_pickle(DEFAULT_SIDER_PICKLE)
+
+    import bio2bel_sider
 
     sider_manager = bio2bel_sider.Manager()
     if not sider_manager.is_populated():
@@ -36,10 +36,12 @@ def get_sider_graph() -> pybel.BELGraph:
     return sider_graph
 
 
-def get_drugbank_graph(**kwargs) -> pybel.BELGraph:
+def get_drugbank_graph(rebuild: bool = False, **kwargs) -> pybel.BELGraph:
     """Get the DrugBank graph."""
-    if os.path.exists(DEFAULT_DRUGBANK_PICKLE):
+    if not rebuild and os.path.exists(DEFAULT_DRUGBANK_PICKLE):
         return pybel.from_pickle(DEFAULT_DRUGBANK_PICKLE)
+
+    import bio2bel_drugbank
 
     drugbank_manager = bio2bel_drugbank.Manager()
     if not drugbank_manager.is_populated():
