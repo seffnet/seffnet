@@ -16,7 +16,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
-from .constants import RESOURCES, PUBCHEM_NAMESPACE
+from .constants import PUBCHEM_NAMESPACE, RESOURCES
 from .get_url_requests import cid_to_smiles
 
 
