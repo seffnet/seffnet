@@ -12,9 +12,9 @@ from defusedxml import ElementTree
 from tqdm import tqdm
 
 from .constants import (
-    DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DRUGBANK_NAMESPACE, PUBCHEM_NAMESPACE,
-    RESOURCES, UNIPROT_NAMESPACE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST)
-from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
+    DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE,
+    RESOURCES, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST)
+from .get_url_requests import cid_to_synonyms, smiles_to_cid
 
 
 def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:

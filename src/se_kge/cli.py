@@ -12,9 +12,7 @@ from se_kge.graph_preprocessing import get_mapped_graph
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
-
 from .utils import do_evaluation, do_optimization, train_model
-
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')

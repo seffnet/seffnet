@@ -39,6 +39,7 @@ def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
 
 
 def create_graphs(*, input_path, training_path, testing_path, seed):
+    """Create the training/testing graphs needed for evalution."""
     if training_path and testing_path is not None:
         graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
             input_path,
@@ -75,6 +76,7 @@ def do_evaluation(
         model_path,
         evaluation_file
 ):
+    """Train and evaluate an NRL model."""
     graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
         input_path=input_path,
         training_path=training_path,
@@ -138,6 +140,7 @@ def do_optimization(
         name,
         output,
 ):
+    """Run optimization a specific method and graph."""
     graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
         input_path=input_path,
         training_path=training_path,
@@ -244,6 +247,7 @@ def train_model(
         model_path,
         embeddings_path,
 ):
+    """Train a graph with an NRL model."""
     model = embedding_training(
         train_graph_filename=input_path,
         method=method,

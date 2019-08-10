@@ -30,7 +30,8 @@ RESOURCES = os.path.abspath(os.path.join(HERE, os.pardir, os.pardir, 'resources'
 DEFAULT_DRUGBANK_PICKLE = os.path.join(RESOURCES, 'basic_graphs', 'drugbank_graph.pickle')
 DEFAULT_SIDER_PICKLE = os.path.join(RESOURCES, 'basic_graphs', 'sider_graph.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE = os.path.join(RESOURCES, 'basic_graphs', 'fullgraph_without_chemsim.pickle')
-DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(RESOURCES, 'basic_graphs', 'fullgraph_without_chemsim.edgelist')
+DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(RESOURCES, 'basic_graphs',
+                                                          'fullgraph_without_chemsim.edgelist')
 
 DEFAULT_EMBEDDINGS_PATH = os.path.abspath(os.path.join(
     RESOURCES, "predictive_model", "070819_node2vec_embeddings_complete01.embeddings",
