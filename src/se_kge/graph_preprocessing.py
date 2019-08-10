@@ -174,8 +174,10 @@ def create_chemicals_mapping_file(
         if not isinstance(pubchem, str):
             pubchem = pubchem.decode("utf-8")
         pubchem_ids.append(pubchem)
-    mapping_dict = {'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name,
-                    'Smiles': drug_smiles}
+    mapping_dict = {
+        'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name,
+        'Smiles': drug_smiles
+    }
     mapping_df = pd.DataFrame(mapping_dict)
     mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
     return mapping_df
