@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
 
 """Pre-processing of Graphs used for NRL models."""
+
 import os
 
-import bio2bel_drugbank
-import bio2bel_sider
 import networkx as nx
 import pandas as pd
 import pybel
@@ -12,13 +11,20 @@ import pybel.dsl
 from defusedxml import ElementTree
 from tqdm import tqdm
 
-from .constants import DEFAULT_MAPPING_PATH, PUBCHEM_NAMESPACE, DRUGBANK_NAMESPACE, UNIPROT_NAMESPACE
+import bio2bel_drugbank
+import bio2bel_sider
+from .constants import (
+    DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DRUGBANK_NAMESPACE,
+    PUBCHEM_NAMESPACE, UNIPROT_NAMESPACE,
+)
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
-
 
 
 def get_sider_graph() -> pybel.BELGraph:
     """Get the SIDER graph."""
+    if os.path.exists(DEFAULT_SIDER_PICKLE):
+        return pybel.from_pickle(DEFAULT_SIDER_PICKLE)
+
     sider_manager = bio2bel_sider.Manager()
     if not sider_manager.is_populated():
         sider_manager.populate()
@@ -28,6 +34,9 @@ def get_sider_graph() -> pybel.BELGraph:
 
 def get_drugbank_graph():
     """Get the DrugBank graph."""
+    if os.path.exists(DEFAULT_DRUGBANK_PICKLE):
+        return pybel.from_pickle(DEFAULT_DRUGBANK_PICKLE)
+
     drugbank_manager = bio2bel_drugbank.Manager()
     if not drugbank_manager.is_populated():
         drugbank_manager.populate()
