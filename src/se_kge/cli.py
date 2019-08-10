@@ -13,6 +13,7 @@ import click
 import networkx as nx
 from bionev import pipeline
 from bionev.embed_train import embedding_training
+from se_kge.graph_preprocessing import get_mapped_graph
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
@@ -325,7 +326,7 @@ def web(host, port):
 def rebuild():
     """Build all resources from scratch."""
     from pybel.struct import count_functions, count_namespaces
-    from .graph_preprocessing import get_drugbank_graph, get_sider_graph
+    from .graph_preprocessing import get_drugbank_graph, get_sider_graph, get_combined_sider_drugbank
 
     click.secho('Rebuilding DrugBank', fg='blue', bold=True)
     drugbank_graph = get_drugbank_graph(rebuild=True, drug_namespace='pubchem.compound')
@@ -340,6 +341,20 @@ def rebuild():
     click.echo(str(count_functions(sider_graph)))
     click.echo(str(count_namespaces(sider_graph)))
     click.echo(str(sider_graph.number_of_edges()))
+
+    click.secho('Rebuilding DrugBank-SIDER combined graph', fg='blue', bold=True)
+    fullgraph = get_combined_sider_drugbank(rebuild=True,
+                                            sider_graph_path=sider_graph,
+                                            drugbank_graph_path=drugbank_graph
+                                            )
+    click.echo(fullgraph.summary_str())
+    click.echo(str(count_functions(fullgraph)))
+    click.echo(str(count_namespaces(fullgraph)))
+    click.echo(str(fullgraph.number_of_edges()))
+
+    click.secho('Rebuilding combined graph with node_ids', fg='blue', bold=True)
+    fullgraph_id = get_mapped_graph(fullgraph)
+    click.echo('Mapped graph and mapping dataframe are created!')
 
 
 if __name__ == "__main__":

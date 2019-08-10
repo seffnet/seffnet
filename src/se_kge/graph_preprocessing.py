@@ -13,8 +13,7 @@ from tqdm import tqdm
 
 from .constants import (
     DEFAULT_DRUGBANK_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DRUGBANK_NAMESPACE, PUBCHEM_NAMESPACE,
-    RESOURCES, UNIPROT_NAMESPACE,
-)
+    RESOURCES, UNIPROT_NAMESPACE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST)
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
 
@@ -54,59 +53,43 @@ def get_drugbank_graph(rebuild: bool = False, **kwargs) -> pybel.BELGraph:
     return drugbank_graph
 
 
-def combine_pubchem_drugbank(
+def get_combined_sider_drugbank(
         *,
-        mapping_path,
+        rebuild: bool = False,
         drugbank_graph_path=None,
         sider_graph_path=None
 ):
     """
     Combine the SIDER and DrugBank graphs.
 
-    :param mapping_path: the path to tsv file with mappings between pubchemid and drugbankid
     :param drugbank_graph_path: the path to drugbank graph
     :param sider_graph_path: the path to sider graph
     :return: BELGraph
     """
-    if drugbank_graph_path is not None:
-        drugbank_graph = pybel.from_pickle(drugbank_graph_path)
-    else:
-        drugbank_graph = get_drugbank_graph()
-    if sider_graph_path is not None:
+    if not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE):
+        return pybel.from_pickle(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
+    if type(sider_graph_path) == pybel.struct.graph.BELGraph:
+        sider_graph = sider_graph_path
+    elif os.path.exists(sider_graph_path):
         sider_graph = pybel.from_pickle(sider_graph_path)
     else:
         sider_graph = get_sider_graph()
-    drugbank_pubchem_mapping = pd.read_csv(
-        mapping_path, sep="\t",
-        index_col=False, dtype={'PubchemID': str, 'Smiles': str, 'DrugbankID': str})
-    drugbank_pubchem_mapping = drugbank_pubchem_mapping.dropna(
-        axis=0,
-        how='any',
-        thresh=None,
-        subset=None,
-        inplace=False
-    )
-    drugbank_to_pubchem = {}
-    for ind, row in tqdm(drugbank_pubchem_mapping.iterrows(), desc='create pubchem-drugbank mapping dictionary'):
-        drugbank_to_pubchem[pybel.dsl.Abundance(
-            namespace=DRUGBANK_NAMESPACE,
-            name=row['DrugbankName'],
-            identifier=row['DrugbankID'])] = pybel.dsl.Abundance(
-            namespace=PUBCHEM_NAMESPACE,
-            identifier=row['PubchemID'])
-    drugbank_relabel = nx.relabel_nodes(drugbank_graph, drugbank_to_pubchem)
-    rm_nodes = []
-    for node in drugbank_relabel.nodes():
-        if node.namespace == DRUGBANK_NAMESPACE:
-            rm_nodes.append(node)
-    for node in tqdm(rm_nodes, desc='Removing nodes that were not relabeled'):
-        drugbank_relabel.remove_node(node)
-    full_graph = sider_graph + drugbank_relabel
-    full_graph.remove_nodes_from(list(nx.isolates(full_graph)))
+    if type(drugbank_graph_path) == pybel.struct.graph.BELGraph:
+        drugbank_graph = drugbank_graph_path
+    elif os.path.exists(drugbank_graph_path):
+        drugbank_graph = pybel.from_pickle(drugbank_graph_path)
+    else:
+        drugbank_graph = get_drugbank_graph()
+    full_graph = sider_graph + drugbank_graph
+    if os.path.exists(RESOURCES):
+        pybel.to_pickle(full_graph, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
     return full_graph
 
 
-def create_graph_mapping(*, graph_path, mapping_file_path=os.path.join(DEFAULT_MAPPING_PATH)):
+def get_mapped_graph(
+        graph_path,
+        rebuild: bool = False,
+):
     """
     Create graph mapping.
 
@@ -115,30 +98,30 @@ def create_graph_mapping(*, graph_path, mapping_file_path=os.path.join(DEFAULT_M
     :param mapping_file_path: the path to save the node_mapping_df
     :return: a relabeled graph and a dataframe with the node information
     """
-    graph = pybel.from_pickle(graph_path)
+    if not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST):
+        return nx.read_edgelist(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST)
+    if type(graph_path) == pybel.struct.graph.BELGraph:
+        graph = graph_path
+    else:
+        graph = pybel.from_pickle(graph_path)
     relabel_graph = {}
     i = 1
     for node in tqdm(graph.nodes(), desc='Relabel graph nodes'):
         relabel_graph[node] = i
         i += 1
     node_mapping_list = []
-    protein_list = []
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
         if node.namespace == PUBCHEM_NAMESPACE:
             name = cid_to_synonyms(node.identifier)
             if not isinstance(name, str):
                 name = name.decode("utf-8")
-        if node.namespace == UNIPROT_NAMESPACE:
-            protein_list.append(node.identifier)
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
     node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])
-    protein_to_gene = get_gene_names(protein_list)
-    for protein, gene in tqdm(protein_to_gene.items(), desc='Enrich proteins'):
-        node_mapping_df.loc[node_mapping_df['identifier'] == protein, 'name'] = gene
-    node_mapping_df.to_csv(mapping_file_path, index=False, sep='\t')
+    node_mapping_df.to_csv(os.path.join(DEFAULT_MAPPING_PATH), index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
-    return graph_id, relabel_graph
+    nx.write_edgelist(graph_id, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST, data=False)
+    return graph_id
 
 
 def create_chemicals_mapping_file(
