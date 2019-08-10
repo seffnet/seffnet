@@ -36,7 +36,7 @@ def get_sider_graph() -> pybel.BELGraph:
     return sider_graph
 
 
-def get_drugbank_graph() -> pybel.BELGraph:
+def get_drugbank_graph(**kwargs) -> pybel.BELGraph:
     """Get the DrugBank graph."""
     if os.path.exists(DEFAULT_DRUGBANK_PICKLE):
         return pybel.from_pickle(DEFAULT_DRUGBANK_PICKLE)
@@ -44,7 +44,7 @@ def get_drugbank_graph() -> pybel.BELGraph:
     drugbank_manager = bio2bel_drugbank.Manager()
     if not drugbank_manager.is_populated():
         drugbank_manager.populate()
-    drugbank_graph = drugbank_manager.to_bel()
+    drugbank_graph = drugbank_manager.to_bel(**kwargs)
 
     if os.path.exists(RESOURCES):
         pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_PICKLE)
