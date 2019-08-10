@@ -5,6 +5,9 @@
 import os
 
 __all__ = [
+    'DRUGBANK_NAMESPACE',
+    'PUBCHEM_NAMESPACE',
+    'UNIPROT_NAMESPACE',
     'HERE',
     'RESOURCES',
     'DEFAULT_EMBEDDINGS_PATH',
@@ -12,6 +15,10 @@ __all__ = [
     'DEFAULT_MAPPING_PATH',
     'DEFAULT_MODEL_PATH',
 ]
+
+DRUGBANK_NAMESPACE = 'drugbank'
+PUBCHEM_NAMESPACE = 'pubchem.compound'
+UNIPROT_NAMESPACE = 'uniprot'
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 RESOURCES = os.path.abspath(os.path.join(HERE, os.pardir, os.pardir, 'resources'))

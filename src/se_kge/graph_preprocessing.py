@@ -12,7 +12,7 @@ import pybel.dsl
 from defusedxml import ElementTree
 from tqdm import tqdm
 
-from .constants import DEFAULT_MAPPING_PATH
+from .constants import DEFAULT_MAPPING_PATH, PUBCHEM_NAMESPACE, DRUGBANK_NAMESPACE, UNIPROT_NAMESPACE
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
 
@@ -70,15 +70,15 @@ def combine_pubchem_drugbank(
     drugbank_to_pubchem = {}
     for ind, row in tqdm(drugbank_pubchem_mapping.iterrows(), desc='create pubchem-drugbank mapping dictionary'):
         drugbank_to_pubchem[pybel.dsl.Abundance(
-            namespace='drugbank',
+            namespace=DRUGBANK_NAMESPACE,
             name=row['DrugbankName'],
             identifier=row['DrugbankID'])] = pybel.dsl.Abundance(
-            namespace='pubchem.compound',
+            namespace=PUBCHEM_NAMESPACE,
             identifier=row['PubchemID'])
     drugbank_relabel = nx.relabel_nodes(drugbank_graph, drugbank_to_pubchem)
     rm_nodes = []
     for node in drugbank_relabel.nodes():
-        if node.namespace == 'drugbank':
+        if node.namespace == DRUGBANK_NAMESPACE:
             rm_nodes.append(node)
     for node in tqdm(rm_nodes, desc='Removing nodes that were not relabeled'):
         drugbank_relabel.remove_node(node)
@@ -106,11 +106,11 @@ def create_graph_mapping(*, graph_path, mapping_file_path=os.path.join(DEFAULT_M
     protein_list = []
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
-        if node.namespace == 'pubchem.compound':
+        if node.namespace == PUBCHEM_NAMESPACE:
             name = cid_to_synonyms(node.identifier)
             if not isinstance(name, str):
                 name = name.decode("utf-8")
-        if node.namespace == 'uniprot':
+        if node.namespace == UNIPROT_NAMESPACE:
             protein_list.append(node.identifier)
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
     node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])

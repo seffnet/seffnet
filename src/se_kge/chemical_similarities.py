@@ -16,7 +16,7 @@ from rdkit import Chem, DataStructs
 from rdkit.Chem import MACCSkeys
 from tqdm import tqdm
 
-from .constants import RESOURCES
+from .constants import RESOURCES, PUBCHEM_NAMESPACE
 from .get_url_requests import cid_to_smiles
 
 
@@ -112,8 +112,8 @@ def create_similarity_graph(
         if sim < similarity:
             continue
         chem_sim_graph.add_unqualified_edge(
-            pybel.dsl.Abundance(namespace='pubchem.compound', identifier=pubchem_1),
-            pybel.dsl.Abundance(namespace='pubchem.compound', identifier=pubchem_2),
+            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=pubchem_1),
+            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=pubchem_2),
             'association',
         )
     return chem_sim_graph
