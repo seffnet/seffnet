@@ -16,27 +16,20 @@ from .constants import DEFAULT_MAPPING_PATH
 from .get_url_requests import cid_to_synonyms, get_gene_names, smiles_to_cid
 
 
-def get_sider_graph():
-    """
-    Get the SIDER graph.
 
-    :return: BELGraph
-    """
+def get_sider_graph() -> pybel.BELGraph:
+    """Get the SIDER graph."""
     sider_manager = bio2bel_sider.Manager()
-    if sider_manager.is_populated() is False:
+    if not sider_manager.is_populated():
         sider_manager.populate()
     sider_graph = sider_manager.to_bel()
     return sider_graph
 
 
 def get_drugbank_graph():
-    """
-    Get the DrugBank graph.
-
-    :return: BELGraph
-    """
+    """Get the DrugBank graph."""
     drugbank_manager = bio2bel_drugbank.Manager()
-    if drugbank_manager.is_populated() is False:
+    if not drugbank_manager.is_populated():
         drugbank_manager.populate()
     drugbank_graph = drugbank_manager.to_bel()
     return drugbank_graph
