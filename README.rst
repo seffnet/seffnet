@@ -24,7 +24,7 @@ If you've installed ``seffnet`` locally, you can use the default model from the 
     from se_kge.default_predictor import predictor
     
     # Find new relations for a given entity based on its CURIE
-    results = predictor.find_new_relations(curie='pubchem:85')
+    results = predictor.find_new_relations(curie='pubchem.compound:85')
     ...
 
 Web Application
