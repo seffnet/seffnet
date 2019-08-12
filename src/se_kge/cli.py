@@ -8,11 +8,12 @@ import random
 import sys
 
 import click
+import networkx as nx
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
-from .utils import do_evaluation, do_optimization, train_model
+from .utils import do_evaluation, do_optimization, train_model, split_training_testing_sets
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -251,6 +252,11 @@ def rebuild():
     click.secho('Reclustering chemicals', fg='blue', bold=True)
     cluster_chemicals(rebuild=True)
     click.echo('Clustered chemicals dataframe is created!')
+
+    click.secho('Rebuilding training and testing sets', fg='blue', bold=True)
+    g_train, g_test = split_training_testing_sets(rebuild=True)
+    click.echo(nx.info(g_train))
+    click.echo(nx.info(g_test))
 
 
 if __name__ == "__main__":

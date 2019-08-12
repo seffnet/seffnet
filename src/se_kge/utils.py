@@ -4,13 +4,19 @@
 import datetime
 import getpass
 import json
+import os
 from typing import Any, Mapping
 
 import networkx as nx
+import pandas as pd
 import optuna
+import pybel
 from bionev import pipeline
 from bionev.embed_train import embedding_training
+from sklearn.model_selection import GroupShuffleSplit
+from tqdm import tqdm
 
+from .constants import DEFAULT_TRAINING_SET, DEFAULT_TESTING_SET, DEFAULT_CLUSTERED_CHEMICALS
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
@@ -272,3 +278,63 @@ def train_model(
         seed=seed,
         save_model=model_path
     )
+
+
+def split_training_testing_sets(
+        *,
+        rebuild: bool = False,
+        clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
+):
+    ##TODO: refractor and optimize
+    if not rebuild and os.path.exists(DEFAULT_TRAINING_SET) and os.path.exists(DEFAULT_TESTING_SET):
+        return nx.read_edgelist(DEFAULT_TRAINING_SET), nx.read_edgelist(DEFAULT_TESTING_SET)
+    clustered_chemicals = pd.read_csv(clustered_chemicals_file, sep='\t', dtype={'PubchemID':str})
+    cluster_dict = {
+        row['PubchemID']: row['Cluster']
+        for ind, row in clustered_chemicals.iterrows()
+    }
+    full_graph = pybel.from_pickle(
+        os.path.join(os.pardir, "resources", "chemsim_50_graphs", "fullgraph_with_chemsim_50.pickle"))
+    mapping_df = pd.read_csv(os.path.join(os.pardir, "resources", "mapping", 'fullgraph_nodes_mapping.tsv'), sep="\t",
+                             index_col=False)
+    mapping_dict = {}
+    for index, row in tqdm(mapping_df.iterrows(), desc='Reading mapping dataframe'):
+        if row['namespace'] == 'pubchem.compound':
+            mapping_dict[pybel.dsl.Abundance(namespace=row['namespace'], identifier=row['identifier'])] = row['node_id']
+        elif row['namespace'] == 'umls':
+            mapping_dict[pybel.dsl.Pathology(namespace=row['namespace'], name=row['name'])] = row['node_id']
+        else:
+            mapping_dict[pybel.dsl.Protein(namespace=row['namespace'], identifier=row['name'])] = row['node_id']
+    df = []
+    for source, target in tqdm(full_graph.edges(), desc='Creating splitting dataframe'):
+        if source.identifier not in cluster_dict:
+            df.append([mapping_dict[source], mapping_dict[target], 0.0])
+        else:
+            df.append([mapping_dict[source], mapping_dict[target], cluster_dict[source.identifier]])
+    clustered_edgelist = pd.DataFrame(df, columns=['source', 'target', 'cluster'])
+    train_inds, test_inds = next(GroupShuffleSplit(test_size=.20, n_splits=2, random_state=7).split(clustered_edgelist,
+                                                                                                    groups=
+                                                                                                    clustered_edgelist[
+                                                                                                        'cluster']))
+    training = clustered_edgelist.iloc[train_inds]
+    testing = clustered_edgelist.iloc[test_inds]
+    g_train = nx.Graph()
+    g_test = nx.Graph()
+    for ind, row in tqdm(training.iterrows(), desc='Creating training set'):
+        g_train.add_edge(row['source'], row['target'])
+    for ind, row in tqdm(testing.iterrows(), desc='Creating testing set'):
+        g_test.add_edge(row['source'], row['target'])
+
+    for edge in tqdm(g_test.edges(), desc='Modifying training set'):
+        if edge[0] not in g_train.nodes():
+            g_train.add_node(edge[0])
+            g_train.add_edge(edge[0], edge[1])
+        if edge[1] not in g_train.nodes():
+            g_train.add_node(edge[1])
+            g_train.add_edge(edge[0], edge[1])
+    for edge in tqdm(g_train.edges(), desc='Modifying testing set'):
+        if g_test.has_edge(edge[0], edge[1]):
+            g_test.remove_edge(edge[0], edge[1])
+    nx.write_edgelist(g_train,DEFAULT_TRAINING_SET, data=False)
+    nx.write_edgelist(g_test, DEFAULT_TESTING_SET, data=False)
+    return g_train, g_test

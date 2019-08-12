@@ -81,7 +81,7 @@ def get_similarity_graph(
         rebuild: bool = False,
         mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
         similarity=0.5,
-        name='',
+        name='Chemical Similarity Graph',
         version='1.1.0',
         authors='',
         contact='',
@@ -131,7 +131,6 @@ def get_similarity_graph(
             pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
             'association',
         )
-    fullgraph_without_chemsim = pybel.from_pickle(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
     fullgraph_with_chemsim = fullgraph_without_chemsim + chemsim_graph
     relabel_graph = {}
     i = 1
