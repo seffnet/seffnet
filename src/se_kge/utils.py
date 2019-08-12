@@ -16,7 +16,8 @@ from bionev.embed_train import embedding_training
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
 
-from .constants import DEFAULT_TRAINING_SET, DEFAULT_TESTING_SET, DEFAULT_CLUSTERED_CHEMICALS
+from .constants import DEFAULT_TRAINING_SET, DEFAULT_TESTING_SET, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, \
+    DEFAULT_MAPPING_PATH
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
@@ -293,9 +294,8 @@ def split_training_testing_sets(
         row['PubchemID']: row['Cluster']
         for ind, row in clustered_chemicals.iterrows()
     }
-    full_graph = pybel.from_pickle(
-        os.path.join(os.pardir, "resources", "chemsim_50_graphs", "fullgraph_with_chemsim_50.pickle"))
-    mapping_df = pd.read_csv(os.path.join(os.pardir, "resources", "mapping", 'fullgraph_nodes_mapping.tsv'), sep="\t",
+    full_graph = pybel.from_pickle(DEFAULT_FULLGRAPH_PICKLE)
+    mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t",
                              index_col=False)
     mapping_dict = {}
     for index, row in tqdm(mapping_df.iterrows(), desc='Reading mapping dataframe'):
@@ -335,6 +335,6 @@ def split_training_testing_sets(
     for edge in tqdm(g_train.edges(), desc='Modifying testing set'):
         if g_test.has_edge(edge[0], edge[1]):
             g_test.remove_edge(edge[0], edge[1])
-    nx.write_edgelist(g_train,DEFAULT_TRAINING_SET, data=False)
+    nx.write_edgelist(g_train, DEFAULT_TRAINING_SET, data=False)
     nx.write_edgelist(g_test, DEFAULT_TESTING_SET, data=False)
     return g_train, g_test
