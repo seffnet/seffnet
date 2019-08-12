@@ -13,7 +13,7 @@ from tqdm import tqdm
 
 from .constants import (
     DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
-    DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES)
+    DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES, DEFAULT_CHEMICALS_MAPPING_PATH)
 from .get_url_requests import cid_to_synonyms, smiles_to_cid
 
 
@@ -70,13 +70,13 @@ def get_combined_sider_drugbank(
         return pybel.from_pickle(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
     if type(sider_graph_path) == pybel.struct.graph.BELGraph:
         sider_graph = sider_graph_path
-    elif os.path.exists(sider_graph_path):
+    elif sider_graph_path is not None and os.path.exists(sider_graph_path):
         sider_graph = pybel.from_pickle(sider_graph_path)
     else:
         sider_graph = get_sider_graph()
     if type(drugbank_graph_path) == pybel.struct.graph.BELGraph:
         drugbank_graph = drugbank_graph_path
-    elif os.path.exists(drugbank_graph_path):
+    elif drugbank_graph_path is not None and os.path.exists(drugbank_graph_path):
         drugbank_graph = pybel.from_pickle(drugbank_graph_path)
     else:
         drugbank_graph = get_drugbank_graph()
@@ -104,6 +104,14 @@ def get_mapped_graph(
         graph = graph_path
     else:
         graph = pybel.from_pickle(graph_path)
+    chemical_mapping = None
+    if os.path.exists(DEFAULT_CHEMICALS_MAPPING_PATH):
+        chemical_mapping = pd.read_csv(
+            DEFAULT_CHEMICALS_MAPPING_PATH,
+            sep="\t",
+            dtype={'PubchemID': str, 'Smiles': str},
+            index_col=False,
+        )
     relabel_graph = {}
     i = 1
     for node in tqdm(graph.nodes(), desc='Relabel graph nodes'):
@@ -113,9 +121,11 @@ def get_mapped_graph(
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
         if node.namespace == PUBCHEM_NAMESPACE:
-            name = cid_to_synonyms(node.identifier)
-            if not isinstance(name, str):
-                name = name.decode("utf-8")
+            name = chemical_mapping.loc[chemical_mapping['PubchemID'] == node.identifier, 'DrugbankName'].iloc[0]
+            if name is None:
+                name = cid_to_synonyms(name.identifier)
+                if not isinstance(name, str):
+                    name = name.decode("utf-8")
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
     node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])
     node_mapping_df.to_csv(os.path.join(DEFAULT_MAPPING_PATH), index=False, sep='\t')
@@ -127,7 +137,8 @@ def get_mapped_graph(
 def create_chemicals_mapping_file(
         *,
         drugbank_file,
-        mapping_filepath
+        mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
+        rebuild : bool = False,
 ):
     """
     Create a tsv file containing chemical mapping information.
@@ -137,26 +148,40 @@ def create_chemicals_mapping_file(
     :param mapping_filepath: the path in which the tsv mapping file will be saved
     :return: a dataframe with the mapping information
     """
+    if not rebuild and os.path.exists(mapping_filepath):
+        return pd.read_csv(
+            DEFAULT_CHEMICALS_MAPPING_PATH,
+            sep="\t",
+            dtype={'PubchemID': str, 'Smiles': str},
+            index_col=False,
+        )
     tree = ElementTree.parse(drugbank_file)
     root = tree.getroot()
     ns = '{http://www.drugbank.ca}'
     smiles_template = "{ns}calculated-properties/{ns}property[{ns}kind='SMILES']/{ns}value"
+    pubchem_template = "{ns}external-identifiers/{ns}external-identifier[{ns}resource='PubChem Compound']/{ns}identifier"
     drugbank_name = []
     drugbank_id = []
     drug_smiles = []
+    pubchem_ids = []
     for i, drug in tqdm(enumerate(root), desc="Getting DrugBank info"):
         assert drug.tag == ns + 'drug'
+        if drug.attrib['type'] == "biotech":
+            continue
         if drug.findtext(smiles_template.format(ns=ns)) is None:
             continue
         drugbank_name.append(drug.findtext(ns + "name"))
-        drug_smiles.append(drug.findtext(smiles_template.format(ns=ns)))
+        smiles = drug.findtext(smiles_template.format(ns=ns))
+        drug_smiles.append(smiles)
         drugbank_id.append(drug.findtext(ns + "drugbank-id"))
-    pubchem_ids = []
-    for smile in tqdm(drug_smiles, desc="Getting PubChemID"):
-        pubchem = smiles_to_cid(smile)
-        if not isinstance(pubchem, str):
-            pubchem = pubchem.decode("utf-8")
-        pubchem_ids.append(pubchem)
+        pubchem_id = drug.findtext(pubchem_template.format(ns=ns))
+        if pubchem_id is not None:
+            pubchem_ids.append(pubchem_id)
+        else:
+            pubchem_id = smiles_to_cid(smiles)
+            if not isinstance(pubchem_id, str):
+                pubchem_id = pubchem_id .decode("utf-8")
+            pubchem_ids.append(pubchem_id)
     mapping_dict = {
         'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name,
         'Smiles': drug_smiles
