@@ -238,7 +238,7 @@ def rebuild():
     click.echo(str(fullgraph.number_of_edges()))
 
     click.secho('Rebuilding combined graph with node_ids', fg='blue', bold=True)
-    get_mapped_graph(fullgraph, rebuild=True)
+    get_mapped_graph(graph_path=fullgraph, rebuild=True)
     click.echo('Mapped graph and mapping dataframe are created!')
 
     click.secho('Rebuilding combined graph with chemical similarities', fg='blue', bold=True)

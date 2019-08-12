@@ -87,7 +87,8 @@ def get_combined_sider_drugbank(
 
 
 def get_mapped_graph(
-        graph_path,
+        *,
+        graph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         rebuild: bool = False,
 ):
     """
@@ -111,7 +112,7 @@ def get_mapped_graph(
             sep="\t",
             dtype={'PubchemID': str, 'Smiles': str},
             index_col=False,
-        )
+        ).dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
     relabel_graph = {}
     i = 1
     for node in tqdm(graph.nodes(), desc='Relabel graph nodes'):
@@ -121,14 +122,15 @@ def get_mapped_graph(
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
         if node.namespace == PUBCHEM_NAMESPACE:
-            name = chemical_mapping.loc[chemical_mapping['PubchemID'] == node.identifier, 'DrugbankName'].iloc[0]
-            if name is None:
-                name = cid_to_synonyms(name.identifier)
+            if chemical_mapping.loc[chemical_mapping["PubchemID"] == node.identifier].empty:
+                name = cid_to_synonyms(node.identifier)
                 if not isinstance(name, str):
                     name = name.decode("utf-8")
+            else:
+                name = chemical_mapping.loc[chemical_mapping['PubchemID'] == node.identifier, 'DrugbankName'].iloc[0]
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
     node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])
-    node_mapping_df.to_csv(os.path.join(DEFAULT_MAPPING_PATH), index=False, sep='\t')
+    node_mapping_df.to_csv(DEFAULT_MAPPING_PATH, index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
     nx.write_edgelist(graph_id, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST, data=False)
     return graph_id
