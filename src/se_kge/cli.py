@@ -208,6 +208,10 @@ def rebuild():
     """Build all resources from scratch."""
     from pybel.struct import count_functions, count_namespaces
     from .graph_preprocessing import get_drugbank_graph, get_sider_graph, get_combined_sider_drugbank
+    try:
+        from se_kge.chemical_similarities import get_similarity_graph, cluster_chemicals
+    except:
+        raise Exception('You need rdkit package to rebuild the graphs')
 
     click.secho('Rebuilding DrugBank', fg='blue', bold=True)
     drugbank_graph = get_drugbank_graph(rebuild=True, drug_namespace='pubchem.compound')
@@ -234,9 +238,19 @@ def rebuild():
     click.echo(str(fullgraph.number_of_edges()))
 
     click.secho('Rebuilding combined graph with node_ids', fg='blue', bold=True)
-    fullgraph_id = get_mapped_graph(fullgraph)
-    click.echo(str(fullgraph_id.summary_str()))
+    get_mapped_graph(fullgraph, rebuild=True)
     click.echo('Mapped graph and mapping dataframe are created!')
+
+    click.secho('Rebuilding combined graph with chemical similarities', fg='blue', bold=True)
+    fullgraph_with_chemsim = get_similarity_graph(rebuild=True)
+    click.echo(fullgraph_with_chemsim.summary_str())
+    click.echo(str(count_functions(fullgraph_with_chemsim)))
+    click.echo(str(count_namespaces(fullgraph_with_chemsim)))
+    click.echo(str(fullgraph_with_chemsim.number_of_edges()))
+
+    click.secho('Reclustering chemicals', fg='blue', bold=True)
+    cluster_chemicals(rebuild=True)
+    click.echo('Clustered chemicals dataframe is created!')
 
 
 if __name__ == "__main__":
