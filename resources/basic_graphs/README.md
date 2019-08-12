@@ -2,8 +2,6 @@
 
 The graphs in this folder were created using databases.
 
-Related Notebook: https://github.com/AldisiRana/SE_KGE/blob/master/notebooks/creating_graphs.ipynb
-
 ## drugbank_graph
 
 This graph was created using DrugBank database (https://drugbank.ca).
@@ -24,10 +22,10 @@ It contains chemicals and side effects as nodes, and the relations between chemi
 
 ## fullgraph_without_sim
 
-This graph is a combination of both SIDER and DrugBank graphs. 
+This graph is a combination of both SIDER and DrugBank graphs.
 
 The chemicals in both graphs were mapped using SMILES and the drugbank_pubchem_mapping file in the mapping folder
 
-- Chemicals: 4743
-- Proteins: 1997
+- Chemicals: 7274
+- Proteins: 4049
 - Side effects: 6990
