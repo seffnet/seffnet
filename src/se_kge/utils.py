@@ -295,8 +295,7 @@ def split_training_testing_sets(
         for ind, row in clustered_chemicals.iterrows()
     }
     full_graph = pybel.from_pickle(DEFAULT_FULLGRAPH_PICKLE)
-    mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t",
-                             index_col=False)
+    mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t", dtype={'node_id':str}, index_col=False)
     mapping_dict = {}
     for index, row in tqdm(mapping_df.iterrows(), desc='Reading mapping dataframe'):
         if row['namespace'] == 'pubchem.compound':
@@ -311,7 +310,7 @@ def split_training_testing_sets(
             df.append([mapping_dict[source], mapping_dict[target], 0.0])
         else:
             df.append([mapping_dict[source], mapping_dict[target], cluster_dict[source.identifier]])
-    clustered_edgelist = pd.DataFrame(df, columns=['source', 'target', 'cluster'], dtype={'source':str, 'target':str})
+    clustered_edgelist = pd.DataFrame(df, columns=['source', 'target', 'cluster'])
     train_inds, test_inds = next(GroupShuffleSplit(test_size=.20, n_splits=2, random_state=7).split(clustered_edgelist,
                                                                                                     groups=
                                                                                                     clustered_edgelist[
