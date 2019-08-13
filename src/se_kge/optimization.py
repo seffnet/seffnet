@@ -281,7 +281,7 @@ def grarep_optimization(
         trial.set_user_attr('seed', seed)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
-        kstep = trial.suggest_int('kstep', 1, 10)
+        kstep = trial.suggest_int('kstep', 1, 7)
         model = embed_train.train_embed_grarep(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
