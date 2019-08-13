@@ -13,7 +13,7 @@ import networkx as nx
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
-from .utils import do_evaluation, do_optimization, train_model, split_training_testing_sets
+from .utils import do_evaluation, do_optimization, split_training_testing_sets, train_model
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -214,29 +214,28 @@ def rebuild():
     except:
         raise Exception('You need rdkit package to rebuild the graphs')
 
+    def _echo_graph(graph):
+        click.echo(graph.summary_str())
+        click.echo(str(count_functions(graph)))
+        click.echo(str(count_namespaces(graph)))
+        click.echo(str(graph.number_of_edges()))
+
     click.secho('Rebuilding DrugBank', fg='blue', bold=True)
     drugbank_graph = get_drugbank_graph(rebuild=True, drug_namespace='pubchem.compound')
     click.echo(drugbank_graph.summary_str())
-    click.echo(str(count_functions(drugbank_graph)))
-    click.echo(str(count_namespaces(drugbank_graph)))
-    click.echo(str(drugbank_graph.number_of_edges()))
+    _echo_graph(drugbank_graph)
 
     click.secho('Rebuilding SIDER', fg='blue', bold=True)
     sider_graph = get_sider_graph(rebuild=True)
-    click.echo(sider_graph.summary_str())
-    click.echo(str(count_functions(sider_graph)))
-    click.echo(str(count_namespaces(sider_graph)))
-    click.echo(str(sider_graph.number_of_edges()))
+    _echo_graph(sider_graph)
 
     click.secho('Rebuilding DrugBank-SIDER combined graph', fg='blue', bold=True)
-    fullgraph = get_combined_sider_drugbank(rebuild=True,
-                                            sider_graph_path=sider_graph,
-                                            drugbank_graph_path=drugbank_graph
-                                            )
-    click.echo(fullgraph.summary_str())
-    click.echo(str(count_functions(fullgraph)))
-    click.echo(str(count_namespaces(fullgraph)))
-    click.echo(str(fullgraph.number_of_edges()))
+    fullgraph = get_combined_sider_drugbank(
+        rebuild=True,
+        sider_graph_path=sider_graph,
+        drugbank_graph_path=drugbank_graph,
+    )
+    _echo_graph(fullgraph)
 
     click.secho('Rebuilding combined graph with node_ids', fg='blue', bold=True)
     get_mapped_graph(graph_path=fullgraph, rebuild=True)
@@ -244,10 +243,7 @@ def rebuild():
 
     click.secho('Rebuilding combined graph with chemical similarities', fg='blue', bold=True)
     fullgraph_with_chemsim = get_similarity_graph(rebuild=True)
-    click.echo(fullgraph_with_chemsim.summary_str())
-    click.echo(str(count_functions(fullgraph_with_chemsim)))
-    click.echo(str(count_namespaces(fullgraph_with_chemsim)))
-    click.echo(str(fullgraph_with_chemsim.number_of_edges()))
+    _echo_graph(fullgraph_with_chemsim)
 
     click.secho('Reclustering chemicals', fg='blue', bold=True)
     cluster_chemicals(rebuild=True)
