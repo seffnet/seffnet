@@ -211,7 +211,7 @@ def rebuild():
     from .graph_preprocessing import get_drugbank_graph, get_sider_graph, get_combined_sider_drugbank
     try:
         from se_kge.chemical_similarities import get_similarity_graph, cluster_chemicals
-    except:
+    except Exception:
         raise Exception('You need rdkit package to rebuild the graphs')
 
     def _echo_graph(graph):

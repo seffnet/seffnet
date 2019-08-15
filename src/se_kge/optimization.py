@@ -98,6 +98,7 @@ def hope_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'hope')
         trial.set_user_attr('seed', seed)
@@ -138,6 +139,7 @@ def deepwalk_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'deepwalk')
         trial.set_user_attr('seed', seed)
@@ -184,6 +186,7 @@ def node2vec_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'node2vec')
         trial.set_user_attr('seed', seed)
@@ -232,6 +235,7 @@ def sdne_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'sdne')
         trial.set_user_attr('seed', seed)
@@ -276,10 +280,11 @@ def grarep_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'grarep')
         trial.set_user_attr('seed', seed)
-
+        # TODO: need to choose kstep in which it can divide the dimension
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         kstep = trial.suggest_int('kstep', 1, 7)
         model = embed_train.train_embed_grarep(
@@ -318,6 +323,7 @@ def line_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'line')
         trial.set_user_attr('seed', seed)

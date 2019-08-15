@@ -12,8 +12,9 @@ from defusedxml import ElementTree
 from tqdm import tqdm
 
 from .constants import (
-    DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
-    DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES, DEFAULT_CHEMICALS_MAPPING_PATH)
+    DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES
+)
 from .get_url_requests import cid_to_synonyms, smiles_to_cid
 
 
@@ -141,7 +142,7 @@ def create_chemicals_mapping_file(
         *,
         drugbank_file,
         mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
-        rebuild : bool = False,
+        rebuild: bool = False,
 ):
     """
     Create a tsv file containing chemical mapping information.
@@ -162,7 +163,8 @@ def create_chemicals_mapping_file(
     root = tree.getroot()
     ns = '{http://www.drugbank.ca}'
     smiles_template = "{ns}calculated-properties/{ns}property[{ns}kind='SMILES']/{ns}value"
-    pubchem_template = "{ns}external-identifiers/{ns}external-identifier[{ns}resource='PubChem Compound']/{ns}identifier"
+    pubchem_template = \
+        "{ns}external-identifiers/{ns}external-identifier[{ns}resource='PubChem Compound']/{ns}identifier"
     drugbank_name = []
     drugbank_id = []
     drug_smiles = []

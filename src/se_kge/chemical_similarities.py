@@ -19,9 +19,8 @@ from rdkit.ML.Cluster import Butina
 from tqdm import tqdm
 
 from .constants import (
-    PUBCHEM_NAMESPACE, DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH,
-    DEFAULT_FULLGRAPH_PICKLE, DEFAULT_CLUSTERED_CHEMICALS,
-    DEFAULT_CHEMSIM_PICKLE)
+    DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_CHEMSIM_PICKLE, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE,
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, PUBCHEM_NAMESPACE)
 from .get_url_requests import cid_to_smiles
 
 
@@ -150,7 +149,8 @@ def cluster_chemicals(
         graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
 ):
-    ##TODO: refactor and optimize this code
+    """Cluster chemicals based on their similarities."""
+    # TODO: refactor and optimize this code
     if not rebuild and os.path.exists(DEFAULT_CLUSTERED_CHEMICALS):
         return pd.read_csv(
             DEFAULT_CLUSTERED_CHEMICALS,

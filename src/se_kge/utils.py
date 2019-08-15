@@ -8,16 +8,18 @@ import os
 from typing import Any, Mapping
 
 import networkx as nx
-import pandas as pd
 import optuna
+import pandas as pd
 import pybel
 from bionev import pipeline
 from bionev.embed_train import embedding_training
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
 
-from .constants import DEFAULT_TRAINING_SET, DEFAULT_TESTING_SET, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, \
-    DEFAULT_MAPPING_PATH
+from .constants import (
+    DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
+    DEFAULT_TRAINING_SET
+)
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
@@ -286,16 +288,17 @@ def split_training_testing_sets(
         rebuild: bool = False,
         clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
 ):
-    ##TODO: refractor and optimize
+    """Split training and testing sets based on clustered chemicals."""
+    # TODO: refractor and optimize
     if not rebuild and os.path.exists(DEFAULT_TRAINING_SET) and os.path.exists(DEFAULT_TESTING_SET):
         return nx.read_edgelist(DEFAULT_TRAINING_SET), nx.read_edgelist(DEFAULT_TESTING_SET)
-    clustered_chemicals = pd.read_csv(clustered_chemicals_file, sep='\t', dtype={'PubchemID':str})
+    clustered_chemicals = pd.read_csv(clustered_chemicals_file, sep='\t', dtype={'PubchemID': str})
     cluster_dict = {
         row['PubchemID']: row['Cluster']
         for ind, row in clustered_chemicals.iterrows()
     }
     full_graph = pybel.from_pickle(DEFAULT_FULLGRAPH_PICKLE)
-    mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t", dtype={'node_id':str}, index_col=False)
+    mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t", dtype={'node_id': str}, index_col=False)
     mapping_dict = {}
     for index, row in tqdm(mapping_df.iterrows(), desc='Reading mapping dataframe'):
         if row['namespace'] == 'pubchem.compound':
