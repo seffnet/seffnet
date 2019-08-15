@@ -314,10 +314,8 @@ def split_training_testing_sets(
         else:
             df.append([mapping_dict[source], mapping_dict[target], cluster_dict[source.identifier]])
     clustered_edgelist = pd.DataFrame(df, columns=['source', 'target', 'cluster'])
-    train_inds, test_inds = next(GroupShuffleSplit(test_size=.20, n_splits=2, random_state=7).split(clustered_edgelist,
-                                                                                                    groups=
-                                                                                                    clustered_edgelist[
-                                                                                                        'cluster']))
+    train_inds, test_inds = next(GroupShuffleSplit(test_size=.20, n_splits=2, random_state=7).
+                                 split(clustered_edgelist, groups=clustered_edgelist['cluster']))
     training = clustered_edgelist.iloc[train_inds]
     testing = clustered_edgelist.iloc[test_inds]
     g_train = nx.Graph()
