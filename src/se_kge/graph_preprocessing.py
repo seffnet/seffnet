@@ -123,9 +123,10 @@ def get_mapped_graph(
         name = node.name
         if node.namespace == PUBCHEM_NAMESPACE:
             if chemical_mapping.loc[chemical_mapping["PubchemID"] == node.identifier].empty:
-                name = cid_to_synonyms(node.identifier)
-                if not isinstance(name, str):
-                    name = name.decode("utf-8")
+                synonyms = cid_to_synonyms(node.identifier)
+                if not isinstance(synonyms, str):
+                    synonyms = synonyms.decode("utf-8")
+                name = synonyms.split('\n')[0]
             else:
                 name = chemical_mapping.loc[chemical_mapping['PubchemID'] == node.identifier, 'DrugbankName'].iloc[0]
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
@@ -182,7 +183,7 @@ def create_chemicals_mapping_file(
         else:
             pubchem_id = smiles_to_cid(smiles)
             if not isinstance(pubchem_id, str):
-                pubchem_id = pubchem_id .decode("utf-8")
+                pubchem_id = pubchem_id.decode("utf-8")
             pubchem_ids.append(pubchem_id)
     mapping_dict = {
         'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name,

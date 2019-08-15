@@ -48,9 +48,9 @@ def cid_to_synonyms(cid):
     Get the synonyms of chemical in PubChem database.
 
     :param cid: pubchem identifier
-    :return: IUPAC name of the chemical
+    :return: synonyms of the chemical
     """
-    return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/IUPACName/TXT" % cid)
+    return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/synonyms/TXT" % cid)
 
 
 def get_gene_names(uniprot_list):
