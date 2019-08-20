@@ -11,11 +11,11 @@ from dataclasses import dataclass
 from operator import itemgetter
 from typing import Any, List, Mapping, Optional, Tuple
 
+import joblib
 import networkx as nx
 import numpy as np
 import pandas as pd
 from bionev.utils import load_embedding
-from sklearn.externals import joblib
 from sklearn.linear_model import LogisticRegression
 
 __all__ = [
