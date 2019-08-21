@@ -7,7 +7,6 @@ import os
 import networkx as nx
 import pandas as pd
 import pybel
-import pybel.dsl
 from defusedxml import ElementTree
 from tqdm import tqdm
 
@@ -15,7 +14,7 @@ from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES
 )
-from .get_url_requests import cid_to_synonyms, smiles_to_cid
+from .get_url_requests import cid_to_synonyms, inchikey_to_cid, cid_to_inchikey
 
 
 def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
@@ -58,7 +57,8 @@ def get_combined_sider_drugbank(
         *,
         rebuild: bool = False,
         drugbank_graph_path=None,
-        sider_graph_path=None
+        sider_graph_path=None,
+        chemical_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
 ):
     """
     Combine the SIDER and DrugBank graphs.
@@ -81,10 +81,43 @@ def get_combined_sider_drugbank(
         drugbank_graph = pybel.from_pickle(drugbank_graph_path)
     else:
         drugbank_graph = get_drugbank_graph()
-    full_graph = sider_graph + drugbank_graph
+    inchi_dict = {}
+    if chemical_mapping is not None:
+        mapping_df = pd.read_csv(
+            chemical_mapping,
+            sep="\t",
+            dtype={'PubchemID': str, 'InChiKey': str},
+            index_col=False,
+        )
+        for ind, row in mapping_df.iterrows():
+            node = pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=row['PubchemID'])
+            inchi_dict[str(node)] = row['InChiKey'].split('-')[0]
+    for node in tqdm(sider_graph.nodes()):
+        if node.namespace != 'pubchem.compound':
+            continue
+        if node in inchi_dict.keys():
+            continue
+        inchi = cid_to_inchikey(node.identifier)
+        if not isinstance(inchi, str):
+            inchi = inchi.decode("utf-8")
+        inchi_dict[node] = inchi.split('-')[0]
+    for node in tqdm(drugbank_graph.nodes()):
+        if node.namespace != 'pubchem.compound':
+            continue
+        if node in inchi_dict.keys():
+            continue
+        inchi = cid_to_inchikey(node.identifier)
+        if not isinstance(inchi, str):
+            inchi = inchi.decode("utf-8")
+        inchi_dict[node] = inchi.split('-')[0]
+    sider_relabeled = nx.relabel_nodes(sider_graph, inchi_dict)
+    drugbank_relabeled = nx.relabel_nodes(drugbank_graph, inchi_dict)
+    full_graph = sider_relabeled + drugbank_relabeled
+    inchi_dict_rev = {v: k for k, v in inchi_dict.items()}
+    full_graph_relabel = nx.relabel_nodes(full_graph, inchi_dict_rev)
     if os.path.exists(RESOURCES):
-        pybel.to_pickle(full_graph, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
-    return full_graph
+        pybel.to_pickle(full_graph_relabel, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
+    return full_graph_relabel
 
 
 def get_mapped_graph(
@@ -111,7 +144,7 @@ def get_mapped_graph(
         chemical_mapping = pd.read_csv(
             DEFAULT_CHEMICALS_MAPPING_PATH,
             sep="\t",
-            dtype={'PubchemID': str, 'Smiles': str},
+            dtype={'PubchemID': str, 'InChiKey': str},
             index_col=False,
         ).dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
     relabel_graph = {}
@@ -138,9 +171,9 @@ def get_mapped_graph(
     return graph_id
 
 
-def create_chemicals_mapping_file(
+def get_chemicals_mapping_file(
         *,
-        drugbank_file,
+        drugbank_file=None,
         mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
         rebuild: bool = False,
 ):
@@ -162,35 +195,40 @@ def create_chemicals_mapping_file(
     tree = ElementTree.parse(drugbank_file)
     root = tree.getroot()
     ns = '{http://www.drugbank.ca}'
+    inchikey_template = "{ns}calculated-properties/{ns}property[{ns}kind='InChIKey']/{ns}value"
     smiles_template = "{ns}calculated-properties/{ns}property[{ns}kind='SMILES']/{ns}value"
     pubchem_template = \
         "{ns}external-identifiers/{ns}external-identifier[{ns}resource='PubChem Compound']/{ns}identifier"
     drugbank_name = []
     drugbank_id = []
+    drug_inchikey = []
     drug_smiles = []
     pubchem_ids = []
     for i, drug in tqdm(enumerate(root), desc="Getting DrugBank info"):
         assert drug.tag == ns + 'drug'
         if drug.attrib['type'] == "biotech":
             continue
-        if drug.findtext(smiles_template.format(ns=ns)) is None:
+        if drug.findtext(inchikey_template.format(ns=ns)) is None:
             continue
         drugbank_name.append(drug.findtext(ns + "name"))
+        inchikey = drug.findtext(inchikey_template.format(ns=ns))
         smiles = drug.findtext(smiles_template.format(ns=ns))
         drug_smiles.append(smiles)
+        drug_inchikey.append(inchikey)
         drugbank_id.append(drug.findtext(ns + "drugbank-id"))
         pubchem_id = drug.findtext(pubchem_template.format(ns=ns))
         if pubchem_id is not None:
             pubchem_ids.append(pubchem_id)
         else:
-            pubchem_id = smiles_to_cid(smiles)
+            pubchem_id = inchikey_to_cid(inchikey)
             if not isinstance(pubchem_id, str):
                 pubchem_id = pubchem_id.decode("utf-8")
             pubchem_ids.append(pubchem_id)
     mapping_dict = {
         'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name,
-        'Smiles': drug_smiles
+        'InChiKey': drug_inchikey, 'Smiles': drug_smiles
     }
     mapping_df = pd.DataFrame(mapping_dict)
+    mapping_df = mapping_df.dropna()
     mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
     return mapping_df

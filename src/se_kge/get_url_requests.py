@@ -33,6 +33,15 @@ def cid_to_smiles(cid):
     return get_result("http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/canonicalSMILES/TXT" % cid)
 
 
+def cid_to_inchikey(cid):
+    """
+    Get the SMILES for chemicals in PubChem database.
+
+    :param cid: pubchem identifier
+    :return: SMILES
+    """
+    return get_result("http://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/property/InChIKey/TXT" % cid)
+
 def smiles_to_cid(smiles):
     """
     Get the chemical pubchem ID from the SMILES.
@@ -41,6 +50,16 @@ def smiles_to_cid(smiles):
     :return: the pubchem identifier
     """
     return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/smiles/%s/cids/TXT" % smiles)
+
+
+def inchikey_to_cid(inchikey):
+    """
+    Get the chemical pubchem ID from the SMILES.
+
+    :param smiles: the SMILES code of a chemical
+    :return: the pubchem identifier
+    """
+    return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/inchikey/%s/cids/TXT" % inchikey)
 
 
 def cid_to_synonyms(cid):

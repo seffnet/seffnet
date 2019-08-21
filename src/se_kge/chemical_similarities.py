@@ -109,6 +109,7 @@ def get_similarity_graph(
             dtype={'PubchemID': str, 'Smiles': str},
             index_col=False,
         )
+        chemicals_mapping = chemicals_mapping.dropna()
         pubchem_id_to_smiles = {}
         for pubchem_id in tqdm(pubchem_ids, desc="Getting SMILES"):
             if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id].empty:
