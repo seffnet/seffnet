@@ -14,7 +14,7 @@ from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES
 )
-from .get_url_requests import cid_to_synonyms, inchikey_to_cid, cid_to_inchikey
+from .get_url_requests import cid_to_inchikey, cid_to_synonyms, inchikey_to_cid
 
 
 def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
