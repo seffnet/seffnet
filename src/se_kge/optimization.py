@@ -282,6 +282,8 @@ def grarep_optimization(
         # TODO: need to choose kstep in which it can divide the dimension
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         kstep = trial.suggest_int('kstep', 1, 7)
+        if dimensions % kstep != 0:
+            raise optuna.structs.TrialPruned()
         model = embed_train.train_embed_grarep(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
