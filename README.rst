@@ -2,7 +2,7 @@ SEffNet |build|
 ===============
 Structure
 ---------
-- ``notebooks``: Notebooks that were used during the preprocessing and creation of graphs, and the training and evaluation of models
+- ``notebooks``: Notebooks that were used for training and evaluation of models, and interpertation of prediction model
 - ``resources``: The graphs and materials that are used for training and testing
 
 Installation
