@@ -114,8 +114,8 @@ def get_combined_sider_drugbank(
     sider_relabeled = nx.relabel_nodes(sider_graph, smiles_dict)
     drugbank_relabeled = nx.relabel_nodes(drugbank_graph, smiles_dict)
     full_graph = sider_relabeled + drugbank_relabeled
-    inchi_dict_rev = {v: k for k, v in smiles_dict.items()}
-    full_graph_relabel = nx.relabel_nodes(full_graph, inchi_dict_rev)
+    smiles_dict_rev = {v: k for k, v in smiles_dict.items()}
+    full_graph_relabel = nx.relabel_nodes(full_graph, smiles_dict_rev)
     if os.path.exists(RESOURCES):
         pybel.to_pickle(full_graph_relabel, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
     return full_graph_relabel
@@ -221,6 +221,8 @@ def get_chemicals_mapping_file(
             pubchem_id = pubchem_id.split('\n')[0]
         pubchem_ids.append(pubchem_id)
         smiles = cid_to_smiles(pubchem_id)
+        if not isinstance(smiles, str):
+            smiles = smiles.decode("utf-8")
         drug_smiles.append(smiles)
     mapping_dict = {
         'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name, 'Smiles': drug_smiles
