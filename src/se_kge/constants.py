@@ -49,10 +49,10 @@ DEFAULT_FULLGRAPH_PICKLE = os.path.abspath(os.path.join(
 ))
 
 DEFAULT_EMBEDDINGS_PATH = os.path.abspath(os.path.join(
-    RESOURCES, "predictive_model", "1508_node2vec_emb.txt",
+    RESOURCES, "predictive_model", "2208_node2vec_emb.embeddings",
 ))
 DEFAULT_MODEL_PATH = os.path.abspath(os.path.join(
-    RESOURCES, "predictive_model", "1508_node2vec.pkl",
+    RESOURCES, "predictive_model", "2208_node2vec_model.pkl",
 ))
 DEFAULT_GRAPH_PATH = os.path.abspath(os.path.join(
     RESOURCES, "chemsim_50_graphs", "fullgraph_with_chemsim_50.edgelist",
