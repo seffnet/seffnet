@@ -287,9 +287,9 @@ def split_training_testing_sets(
         *,
         rebuild: bool = False,
         clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
-        graph = DEFAULT_FULLGRAPH_PICKLE,
-        g_train_path = DEFAULT_TRAINING_SET,
-        g_test_path = DEFAULT_TESTING_SET,
+        graph=DEFAULT_FULLGRAPH_PICKLE,
+        g_train_path=DEFAULT_TRAINING_SET,
+        g_test_path=DEFAULT_TESTING_SET,
 ):
     """Split training and testing sets based on clustered chemicals."""
     # TODO: refractor and optimize
