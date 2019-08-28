@@ -287,6 +287,9 @@ def split_training_testing_sets(
         *,
         rebuild: bool = False,
         clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
+        graph = DEFAULT_FULLGRAPH_PICKLE,
+        g_train_path = DEFAULT_TRAINING_SET,
+        g_test_path = DEFAULT_TESTING_SET,
 ):
     """Split training and testing sets based on clustered chemicals."""
     # TODO: refractor and optimize
@@ -297,7 +300,7 @@ def split_training_testing_sets(
         row['PubchemID']: row['Cluster']
         for ind, row in clustered_chemicals.iterrows()
     }
-    full_graph = pybel.from_pickle(DEFAULT_FULLGRAPH_PICKLE)
+    full_graph = pybel.from_pickle(graph)
     mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t", dtype={'node_id': str}, index_col=False)
     mapping_dict = {}
     for index, row in tqdm(mapping_df.iterrows(), desc='Reading mapping dataframe'):
@@ -335,6 +338,6 @@ def split_training_testing_sets(
     for edge in tqdm(g_train.edges(), desc='Modifying testing set'):
         if g_test.has_edge(edge[0], edge[1]):
             g_test.remove_edge(edge[0], edge[1])
-    nx.write_edgelist(g_train, DEFAULT_TRAINING_SET, data=False)
-    nx.write_edgelist(g_test, DEFAULT_TESTING_SET, data=False)
+    nx.write_edgelist(g_train, g_train_path, data=False)
+    nx.write_edgelist(g_test, g_test_path, data=False)
     return g_train, g_test
