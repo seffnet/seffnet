@@ -124,6 +124,8 @@ def get_combined_sider_drugbank(
 def get_mapped_graph(
         *,
         graph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+        mapping_path=DEFAULT_MAPPING_PATH,
+        edgelist_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
         rebuild: bool = False,
 ):
     """
@@ -166,9 +168,9 @@ def get_mapped_graph(
                 name = chemical_mapping.loc[chemical_mapping['PubchemID'] == node.identifier, 'DrugbankName'].iloc[0]
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
     node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])
-    node_mapping_df.to_csv(DEFAULT_MAPPING_PATH, index=False, sep='\t')
+    node_mapping_df.to_csv(mapping_path, index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
-    nx.write_edgelist(graph_id, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST, data=False)
+    nx.write_edgelist(graph_id, edgelist_path, data=False)
     return graph_id
 
 

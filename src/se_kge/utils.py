@@ -290,6 +290,7 @@ def split_training_testing_sets(
         graph=DEFAULT_FULLGRAPH_PICKLE,
         g_train_path=DEFAULT_TRAINING_SET,
         g_test_path=DEFAULT_TESTING_SET,
+        mapping_path=DEFAULT_MAPPING_PATH
 ):
     """Split training and testing sets based on clustered chemicals."""
     # TODO: refractor and optimize
@@ -301,7 +302,7 @@ def split_training_testing_sets(
         for ind, row in clustered_chemicals.iterrows()
     }
     full_graph = pybel.from_pickle(graph)
-    mapping_df = pd.read_csv(DEFAULT_MAPPING_PATH, sep="\t", dtype={'node_id': str}, index_col=False)
+    mapping_df = pd.read_csv(mapping_path, sep="\t", dtype={'node_id': str}, index_col=False)
     mapping_dict = {}
     for index, row in tqdm(mapping_df.iterrows(), desc='Reading mapping dataframe'):
         if row['namespace'] == 'pubchem.compound':
