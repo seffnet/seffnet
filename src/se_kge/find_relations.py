@@ -252,7 +252,7 @@ class Predictor:
             }
             for node, p in zip(nodes, probabilities)
         ]
-        results = sorted(results, key=itemgetter('mlp'))
+        results = sorted(results, key=itemgetter('p'))
         if k is not None:
             return results[:k]
         else:
