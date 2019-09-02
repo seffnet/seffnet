@@ -26,6 +26,7 @@ If you've installed ``seffnet`` locally, you can use the default model from the 
     # Find new relations for a given entity based on its CURIE
     results = predictor.find_new_relations(curie='pubchem.compound:85')
     ...   
+
 Optimizing hyperparameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Network representation learning models can be optimized with:
@@ -50,7 +51,13 @@ CLI Options:
 
 Web Application
 ~~~~~~~~~~~~~~~
-The web application allows users to get results from the model programmatically.
+The web application allows users to get results from the model programmatically. Make 
+sure the extra dependencies have been installed as well using the `[web]`
+
+.. code-block:: sh
+
+    $ pip install git+https://github.com/AldisiRana/SE_KGE.git[web]
+
 Run with:
 
 .. code-block:: bash
@@ -59,6 +66,9 @@ Run with:
 
 - A user interface can be found at http://localhost:5000
 - A swagger UI can be found at http://localhost:5000/apidocs
+
+As an example, you can check the chemicals predicted to interact
+with HDAC6 at http://localhost:5000/find/uniprot:Q9UBN7?results_type=chemical.
 
 .. |build| image:: https://travis-ci.com/AldisiRana/SE_KGE.svg?branch=master
     :target: https://travis-ci.com/AldisiRana/SE_KGE
