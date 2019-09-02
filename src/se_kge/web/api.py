@@ -2,7 +2,7 @@
 
 """Create the API."""
 
-from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, flash, jsonify, redirect, render_template, request, url_for
 from werkzeug.local import LocalProxy
 
 from .forms import QueryForm
@@ -34,7 +34,7 @@ def home():
     form = QueryForm()
 
     if not form.validate_on_submit():
-        test_url = url_for('.find', curie='pubchem:85')
+        test_url = url_for('.predict', curie='pubchem.compound:85')
         return render_template('index.html', test_url=test_url, form=form)
 
     return redirect(url_for(
@@ -95,9 +95,13 @@ def predict(curie: str):
 
     """
     result = get_result(curie)
-    return_format = request.args.get('format', 'html')
+    fmt = request.args.get('format', 'html')
 
-    if return_format is None or return_format == 'html':
+    if fmt is None or fmt == 'html':
+        if result is None:
+            flash(f'No results for {curie}')
+            return render_template('index.html')
+
         return render_template(
             'predictions.html',
             curie=curie,
@@ -106,7 +110,7 @@ def predict(curie: str):
             predictions=result['predictions'],
         )
 
-    elif return_format == 'json':
+    elif fmt == 'json':
         if result is None:
             return jsonify({
                 'query': {
@@ -124,4 +128,4 @@ def predict(curie: str):
         return jsonify(result)
 
     else:
-        return abort(500, f'Invalid return type: {return_format}')
+        return abort(500, f'Invalid parameter: format={fmt}')

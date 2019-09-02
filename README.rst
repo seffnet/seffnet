@@ -58,14 +58,20 @@ sure the extra dependencies have been installed as well using the `[web]`
 
     $ pip install git+https://github.com/AldisiRana/SE_KGE.git[web]
 
-Run with:
+Run development server with:
 
 .. code-block:: bash
 
     $ seffnet web --host localhost --port 5000
 
+Run through docker with:
+
+.. code-block:: bash
+
+    $ docker-compose up
+
 - A user interface can be found at http://localhost:5000
-- A swagger UI can be found at http://localhost:5000/apidocs
+- An auto-generated swagger UI can be found at http://localhost:5000/apidocs
 
 As an example, you can check the chemicals predicted to interact
 with HDAC6 at http://localhost:5000/predict/uniprot:Q9UBN7?results_type=chemical.

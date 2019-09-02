@@ -6,4 +6,6 @@ from se_kge.web import api, create_app
 
 app = create_app()
 app.register_blueprint(api)
-app.run()
+
+if __name__ == '__main__':
+    app.run()

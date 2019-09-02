@@ -1,0 +1,17 @@
+numpy
+networkx
+scipy
+tensorflow < 2.0.0
+gensim
+scikit-learn
+tqdm
+bionev @ git+https://github.com/AldisiRana/BioNEV.git
+optuna
+pybel
+defusedxml
+joblib
+gunicorn
+flask
+flask-bootstrap
+flask-wtf
+flasgger
