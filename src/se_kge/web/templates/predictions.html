@@ -1,0 +1,47 @@
+{% extends "bootstrap/base.html" %}
+
+{% import "bootstrap/wtf.html" as wtf %}
+{% import "bootstrap/fixes.html" as fixes %}
+{% import "bootstrap/utils.html" as util %}
+
+{% block title %}SEffNet Predictions{% endblock %}
+
+{% block content %}
+    <div class="container" style="margin-top: 50px;">
+        <div class="jumbotron">
+            <h1>Predictions for {{ curie }} </h1>
+            <p>Get these results as
+                <a href="{{ url_for('.predict', curie=curie, results_type=results_type, k=k, format='json') }}">JSON</a>
+            </p>
+        </div>
+
+        <div class="panel panel-default">
+            <table class="table">
+                <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Entity</th>
+                    <th>Name</th>
+                    <th><i>p</i>-value</th>
+                    <th>MLP</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for prediction in predictions %}
+                    <tr>
+                        <td>{{ results_type }}</td>
+                        <td>
+                            <a href="https://identifiers.org/{{ prediction["namespace"] }}:{{ prediction["identifier"] }}">
+                                {{ prediction["namespace"] }}:{{ prediction["identifier"] }}
+                            </a>
+                        </td>
+                        <td>{{ prediction["name"] }}</td>
+                        <td>{{ prediction["p"] }}</td>
+                        <td>{{ prediction["mlp"] }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

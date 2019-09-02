@@ -2,16 +2,30 @@
 
 """Create the API."""
 
-from flask import Blueprint, current_app, jsonify, redirect, render_template, request, url_for
+from flask import Blueprint, abort, current_app, jsonify, redirect, render_template, request, url_for
+from werkzeug.local import LocalProxy
 
 from .forms import QueryForm
-from ..find_relations import Predictor
 
 __all__ = [
     'api',
 ]
 
 api = Blueprint('api', __name__)
+
+predictor = LocalProxy(lambda: current_app.config['predictor'])
+
+
+def get_result(curie: str):
+    """Get the prediction results using the current request."""
+    results_type = request.args.get('results_type', 'phenotype')
+    k = request.args.get('k', 30, type=int) or None
+
+    return predictor.find_new_relations(
+        node_curie=curie,
+        results_type=results_type,
+        k=k,
+    )
 
 
 @api.route('/', methods=['GET', 'POST'])
@@ -24,7 +38,7 @@ def home():
         return render_template('index.html', test_url=test_url, form=form)
 
     return redirect(url_for(
-        '.find',
+        '.predict',
         curie=form.curie.data,
         results_type=form.results_type.data,
     ))
@@ -36,7 +50,7 @@ def list_nodes():
     offset = request.args.get('offset', 0, type=int)
     pagesize = request.args.get('size', 30, type=int)
 
-    v = list(current_app.config['predictor'].node_id_to_info.values())
+    v = list(predictor.node_id_to_info.values())
     nodes = v[offset:offset + pagesize]
 
     next_offset = offset + pagesize
@@ -52,9 +66,9 @@ def list_nodes():
     )
 
 
-@api.route('/find/<curie>')
-def find(curie: str):
-    """Find new entities.
+@api.route('/predict/<curie>')
+def predict(curie: str):
+    """Predict edges for the given entity.
 
     ---
     parameters:
@@ -73,30 +87,41 @@ def find(curie: str):
         description: The number of predictions to return
         required: false
         type: integer
+      - name: format
+        in: query
+        description: The type of result to return. If json, return results as JSON.
+        required: false
+        type: string
 
     """
-    results_type = request.args.get('results_type', 'phenotype')
-    k = request.args.get('k', 30, type=int) or None
+    result = get_result(curie)
+    return_format = request.args.get('format', 'html')
 
-    predictor: Predictor = current_app.config['predictor']
-    result = predictor.find_new_relations(
-        node_curie=curie,
-        results_type=results_type,
-        k=k,
-    )
+    if return_format is None or return_format == 'html':
+        return render_template(
+            'predictions.html',
+            curie=curie,
+            results_type=result['query']['type'],
+            k=result['query']['k'],
+            predictions=result['predictions'],
+        )
 
-    if result is None:
-        return jsonify({
-            'query': {
-                'curie': curie,
-                'results_type': results_type,
-                'k': k,
-            },
-            'message': 'Not found',
-        })
+    elif return_format == 'json':
+        if result is None:
+            return jsonify({
+                'query': {
+                    'curie': curie,
+                    'results_type': result['query']['type'],
+                    'k': result['query']['k'],
+                },
+                'message': 'Not found',
+            })
 
-    # Add those sweet sweet identifiers.org links
-    for prediction in result['predictions']:
-        prediction['url'] = f'https://identifiers.org/{prediction["namespace"]}:{prediction["identifier"]}'
+        # Add those sweet sweet identifiers.org links
+        for prediction in result['predictions']:
+            prediction['url'] = f'https://identifiers.org/{prediction["namespace"]}:{prediction["identifier"]}'
 
-    return jsonify(result)
+        return jsonify(result)
+
+    else:
+        return abort(500, f'Invalid return type: {return_format}')
