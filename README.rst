@@ -68,7 +68,7 @@ Run with:
 - A swagger UI can be found at http://localhost:5000/apidocs
 
 As an example, you can check the chemicals predicted to interact
-with HDAC6 at http://localhost:5000/find/uniprot:Q9UBN7?results_type=chemical.
+with HDAC6 at http://localhost:5000/predict/uniprot:Q9UBN7?results_type=chemical.
 
 .. |build| image:: https://travis-ci.com/AldisiRana/SE_KGE.svg?branch=master
     :target: https://travis-ci.com/AldisiRana/SE_KGE
