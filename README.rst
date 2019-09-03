@@ -26,6 +26,16 @@ If you've installed ``seffnet`` locally, you can use the default model from the 
     # Find new relations for a given entity based on its CURIE
     results = predictor.find_new_relations(curie='pubchem.compound:85')
     ...   
+    
+Rebuilding the resources
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can rebuild all the graphs and maps created for this project by running the following:
+
+.. code-block:: bash
+
+    $ seffnet rebuild
+    
+Note that you need to have RDKit package and environment to be able to run this command
 
 Optimizing hyperparameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
