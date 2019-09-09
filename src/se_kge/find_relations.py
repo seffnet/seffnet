@@ -125,11 +125,12 @@ class Predictor:
         node_info = self._get_entity_json(node_id)
 
         namespace = RESULTS_TYPE_TO_NAMESPACE.get(results_type)
-        node_list, relations_list = self._find_relations_helper(node_id, namespace=namespace)
+        node_list, relations_list, relation_novelties = self._find_relations_helper(node_id, namespace=namespace)
 
         prediction_list = self.get_probabilities(
             nodes=node_list,
             relations=relations_list,
+            relation_novelties=relation_novelties,
             k=k,
         )
         return {
@@ -204,35 +205,36 @@ class Predictor:
             self,
             source_id: str,
             namespace: Optional[str] = None,
-    ) -> Tuple[List[NodeInfo], List[np.ndarray]]:
-        node_list, relations_list = [], []
+    ) -> Tuple[List[NodeInfo], List[np.ndarray], List[bool]]:
+        node_list, relations_list, relation_novelties= [], [], []
         source_vector = self.embeddings[source_id]
 
         for target_id, target_vector in self.embeddings.items():
             if source_id == target_id:
                 continue
 
-            if self.graph is not None and (
-                    self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id)):
-                status = '+ve control'
-            else:
-                status = 'new'
+            novel = (
+                self.graph is None or
+                not (self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id))
+            )
+
             node_info = self._get_entity_json(target_id)
-            node_info['status'] = status
             if namespace is not None and node_info['namespace'] != namespace:
                 continue
             node_list.append(node_info)
+            relation_novelties.append(novel)
 
             relation = source_vector * target_vector
             relations_list.append(relation.tolist())
 
-        return node_list, relations_list
+        return node_list, relations_list, relation_novelties
 
     def get_probabilities(
             self,
             *,
             nodes,
-            relations,
+            relations: List[np.ndarray],
+            relation_novelties: List[bool],
             k: Optional[int] = None,
     ) -> List[Mapping[str, Any]]:
         """Get probabilities from logistic regression classifier.
@@ -250,12 +252,11 @@ class Predictor:
             {
                 'p': round(p, self.precision),
                 'mlp': -round(np.log10(p), self.precision),
+                'novel': novel,
                 **node
             }
-            for node, p in zip(nodes, probabilities)
+            for node, p, novel in zip(nodes, probabilities, relation_novelties)
         ]
-        if not self.positive_control:
-            results = [i for i in results if not (i['status'] == '+ve control')]
         results = sorted(results, key=itemgetter('p'))
         if k is not None:
             return results[:k]
