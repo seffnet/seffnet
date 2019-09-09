@@ -109,8 +109,12 @@ def do_evaluation(
         seed=seed,
     )
     model.save_embeddings(embeddings_path)
+    if method =='LINE' :
+        embeddings = model.get_embeddings_train()
+    else:
+        embeddings = model.get_embeddings()
     auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
-        embeddings=model.get_embeddings(),
+        embeddings=embeddings,
         original_graph=graph,
         train_graph=graph_train,
         test_pos_edges=testing_pos_edges,
@@ -275,8 +279,12 @@ def train_model(
     )
     model.save_embeddings(embeddings_path)
     original_graph = nx.read_edgelist(input_path)
+    if method =='LINE' :
+        embeddings = model.get_embeddings_train()
+    else:
+        embeddings = model.get_embeddings()
     pipeline.create_prediction_model(
-        embeddings=model.get_embeddings(),
+        embeddings=embeddings,
         original_graph=original_graph,
         seed=seed,
         save_model=model_path

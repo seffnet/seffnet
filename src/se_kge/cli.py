@@ -96,12 +96,12 @@ def optimize(
               help='The alpha parameter for SDNE')
 @click.option('--beta', type=int, default=2,
               help='The beta parameter for SDNE')
-@click.option('--epochs', type=float, default=30,
+@click.option('--epochs', type=int, default=30,
               help='The epochs for deep learning methods')
-@click.option('--kstep', type=float, default=30,
+@click.option('--kstep', type=int, default=30,
               help='The kstep parameter for GraRep')
-@click.option('--order', default=2, type=click.Choice([1, 2, 3]),
-              help='The order parameter for LINE')
+@click.option('--order', default=2, type=int,
+              help='The order parameter for LINE. Could be 1, 2 or 3')
 def train(
         input_path,
         training_path,
