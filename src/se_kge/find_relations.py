@@ -50,13 +50,12 @@ class Predictor:
 
     model: LogisticRegression
     embeddings: Embeddings
-
     node_id_to_info: Mapping[str, NodeInfo]
     node_curie_to_id: Mapping[Tuple[str, str], str]
     node_name_to_id: Mapping[str, str]
 
     graph: Optional[nx.Graph] = None
-
+    positive_control: bool = True
     #: The precision at which results are reported
     precision: int = 3
 
@@ -68,6 +67,7 @@ class Predictor:
             embeddings_path: str,
             mapping_path: str,
             graph_path: Optional[str] = None,
+            positive_control: Optional[bool] = True,
     ) -> 'Predictor':
         """Return the predictor for embeddings."""
         model = joblib.load(model_path)
@@ -92,6 +92,7 @@ class Predictor:
             model=model,
             graph=graph,
             embeddings=embeddings,
+            positive_control=positive_control,
             node_id_to_info=node_id_to_info,
             node_curie_to_id=node_curie_to_id,
             node_name_to_id=node_name_to_id,
@@ -213,12 +214,13 @@ class Predictor:
 
             if self.graph is not None and (
                     self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id)):
-                continue
-
+                status = '+ve control'
+            else:
+                status = 'new'
             node_info = self._get_entity_json(target_id)
+            node_info['status'] = status
             if namespace is not None and node_info['namespace'] != namespace:
                 continue
-
             node_list.append(node_info)
 
             relation = source_vector * target_vector
@@ -252,6 +254,8 @@ class Predictor:
             }
             for node, p in zip(nodes, probabilities)
         ]
+        if not self.positive_control:
+            results = [i for i in results if not (i['status'] == '+ve control')]
         results = sorted(results, key=itemgetter('p'))
         if k is not None:
             return results[:k]

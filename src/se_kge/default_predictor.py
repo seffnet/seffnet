@@ -14,4 +14,5 @@ predictor = Predictor.from_paths(
     embeddings_path=DEFAULT_EMBEDDINGS_PATH,
     graph_path=DEFAULT_GRAPH_PATH,
     mapping_path=DEFAULT_MAPPING_PATH,
+    positive_control=True,
 )
