@@ -258,6 +258,8 @@ class Predictor:
             for node, p, novel in zip(nodes, probabilities, relation_novelties)
         ]
         results = sorted(results, key=itemgetter('p'))
+        if not self.positive_control:
+            results =  list(filter(lambda i: i['novel'] == True, results))
         if k is not None:
             return results[:k]
         else:
