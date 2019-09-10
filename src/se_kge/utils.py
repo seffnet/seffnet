@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """Utilities for ``se_kge``."""
+import random
+
 import datetime
 import getpass
 import json
@@ -66,24 +68,24 @@ def create_graphs(*, input_path, training_path, testing_path, seed):
 def do_evaluation(
         *,
         input_path,
-        training_path,
-        testing_path,
+        training_path=None,
+        testing_path=None,
         method,
-        dimensions,
-        number_walks,
-        walk_length,
-        window_size,
-        p,
-        q,
-        alpha,
-        beta,
-        epochs,
-        kstep,
-        order,
-        seed,
-        embeddings_path,
-        model_path,
-        evaluation_file
+        dimensions=300,
+        number_walks=8,
+        walk_length=8,
+        window_size=4,
+        p=1.5,
+        q=2.1,
+        alpha=0.1,
+        beta=4,
+        epochs=5,
+        kstep=4,
+        order=3,
+        seed=random.randint(1, 10000000),
+        embeddings_path=None,
+        model_path=None,
+        evaluation_file=None
 ):
     """Train and evaluate an NRL model."""
     graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
@@ -108,7 +110,8 @@ def do_evaluation(
         order=order,
         seed=seed,
     )
-    model.save_embeddings(embeddings_path)
+    if embeddings_path is not None:
+        model.save_embeddings(embeddings_path)
     if method =='LINE' :
         embeddings = model.get_embeddings_train()
     else:
