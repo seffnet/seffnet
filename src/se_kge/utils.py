@@ -139,7 +139,8 @@ def do_evaluation(
         f1=f1,
         mcc=mcc,
     )
-    json.dump(_results, evaluation_file, sort_keys=True, indent=2)
+    if evaluation_file is not None:
+        json.dump(_results, evaluation_file, sort_keys=True, indent=2)
     return _results
 
 
@@ -353,3 +354,52 @@ def split_training_testing_sets(
     nx.write_edgelist(g_train, g_train_path, data=False)
     nx.write_edgelist(g_test, g_test_path, data=False)
     return g_train, g_test
+
+
+def repeat_experiment(
+        *,
+        input_path,
+        training_path=None,
+        testing_path=None,
+        method,
+        dimensions=300,
+        number_walks=8,
+        walk_length=8,
+        window_size=4,
+        p=1.5,
+        q=2.1,
+        alpha=0.1,
+        beta=4,
+        epochs=5,
+        kstep=4,
+        order=3,
+        n=10,
+        evaluation_file=None,
+):
+    all_results = {
+        i : do_evaluation(
+            input_path=input_path,
+            training_path=training_path,
+            testing_path=testing_path,
+            method=method,
+            dimensions=dimensions,
+            number_walks=number_walks,
+            walk_length=walk_length,
+            window_size=window_size,
+            p=p,
+            q=q,
+            alpha=alpha,
+            beta=beta,
+            epochs=epochs,
+            kstep=kstep,
+            order=order,
+            seed=random.randint(1, 10000000),
+            embeddings_path=None,
+            model_path=None,
+            evaluation_file=None
+        )
+        for i in tqdm(range(n), desc="Repeating experiment")
+    }
+    if evaluation_file is not None:
+        json.dump(all_results, evaluation_file, sort_keys=True, indent=2)
+    return all_results

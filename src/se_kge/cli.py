@@ -13,7 +13,7 @@ import networkx as nx
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
-from .utils import do_evaluation, do_optimization, split_training_testing_sets, train_model
+from .utils import do_evaluation, do_optimization, split_training_testing_sets, train_model, repeat_experiment
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -23,6 +23,19 @@ METHOD = click.option('--method', required=True,
                       type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
                       help='The NRL method to train the model')
 SEED = click.option('--seed', type=int, default=random.randint(1, 10000000))
+DIMENSIONS = click.option('--dimensions', type=int, default=200, help='The dimensions of embeddings.')
+NUMBER_WALKS = click.option('--number-walks', type=int, default=8, help='The number of walks for random-walk methods.')
+WALK_LENGTH = click.option('--walk-length', type=int, default=32, help='The walk length for random-walk methods.')
+WINDOW_SIZE = click.option('--window-size', type=int, default=3, help='The window size for random-walk methods.')
+P = click.option('--p', type=float, default=1.5, help='The p parameter for node2vec.')
+Q = click.option('--q', type=float, default=0.8, help='The q parameter for node2vec.')
+ALPHA = click.option('--alpha', type=float, default=0.3, help='The alpha parameter for SDNE')
+BETA = click.option('--beta', type=int, default=2, help='The beta parameter for SDNE')
+EPOCHS = click.option('--epochs', type=int, default=30, help='The epochs for deep learning methods')
+KSTEP = click.option('--kstep', type=int, default=30, help='The kstep parameter for GraRep')
+ORDER = click.option('--order', default=2, type=int, help='The order parameter for LINE. Could be 1, 2 or 3')
+EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
+              help='The path to save evaluation results.')
 
 
 @click.group()
@@ -75,33 +88,20 @@ def optimize(
 @SEED
 @METHOD
 @click.option('--evaluation', is_flag=True, help='If true, a testing set will be used to evaluate model.')
-@click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
-              help='The path to save evaluation results.')
+@EVALUATION_FILE
 @click.option('--embeddings-path', help='The path to save the embeddings file')
-@click.option('--model-path',
-              help='The path to save the prediction model')
-@click.option('--dimensions', type=int, default=200,
-              help='The dimensions of embeddings.')
-@click.option('--number-walks', type=int, default=8,
-              help='The number of walks for random-walk methods.')
-@click.option('--walk-length', type=int, default=32,
-              help='The walk length for random-walk methods.')
-@click.option('--window-size', type=int, default=3,
-              help='The window size for random-walk methods.')
-@click.option('--p', type=float, default=1.5,
-              help='The p parameter for node2vec.')
-@click.option('--q', type=float, default=0.8,
-              help='The q parameter for node2vec.')
-@click.option('--alpha', type=float, default=0.3,
-              help='The alpha parameter for SDNE')
-@click.option('--beta', type=int, default=2,
-              help='The beta parameter for SDNE')
-@click.option('--epochs', type=int, default=30,
-              help='The epochs for deep learning methods')
-@click.option('--kstep', type=int, default=30,
-              help='The kstep parameter for GraRep')
-@click.option('--order', default=2, type=int,
-              help='The order parameter for LINE. Could be 1, 2 or 3')
+@click.option('--model-path', help='The path to save the prediction model')
+@DIMENSIONS
+@NUMBER_WALKS
+@WALK_LENGTH
+@WINDOW_SIZE
+@P
+@Q
+@ALPHA
+@BETA
+@EPOCHS
+@KSTEP
+@ORDER
 def train(
         input_path,
         training_path,
@@ -169,6 +169,65 @@ def train(
             embeddings_path=embeddings_path,
         )
         click.echo('Training is finished.')
+
+@main.command()
+@INPUT_PATH
+@TRAINING_PATH
+@TESTING_PATH
+@SEED
+@METHOD
+@EVALUATION_FILE
+@DIMENSIONS
+@NUMBER_WALKS
+@WALK_LENGTH
+@WINDOW_SIZE
+@P
+@Q
+@ALPHA
+@BETA
+@EPOCHS
+@KSTEP
+@ORDER
+@click.option('--n', default=10, help='number of repeats.')
+def repeat(
+        input_path,
+        training_path,
+        testing_path,
+        evaluation_file,
+        method,
+        dimensions,
+        number_walks,
+        walk_length,
+        window_size,
+        p,
+        q,
+        alpha,
+        beta,
+        epochs,
+        kstep,
+        order,
+        n,
+):
+    results = repeat_experiment(
+        input_path=input_path,
+        training_path=training_path,
+        testing_path=testing_path,
+        method=method,
+        dimensions=dimensions,
+        number_walks=number_walks,
+        walk_length=walk_length,
+        window_size=window_size,
+        p=p,
+        q=q,
+        alpha=alpha,
+        beta=beta,
+        epochs=epochs,
+        kstep=kstep,
+        order=order,
+        n=n,
+        evaluation_file=evaluation_file,
+    )
+    click.echo(results)
 
 
 @main.command()
