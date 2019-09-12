@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Version information for ``se_kge``."""
+"""Version information for :mod:`seffnet`."""
 
 __all__ = [
     'VERSION',

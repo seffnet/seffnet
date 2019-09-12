@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Create the flask application for ``se_kge``."""
+"""Create the flask application for :mod:`seffnet`."""
 
 import logging
 import os
@@ -16,11 +16,11 @@ __all__ = [
     'create_app',
 ]
 
-logger = logging.getLogger('se_kge.web')
+logger = logging.getLogger(__name__)
 
 
 def create_app(predictor: Optional[Predictor] = None) -> Flask:
-    """Make the SE_KGE web app."""
+    """Make the :mod:`seffnet` web app."""
     app = Flask(__name__)
     app.secret_key = os.urandom(8)
 

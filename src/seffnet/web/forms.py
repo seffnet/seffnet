@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Forms encoded in WTForms for ``se_kge``."""
+"""Forms encoded in WTForms."""
 
 from flask_wtf import FlaskForm
 from wtforms.fields import RadioField, StringField, SubmitField

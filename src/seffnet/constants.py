@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Constants for ``se_kge``."""
+"""Constants for :mod:`seffnet`."""
 
 import os
 

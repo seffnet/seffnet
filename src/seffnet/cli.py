@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Command line interface for ``se_kge``."""
+"""Command line interface for :mod:`seffnet`."""
 
 import json
 import logging
@@ -258,7 +258,7 @@ def web(host, port):
     """Run the RESTful API."""
     from .web import create_app, api
     logging.basicConfig(level=logging.INFO)
-    logging.getLogger('se_kge.web').setLevel(logging.INFO)
+    logging.getLogger('seffnet.web').setLevel(logging.INFO)
     _app = create_app()
     _app.register_blueprint(api)
     _app.run(host=host, port=port)
@@ -270,9 +270,9 @@ def rebuild():
     from pybel.struct import count_functions, count_namespaces
     from .graph_preprocessing import get_drugbank_graph, get_sider_graph, get_combined_sider_drugbank
     try:
-        from se_kge.chemical_similarities import get_similarity_graph, cluster_chemicals
+        from seffnet.chemical_similarities import get_similarity_graph, cluster_chemicals
     except Exception:
-        raise Exception('You need rdkit package to rebuild the graphs')
+        raise Exception('You need RDKit to rebuild the graphs')
 
     def _echo_graph(graph):
         click.echo(graph.summary_str())

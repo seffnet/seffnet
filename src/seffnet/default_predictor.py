@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Default predictor for se_kge."""
+"""Default predictor for :mod:`seffnet`."""
 
 from .constants import DEFAULT_EMBEDDINGS_PATH, DEFAULT_GRAPH_PATH, DEFAULT_MAPPING_PATH, DEFAULT_MODEL_PATH
 from .find_relations import Predictor

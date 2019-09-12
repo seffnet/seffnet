@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Entry point to the command line interface for ``se_kge``."""
+"""Entry point to the command line interface for :mod:`seffnet`."""
 
 from .cli import main
 

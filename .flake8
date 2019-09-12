@@ -32,6 +32,6 @@ max-complexity = 25
 max-line-length = 120
 import-order-style = pycharm
 application-import-names =
-    se_kge
+    seffnet
     tests
 format = ${cyan}%(path)s${reset}:${yellow_bold}%(row)d${reset}:${green_bold}%(col)d${reset}: ${red_bold}%(code)s${reset} %(text)s

@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-"""Utilities for ``se_kge``."""
+"""Utilities for :mod:`seffnet`."""
+
 import os
 import random
 

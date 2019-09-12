@@ -3,6 +3,6 @@ services:
   seffnet-web:
     build: .
     restart: always
-    command: gunicorn -b 0.0.0.0:5000 se_kge.web.wsgi:app --log-level=INFO
+    command: gunicorn -b 0.0.0.0:5000 seffnet.web.wsgi:app --log-level=INFO
     ports:
       - 80:5000

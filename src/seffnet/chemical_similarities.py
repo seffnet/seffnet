@@ -4,7 +4,7 @@
 Chemical similarities calculations.
 
 This file contains functions that calculate similarities between chemicals and produce a chemical similarity BELGraph
-Note: to run these the similarity function you need to have rdkit package
+Note: to run these the similarity function you need to have RDKit package
 """
 
 import itertools as itt
