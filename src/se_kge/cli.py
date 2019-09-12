@@ -13,7 +13,7 @@ import networkx as nx
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
-from .utils import do_evaluation, do_optimization, split_training_testing_sets, train_model, repeat_experiment
+from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -35,7 +35,7 @@ EPOCHS = click.option('--epochs', type=int, default=30, help='The epochs for dee
 KSTEP = click.option('--kstep', type=int, default=30, help='The kstep parameter for GraRep')
 ORDER = click.option('--order', default=2, type=int, help='The order parameter for LINE. Could be 1, 2 or 3')
 EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
-              help='The path to save evaluation results.')
+                               help='The path to save evaluation results.')
 
 
 @click.group()
@@ -170,6 +170,7 @@ def train(
         )
         click.echo('Training is finished.')
 
+
 @main.command()
 @INPUT_PATH
 @TRAINING_PATH
@@ -207,6 +208,7 @@ def repeat(
         order,
         n,
 ):
+    """Repeat training n times."""
     results = repeat_experiment(
         input_path=input_path,
         training_path=training_path,

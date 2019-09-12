@@ -1,14 +1,12 @@
 # -*- coding: utf-8 -*-
 
 """Utilities for ``se_kge``."""
+import os
 import random
 
 import datetime
 import getpass
 import json
-import os
-from typing import Any, Mapping
-
 import networkx as nx
 import optuna
 import pandas as pd
@@ -17,6 +15,7 @@ from bionev import pipeline
 from bionev.embed_train import embedding_training
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
+from typing import Any, Mapping
 
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
@@ -112,7 +111,7 @@ def do_evaluation(
     )
     if embeddings_path is not None:
         model.save_embeddings(embeddings_path)
-    if method =='LINE' :
+    if method == 'LINE':
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
@@ -283,7 +282,7 @@ def train_model(
     )
     model.save_embeddings(embeddings_path)
     original_graph = nx.read_edgelist(input_path)
-    if method =='LINE' :
+    if method == 'LINE':
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
@@ -377,7 +376,7 @@ def repeat_experiment(
         evaluation_file=None,
 ):
     all_results = {
-        i : do_evaluation(
+        i: do_evaluation(
             input_path=input_path,
             training_path=training_path,
             testing_path=testing_path,

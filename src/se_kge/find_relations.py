@@ -206,7 +206,7 @@ class Predictor:
             source_id: str,
             namespace: Optional[str] = None,
     ) -> Tuple[List[NodeInfo], List[np.ndarray], List[bool]]:
-        node_list, relations_list, relation_novelties= [], [], []
+        node_list, relations_list, relation_novelties = [], [], []
         source_vector = self.embeddings[source_id]
 
         for target_id, target_vector in self.embeddings.items():
@@ -214,8 +214,8 @@ class Predictor:
                 continue
 
             novel = (
-                self.graph is None or
-                not (self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id))
+                    self.graph is None or
+                    not (self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id))
             )
 
             node_info = self._get_entity_json(target_id)
@@ -259,7 +259,7 @@ class Predictor:
         ]
         results = sorted(results, key=itemgetter('p'))
         if not self.positive_control:
-            results =  list(filter(lambda i: i['novel'] == True, results))
+            results = list(filter(lambda i: i['novel'] is True, results))
         if k is not None:
             return results[:k]
         else:
