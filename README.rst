@@ -7,11 +7,11 @@ Structure
 
 Installation
 ------------
-``se_kge`` can be installed on python37+ from the latest code on `GitHub <https://github.com/AldisiRana/SE_KGE>`_ with:
+``seffnet`` can be installed on python37+ from the latest code on `GitHub <https://github.com/seffnet/seffnet>`_ with:
 
 .. code-block:: sh
 
-    $ pip install git+https://github.com/AldisiRana/SE_KGE.git
+    $ pip install git+https://github.com/seffnet/seffnet.git
 
 Usage
 -----
@@ -21,7 +21,7 @@ If you've installed ``seffnet`` locally, you can use the default model from the 
 
 .. code-block:: python
 
-    from se_kge.default_predictor import predictor
+    from seffnet.default_predictor import predictor
     
     # Find new relations for a given entity based on its CURIE
     results = predictor.find_new_relations(curie='pubchem.compound:85')
@@ -57,7 +57,7 @@ CLI Options:
 - --storage, SQL connection string for study database. Example: sqlite:///optuna.db
 - --name, name for the study
 - -o, --output, Output study summary
-- --seed, default is a random number between 1 and 10000000
+- --seed, default is a random number between 1 and 2^32 - 1
 
 Web Application
 ~~~~~~~~~~~~~~~
@@ -66,7 +66,7 @@ sure the extra dependencies have been installed as well using the `[web]`
 
 .. code-block:: sh
 
-    $ pip install git+https://github.com/AldisiRana/SE_KGE.git[web]
+    $ pip install git+https://github.com/seffnet/seffnet.git[web]
 
 Run development server with:
 
@@ -86,6 +86,6 @@ Run through docker with:
 As an example, you can check the chemicals predicted to interact
 with HDAC6 at http://localhost:5000/predict/uniprot:Q9UBN7?results_type=chemical.
 
-.. |build| image:: https://travis-ci.com/AldisiRana/SE_KGE.svg?branch=master
-    :target: https://travis-ci.com/AldisiRana/SE_KGE
+.. |build| image:: https://travis-ci.com/seffnet/seffnet.svg?branch=master
+    :target: https://travis-ci.com/seffnet/seffnet
     :alt: Development Build Status
