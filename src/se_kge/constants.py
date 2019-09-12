@@ -40,8 +40,8 @@ DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.edgelist')
 
 PREDICTIVE_MODEL = os.path.join(RESOURCES, "predictive_model")
-DEFAULT_EMBEDDINGS_PATH = os.path.join(PREDICTIVE_MODEL, "0809_line_emb.embeddings")
-DEFAULT_MODEL_PATH = os.path.join(PREDICTIVE_MODEL, "0809_line_model.pkl")
+DEFAULT_EMBEDDINGS_PATH = os.path.join(PREDICTIVE_MODEL, "1209_node2vec_emb.embeddings")
+DEFAULT_MODEL_PATH = os.path.join(PREDICTIVE_MODEL, "1209_node2vec_model.pkl")
 
 MAPPING = os.path.join(RESOURCES, "mapping")
 DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "drugbank_pubchem_mapping.tsv")
