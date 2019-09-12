@@ -12,7 +12,7 @@ from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
-    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
 )
 from .get_url_requests import cid_to_smiles, cid_to_synonyms, inchikey_to_cid
 
@@ -54,11 +54,11 @@ def get_drugbank_graph(rebuild: bool = False, **kwargs) -> pybel.BELGraph:
 
 
 def get_combined_sider_drugbank(
-        *,
-        rebuild: bool = False,
-        drugbank_graph_path=None,
-        sider_graph_path=None,
-        chemical_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
+    *,
+    rebuild: bool = False,
+    drugbank_graph_path=None,
+    sider_graph_path=None,
+    chemical_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
 ):
     """
     Combine the SIDER and DrugBank graphs.
@@ -122,11 +122,11 @@ def get_combined_sider_drugbank(
 
 
 def get_mapped_graph(
-        *,
-        graph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
-        mapping_path=DEFAULT_MAPPING_PATH,
-        edgelist_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
-        rebuild: bool = False,
+    *,
+    graph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+    mapping_path=DEFAULT_MAPPING_PATH,
+    edgelist_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
+    rebuild: bool = False,
 ):
     """
     Create graph mapping.
@@ -175,10 +175,10 @@ def get_mapped_graph(
 
 
 def get_chemicals_mapping_file(
-        *,
-        drugbank_file=None,
-        mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
-        rebuild: bool = False,
+    *,
+    drugbank_file=None,
+    mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
+    rebuild: bool = False,
 ):
     """
     Create a tsv file containing chemical mapping information.

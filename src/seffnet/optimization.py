@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-"""Hyperparameters optimization for NRL models."""
+"""Hyperparameter optimization for NRL models."""
 
 import datetime
 from getpass import getuser
@@ -14,14 +14,13 @@ from optuna.storages import BaseStorage
 
 
 def run_study(
-        objective,
-        n_trials: int,
-        *,
-        storage: Union[None, str, BaseStorage] = None,
-        study_name: Optional[str] = None,
+    objective,
+    n_trials: int,
+    *,
+    storage: Union[None, str, BaseStorage] = None,
+    study_name: Optional[str] = None,
 ) -> Study:
-    """
-    Run study for models.
+    """Run study for models.
 
     :param objective: the function for running the trial
     :param n_trials: the number of trials to run
@@ -41,8 +40,7 @@ def run_study(
 
 
 def predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial):
-    """
-    Predict and evaluate the NRL model.
+    """Predict and evaluate the NRL model.
 
     :param model: NRL model
     :param graph: the complete graph
@@ -73,19 +71,18 @@ def predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, tri
 
 
 def hope_optimization(
-        *,
-        graph,
-        graph_train,
-        testing_pos_edges,
-        train_graph_filename,
-        trial_number,
-        seed,
-        dimensions_range,
-        storage=None,
-        study_name: Optional[str] = None,
-):
-    """
-    Optimize HOPE method.
+    *,
+    graph,
+    graph_train,
+    testing_pos_edges,
+    train_graph_filename,
+    trial_number,
+    seed,
+    dimensions_range,
+    storage=None,
+    study_name: Optional[str] = None,
+) -> Study:  # noqa: D202
+    """Optimize HOPE method.
 
     :param graph: the complete input graph
     :param graph_train: the training graph
@@ -98,6 +95,7 @@ def hope_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'hope')
         trial.set_user_attr('seed', seed)
@@ -113,19 +111,18 @@ def hope_optimization(
 
 
 def deepwalk_optimization(
-        *,
-        graph,
-        graph_train,
-        testing_pos_edges,
-        train_graph_filename,
-        trial_number,
-        seed,
-        dimensions_range,
-        storage=None,
-        study_name: Optional[str] = None,
-):
-    """
-    Optimize DeepWalk method.
+    *,
+    graph,
+    graph_train,
+    testing_pos_edges,
+    train_graph_filename,
+    trial_number,
+    seed,
+    dimensions_range,
+    storage=None,
+    study_name: Optional[str] = None,
+) -> Study:  # noqa: D202
+    """Optimize DeepWalk method.
 
     :param graph: the complete input graph
     :param graph_train: the training graph
@@ -138,6 +135,7 @@ def deepwalk_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'deepwalk')
         trial.set_user_attr('seed', seed)
@@ -159,19 +157,18 @@ def deepwalk_optimization(
 
 
 def node2vec_optimization(
-        *,
-        graph,
-        graph_train,
-        testing_pos_edges,
-        train_graph_filename,
-        trial_number,
-        seed,
-        dimensions_range,
-        storage=None,
-        study_name: Optional[str] = None,
-):
-    """
-    Optimize node2vec method.
+    *,
+    graph,
+    graph_train,
+    testing_pos_edges,
+    train_graph_filename,
+    trial_number,
+    seed,
+    dimensions_range,
+    storage=None,
+    study_name: Optional[str] = None,
+) -> Study:  # noqa: D202
+    """Optimize node2vec method.
 
     :param graph: the complete input graph
     :param graph_train: the training graph
@@ -184,6 +181,7 @@ def node2vec_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'node2vec')
         trial.set_user_attr('seed', seed)
@@ -208,18 +206,17 @@ def node2vec_optimization(
 
 
 def sdne_optimization(
-        *,
-        graph,
-        graph_train,
-        testing_pos_edges,
-        train_graph_filename,
-        trial_number,
-        seed,
-        storage=None,
-        study_name: Optional[str] = None,
-):
-    """
-    Optimize SDNE method.
+    *,
+    graph,
+    graph_train,
+    testing_pos_edges,
+    train_graph_filename,
+    trial_number,
+    seed,
+    storage=None,
+    study_name: Optional[str] = None,
+) -> Study:  # noqa: D202
+    """Optimize SDNE method.
 
     :param graph: the complete input graph
     :param graph_train: the training graph
@@ -232,6 +229,7 @@ def sdne_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'sdne')
         trial.set_user_attr('seed', seed)
@@ -251,19 +249,18 @@ def sdne_optimization(
 
 
 def grarep_optimization(
-        *,
-        graph,
-        graph_train,
-        testing_pos_edges,
-        train_graph_filename,
-        trial_number,
-        seed,
-        dimensions_range,
-        storage=None,
-        study_name: Optional[str] = None,
-):
-    """
-    Optimize GraRep method.
+    *,
+    graph,
+    graph_train,
+    testing_pos_edges,
+    train_graph_filename,
+    trial_number,
+    seed,
+    dimensions_range,
+    storage=None,
+    study_name: Optional[str] = None,
+) -> Study:  # noqa: D202
+    """Optimize GraRep method.
 
     :param graph: the complete input graph
     :param graph_train: the training graph
@@ -276,6 +273,7 @@ def grarep_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'grarep')
         trial.set_user_attr('seed', seed)
@@ -295,19 +293,18 @@ def grarep_optimization(
 
 
 def line_optimization(
-        *,
-        graph,
-        graph_train,
-        testing_pos_edges,
-        train_graph_filename,
-        trial_number,
-        seed,
-        dimensions_range,
-        storage=None,
-        study_name: Optional[str] = None,
-):
-    """
-    Optimize LINE method.
+    *,
+    graph,
+    graph_train,
+    testing_pos_edges,
+    train_graph_filename,
+    trial_number,
+    seed,
+    dimensions_range,
+    storage=None,
+    study_name: Optional[str] = None,
+) -> Study:  # noqa: D202
+    """Optimize LINE method.
 
     :param graph: the complete input graph
     :param graph_train: the training graph
@@ -320,6 +317,7 @@ def line_optimization(
     :param study_name: the name of the study
     :return: the study
     """
+
     def objective(trial):
         trial.set_user_attr('method', 'line')
         trial.set_user_attr('seed', seed)

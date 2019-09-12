@@ -20,7 +20,8 @@ from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_CHEMSIM_PICKLE, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE,
-    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, PUBCHEM_NAMESPACE)
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, PUBCHEM_NAMESPACE,
+)
 from .get_url_requests import cid_to_smiles
 
 
@@ -75,16 +76,16 @@ def get_fingerprints(pubchem_id_to_smiles):
 
 
 def get_similarity_graph(
-        *,
-        fullgraph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
-        rebuild: bool = False,
-        mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
-        similarity=0.5,
-        name='Chemical Similarity Graph',
-        version='1.1.0',
-        authors='',
-        contact='',
-        description='',
+    *,
+    fullgraph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+    rebuild: bool = False,
+    mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
+    similarity=0.5,
+    name='Chemical Similarity Graph',
+    version='1.1.0',
+    authors='',
+    contact='',
+    description='',
 ):
     """
     Create a BELGraph with chemicals as nodes, and similarity as edges.
@@ -145,10 +146,10 @@ def get_similarity_graph(
 
 
 def cluster_chemicals(
-        *,
-        rebuild: bool = False,
-        graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
-        mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
+    *,
+    rebuild: bool = False,
+    graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+    mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
 ):
     """Cluster chemicals based on their similarities."""
     # TODO: refactor and optimize this code

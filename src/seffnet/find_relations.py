@@ -61,13 +61,13 @@ class Predictor:
 
     @classmethod
     def from_paths(
-            cls,
-            *,
-            model_path: str,
-            embeddings_path: str,
-            mapping_path: str,
-            graph_path: Optional[str] = None,
-            positive_control: Optional[bool] = True,
+        cls,
+        *,
+        model_path: str,
+        embeddings_path: str,
+        mapping_path: str,
+        graph_path: Optional[str] = None,
+        positive_control: Optional[bool] = True,
     ) -> 'Predictor':
         """Return the predictor for embeddings."""
         model = joblib.load(model_path)
@@ -99,12 +99,12 @@ class Predictor:
         )
 
     def find_new_relations(
-            self,
-            node_id: Optional[str] = None,
-            node_name: Optional[str] = None,
-            node_curie: Optional[str] = None,
-            results_type: Optional[str] = None,
-            k: Optional[int] = 30,
+        self,
+        node_id: Optional[str] = None,
+        node_name: Optional[str] = None,
+        node_curie: Optional[str] = None,
+        results_type: Optional[str] = None,
+        k: Optional[int] = 30,
     ) -> Optional[Mapping[str, Any]]:
         """Find new relations to specific entity.
 
@@ -157,10 +157,10 @@ class Predictor:
         return self.node_id_to_info.get(node_id)
 
     def _lookup_node(
-            self,
-            node_id: Optional[str] = None,
-            node_name: Optional[str] = None,
-            node_curie: Optional[str] = None,
+        self,
+        node_id: Optional[str] = None,
+        node_name: Optional[str] = None,
+        node_curie: Optional[str] = None,
     ) -> str:
         if node_id is not None:
             return node_id
@@ -172,14 +172,14 @@ class Predictor:
             raise ValueError("You need to provide information about the entity (node_id, entity_id, or entity_name)")
 
     def find_new_relation(
-            self,
-            *,
-            source_id: Optional[str] = None,
-            source_curie: Optional[str] = None,
-            source_name: Optional[str] = None,
-            target_id: Optional[str] = None,
-            target_curie: Optional[str] = None,
-            target_name: Optional[str] = None,
+        self,
+        *,
+        source_id: Optional[str] = None,
+        source_curie: Optional[str] = None,
+        source_name: Optional[str] = None,
+        target_id: Optional[str] = None,
+        target_curie: Optional[str] = None,
+        target_name: Optional[str] = None,
     ) -> Mapping[str, Any]:
         """Get the probability of having a relation between two entities."""
         source_id = self._lookup_node(node_id=source_id, node_curie=source_curie, node_name=source_name)
@@ -202,9 +202,9 @@ class Predictor:
         return self._predict_helper([edge_embedding.tolist()])[0]
 
     def _find_relations_helper(
-            self,
-            source_id: str,
-            namespace: Optional[str] = None,
+        self,
+        source_id: str,
+        namespace: Optional[str] = None,
     ) -> Tuple[List[NodeInfo], List[np.ndarray], List[bool]]:
         node_list, relations_list, relation_novelties = [], [], []
         source_vector = self.embeddings[source_id]
@@ -214,8 +214,8 @@ class Predictor:
                 continue
 
             novel = (
-                    self.graph is None or
-                    not (self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id))
+                self.graph is None or
+                not (self.graph.has_edge(source_id, target_id) or self.graph.has_edge(target_id, source_id))
             )
 
             node_info = self._get_entity_json(target_id)
@@ -230,12 +230,12 @@ class Predictor:
         return node_list, relations_list, relation_novelties
 
     def get_probabilities(
-            self,
-            *,
-            nodes,
-            relations: List[np.ndarray],
-            relation_novelties: List[bool],
-            k: Optional[int] = None,
+        self,
+        *,
+        nodes,
+        relations: List[np.ndarray],
+        relation_novelties: List[bool],
+        k: Optional[int] = None,
     ) -> List[Mapping[str, Any]]:
         """Get probabilities from logistic regression classifier.
 
@@ -259,7 +259,9 @@ class Predictor:
         ]
         results = sorted(results, key=itemgetter('p'))
         if not self.positive_control:
-            results = list(filter(lambda i: i['novel'] is True, results))
+            # results = [result for result in results if result['novel']]
+            results = list(filter(itemgetter('novel'), results))
+
         if k is not None:
             return results[:k]
         else:

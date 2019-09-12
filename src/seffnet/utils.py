@@ -2,12 +2,13 @@
 
 """Utilities for :mod:`seffnet`."""
 
-import os
-import random
-
 import datetime
 import getpass
 import json
+import os
+import random
+from typing import Any, Mapping, Optional
+
 import networkx as nx
 import optuna
 import pandas as pd
@@ -16,11 +17,10 @@ from bionev import pipeline
 from bionev.embed_train import embedding_training
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
-from typing import Any, Mapping
 
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
-    DEFAULT_TRAINING_SET
+    DEFAULT_TRAINING_SET,
 )
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
@@ -66,28 +66,31 @@ def create_graphs(*, input_path, training_path, testing_path, seed):
 
 
 def do_evaluation(
-        *,
-        input_path,
-        training_path=None,
-        testing_path=None,
-        method,
-        dimensions=300,
-        number_walks=8,
-        walk_length=8,
-        window_size=4,
-        p=1.5,
-        q=2.1,
-        alpha=0.1,
-        beta=4,
-        epochs=5,
-        kstep=4,
-        order=3,
-        seed=random.randint(1, 10000000),
-        embeddings_path=None,
-        model_path=None,
-        evaluation_file=None
+    *,
+    input_path,
+    training_path=None,
+    testing_path=None,
+    method,
+    dimensions: int = 300,
+    number_walks: int = 8,
+    walk_length: int = 8,
+    window_size: int = 4,
+    p: float = 1.5,
+    q: float = 2.1,
+    alpha: float = 0.1,
+    beta: float = 4,
+    epochs: int = 5,
+    kstep: int = 4,
+    order: int = 3,
+    seed: Optional[int] = None,
+    embeddings_path: Optional[str] = None,
+    model_path=None,
+    evaluation_file=None
 ):
     """Train and evaluate an NRL model."""
+    if seed is None:
+        seed = random.randint(1, 2 ** 32 - 1)
+
     graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
         input_path=input_path,
         training_path=training_path,
@@ -145,17 +148,17 @@ def do_evaluation(
 
 
 def do_optimization(
-        *,
-        method,
-        input_path,
-        training_path,
-        testing_path,
-        trials,
-        seed,
-        dimensions_range,
-        storage,
-        name,
-        output,
+    *,
+    method,
+    input_path,
+    training_path,
+    testing_path,
+    trials,
+    seed,
+    dimensions_range,
+    storage,
+    name,
+    output,
 ):
     """Run optimization a specific method and graph."""
     graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
@@ -246,23 +249,23 @@ def do_optimization(
 
 
 def train_model(
-        *,
-        input_path,
-        method,
-        dimensions,
-        number_walks,
-        walk_length,
-        window_size,
-        p,
-        q,
-        alpha,
-        beta,
-        epochs,
-        kstep,
-        order,
-        seed,
-        model_path,
-        embeddings_path,
+    *,
+    input_path,
+    method,
+    dimensions,
+    number_walks,
+    walk_length,
+    window_size,
+    p,
+    q,
+    alpha,
+    beta,
+    epochs,
+    kstep,
+    order,
+    seed,
+    model_path,
+    embeddings_path,
 ):
     """Train a graph with an NRL model."""
     model = embedding_training(
@@ -296,13 +299,13 @@ def train_model(
 
 
 def split_training_testing_sets(
-        *,
-        rebuild: bool = False,
-        clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
-        graph=DEFAULT_FULLGRAPH_PICKLE,
-        g_train_path=DEFAULT_TRAINING_SET,
-        g_test_path=DEFAULT_TESTING_SET,
-        mapping_path=DEFAULT_MAPPING_PATH
+    *,
+    rebuild: bool = False,
+    clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
+    graph=DEFAULT_FULLGRAPH_PICKLE,
+    g_train_path=DEFAULT_TRAINING_SET,
+    g_test_path=DEFAULT_TESTING_SET,
+    mapping_path=DEFAULT_MAPPING_PATH
 ):
     """Split training and testing sets based on clustered chemicals."""
     # TODO: refractor and optimize
@@ -357,25 +360,26 @@ def split_training_testing_sets(
 
 
 def repeat_experiment(
-        *,
-        input_path,
-        training_path=None,
-        testing_path=None,
-        method,
-        dimensions=300,
-        number_walks=8,
-        walk_length=8,
-        window_size=4,
-        p=1.5,
-        q=2.1,
-        alpha=0.1,
-        beta=4,
-        epochs=5,
-        kstep=4,
-        order=3,
-        n=10,
-        evaluation_file=None,
+    *,
+    input_path,
+    training_path=None,
+    testing_path=None,
+    method,
+    dimensions=300,
+    number_walks=8,
+    walk_length=8,
+    window_size=4,
+    p=1.5,
+    q=2.1,
+    alpha=0.1,
+    beta=4,
+    epochs=5,
+    kstep=4,
+    order=3,
+    n=10,
+    evaluation_file=None,
 ):
+    """Repeat an experiment several times."""
     all_results = {
         i: do_evaluation(
             input_path=input_path,
@@ -393,7 +397,6 @@ def repeat_experiment(
             epochs=epochs,
             kstep=kstep,
             order=order,
-            seed=random.randint(1, 10000000),
             embeddings_path=None,
             model_path=None,
             evaluation_file=None
