@@ -5,7 +5,7 @@ tensorflow < 2.0.0
 gensim
 scikit-learn
 tqdm
-bionev @ git+https://github.com/AldisiRana/BioNEV.git
+bionev @ git+https://github.com/seffnet/BioNEV.git
 optuna
 pybel
 defusedxml
