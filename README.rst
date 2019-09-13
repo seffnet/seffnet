@@ -1,6 +1,6 @@
 SEffNet |build|
 ===============
-seffnet is a tool that optimizes, trains, and evaluates predictive models for biomedical networks that contain drug-, target- and side effect-information using different network representation learning methods in an attempt to understand the causes of side effects.
+SEffNet (**S**\ide **Eff**\ect **Net**\work embeddings)  is a tool that optimizes, trains, and evaluates predictive models for biomedical networks that contain drug-, target- and side effect-information using different network representation learning methods in an attempt to understand the causes of side effects.
 
 Structure
 ---------
