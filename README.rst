@@ -42,27 +42,27 @@ You can rebuild all the graphs and maps created for this project by running the 
     
 Note that you need to have RDKit package and environment to be able to run this command
 
+
+Model training and evaluation
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+You can train an NRL model using the following:
+
+.. code-block:: bash
+
+    $ seffnet train --input-path ./resources/basic_graphs/fullgraph_with_chemsim.edgelist --evaluation --method node2vec
+    
+- For further CLI options and parameters use --help, -h
+
 Optimizing hyperparameters
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 Network representation learning models can be optimized with:
 
 .. code-block:: bash
 
-    $ seffnet optimize --input-path ./resources/chemsim_50_graphs/fullgraph_with_chemsim_50.edgelist --method node2vec
+    $ seffnet optimize --input-path ./resources/basic_graphs/fullgraph_with_chemsim.edgelist --method node2vec
     
     
-CLI Options:
-
-- --input-path, input graph file. Only accepted edgelist format. If training-path and testing-path are not specified, the input graph will be split randomly.
-- --method, the NRL method to train the model. Choices: node2vec, DeepWalk, HOPE, GraRep, LINE, SDNE.
-- --training-path, training graph file. Only accepted edgelist format.
-- --testing-path, testing graph file. Only accepted edgelist format.
-- --trials, the number of trials done to optimize hyperparameters. Default=50
-- --dimensions-range, the range of dimensions to be optimized. Default=100-300
-- --storage, SQL connection string for study database. Example: sqlite:///optuna.db
-- --name, name for the study
-- -o, --output, Output study summary
-- --seed, default is a random number between 1 and 2^32 - 1
+- For further CLI options and parameters use --help, -h
 
 Web Application
 ~~~~~~~~~~~~~~~
