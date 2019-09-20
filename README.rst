@@ -21,7 +21,7 @@ Installation
 Usage
 -----
 Using the predictive model
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 If you've installed ``seffnet`` locally, you can use the default model from the GitHub repository with:
 
 .. code-block:: python
@@ -44,7 +44,7 @@ Note that you need to have RDKit package and environment to be able to run this 
 
 
 Model training and evaluation
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 You can train an NRL model using the following:
 
 .. code-block:: bash
