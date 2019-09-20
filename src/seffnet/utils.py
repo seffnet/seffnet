@@ -159,6 +159,8 @@ def do_optimization(
     storage,
     name,
     output,
+    prediction_task,
+    labels_file,
 ):
     """Run optimization a specific method and graph."""
     graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
@@ -178,6 +180,8 @@ def do_optimization(
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
 
     elif method == 'DeepWalk':
@@ -191,6 +195,8 @@ def do_optimization(
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
 
     elif method == 'node2vec':
@@ -204,6 +210,8 @@ def do_optimization(
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
 
     elif method == 'GraRep':
@@ -217,6 +225,8 @@ def do_optimization(
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
 
     elif method == 'SDNE':
@@ -229,6 +239,8 @@ def do_optimization(
             seed=seed,
             storage=storage,
             study_name=name,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
 
     else:
@@ -242,6 +254,8 @@ def do_optimization(
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
 
     study_json = study_to_json(study)

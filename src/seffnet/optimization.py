@@ -9,6 +9,7 @@ from typing import Optional, Union
 import optuna
 from bionev import embed_train, pipeline
 from bionev.OpenNE.line import LINE
+from bionev.utils import read_node_labels
 from optuna import Study
 from optuna.storages import BaseStorage
 
@@ -39,7 +40,7 @@ def run_study(
     return study
 
 
-def predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial):
+def predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial, labels_file):
     """Predict and evaluate the NRL model.
 
     :param model: NRL model
@@ -54,18 +55,33 @@ def predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, tri
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
-    auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
-        embeddings=embeddings,
-        original_graph=graph,
-        train_graph=graph_train,
-        test_pos_edges=testing_pos_edges,
-        seed=seed,
-    )
-    trial.set_user_attr('mcc', round(mcc, 3))
-    trial.set_user_attr('auc_roc', round(auc_roc, 3))
-    trial.set_user_attr('auc_pr', round(auc_pr, 3))
-    trial.set_user_attr('accuracy', round(accuracy, 3))
-    trial.set_user_attr('f1', round(f1, 3))
+    if prediction_task == 'link_prediction':
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=graph,
+            train_graph=graph_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+        )
+        trial.set_user_attr('mcc', round(mcc, 3))
+        trial.set_user_attr('auc_roc', round(auc_roc, 3))
+        trial.set_user_attr('auc_pr', round(auc_pr, 3))
+        trial.set_user_attr('accuracy', round(accuracy, 3))
+        trial.set_user_attr('f1', round(f1, 3))
+    else:
+        if not labels_file:
+            raise ValueError("No input label file. Exit.")
+        node_list, labels = read_node_labels(labels_file)
+        accuracy, mcc, micro_f1, macro_f1 = pipeline.do_node_classification(
+            embeddings=embeddings,
+            node_list=node_list,
+            labels=labels,
+            seed=seed,
+        )
+        trial.set_user_attr('mcc', round(mcc, 3))
+        trial.set_user_attr('accuracy', round(accuracy, 3))
+        trial.set_user_attr('micro_f1', round(micro_f1, 3))
+        trial.set_user_attr('macro_f1', round(macro_f1, 3))
 
     return round(1.0 - mcc, 3)
 
@@ -80,6 +96,8 @@ def hope_optimization(
     seed,
     dimensions_range,
     storage=None,
+    prediction_task,
+    labels_file,
     study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize HOPE method.
@@ -105,7 +123,8 @@ def hope_optimization(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
         )
-        return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
+        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
+                                    labels_file)
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -120,6 +139,8 @@ def deepwalk_optimization(
     seed,
     dimensions_range,
     storage=None,
+    prediction_task,
+    labels_file,
     study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize DeepWalk method.
@@ -151,7 +172,8 @@ def deepwalk_optimization(
             number_walks=number_walks,
             window_size=window_size,
         )
-        return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
+        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
+                                    labels_file)
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -166,6 +188,8 @@ def node2vec_optimization(
     seed,
     dimensions_range,
     storage=None,
+    prediction_task,
+    labels_file,
     study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize node2vec method.
@@ -200,7 +224,8 @@ def node2vec_optimization(
             window_size=window_size,
             p=p,
             q=q)
-        return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
+        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
+                                    labels_file)
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -214,6 +239,8 @@ def sdne_optimization(
     trial_number,
     seed,
     storage=None,
+    prediction_task,
+    labels_file,
     study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize SDNE method.
@@ -243,7 +270,8 @@ def sdne_optimization(
             beta=beta,
             epochs=epochs,
         )
-        return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
+        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
+                                    labels_file)
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -258,6 +286,8 @@ def grarep_optimization(
     seed,
     dimensions_range,
     storage=None,
+    prediction_task,
+    labels_file,
     study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize GraRep method.
@@ -287,7 +317,8 @@ def grarep_optimization(
             dimensions=dimensions,
             kstep=kstep,
         )
-        return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
+        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
+                                    labels_file)
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -302,6 +333,8 @@ def line_optimization(
     seed,
     dimensions_range,
     storage=None,
+    prediction_task,
+    labels_file,
     study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize LINE method.
@@ -331,6 +364,7 @@ def line_optimization(
             order=order,
             epochs=epochs,
         )
-        return predict_and_evaluate(model, graph, graph_train, testing_pos_edges, seed, trial)
+        return predict_and_evaluate(prediction_task,model, graph, graph_train, testing_pos_edges, seed, trial,
+                                    labels_file)
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)

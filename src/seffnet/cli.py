@@ -36,6 +36,10 @@ KSTEP = click.option('--kstep', type=int, default=30, help='The kstep parameter 
 ORDER = click.option('--order', default=2, type=int, help='The order parameter for LINE. Could be 1, 2 or 3')
 EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
                                help='The path to save evaluation results.')
+PREDICTION_TASK = click.option('--task', default='link_prediction',
+                               type=click.Choice([None, 'link_prediction', 'node_classification']),
+                               help='The prediction task for the model')
+LABELs_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
 
 
 @click.group()
@@ -49,6 +53,8 @@ def main():
 @TESTING_PATH
 @METHOD
 @SEED
+@PREDICTION_TASK
+@LABELs_FILE
 @click.option('--trials', default=50, type=int, help='the number of trials done to optimize hyperparameters')
 @click.option('--dimensions-range', default=(100, 300), type=(int, int), help='the range of dimensions to be optimized')
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
@@ -58,10 +64,12 @@ def optimize(
     input_path,
     training_path,
     testing_path,
+    seed,
+    prediction_task,
+    labels_file,
     method,
     trials,
     dimensions_range,
-    seed,
     storage,
     name,
     output,
@@ -71,6 +79,8 @@ def optimize(
         input_path=input_path,
         training_path=training_path,
         testing_path=testing_path,
+        prediction_task=prediction_task,
+        labels_file=labels_file,
         method=method,
         trials=trials,
         storage=storage,
