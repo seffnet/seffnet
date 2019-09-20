@@ -165,8 +165,8 @@ def do_optimization(
 ):
     """Run optimization a specific method and graph."""
     if prediction_task == 'link_prediction':
-        node_list=None
-        labels=None
+        node_list = None
+        labels = None
         graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
             input_path=input_path,
             training_path=training_path,
@@ -177,7 +177,7 @@ def do_optimization(
         if not labels_file:
             raise ValueError("No input label file. Exit.")
         node_list, labels = read_node_labels(labels_file)
-        train_graph_filename=input_path
+        train_graph_filename = input_path
         graph, graph_train, testing_pos_edges = None, None, None
     if method == 'HOPE':
         study = hope_optimization(

@@ -3,13 +3,14 @@
 """Hyperparameter optimization for NRL models."""
 
 import datetime
+from getpass import getuser
+from typing import Optional, Union
+
 import optuna
 from bionev import embed_train, pipeline
 from bionev.OpenNE.line import LINE
-from getpass import getuser
 from optuna import Study
 from optuna.storages import BaseStorage
-from typing import Optional, Union
 
 
 def run_study(

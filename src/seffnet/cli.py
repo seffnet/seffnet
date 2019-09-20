@@ -39,7 +39,7 @@ EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), defaul
 PREDICTION_TASK = click.option('--prediction-task', default='link_prediction',
                                type=click.Choice(['none', 'link_prediction', 'node_classification']),
                                help='The prediction task for the model')
-LABELs_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
+LABELS_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
 
 
 @click.group()
@@ -54,7 +54,7 @@ def main():
 @METHOD
 @SEED
 @PREDICTION_TASK
-@LABELs_FILE
+@LABELS_FILE
 @click.option('--trials', default=50, type=int, help='the number of trials done to optimize hyperparameters')
 @click.option('--dimensions-range', default=(100, 300), type=(int, int), help='the range of dimensions to be optimized')
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
