@@ -37,7 +37,7 @@ ORDER = click.option('--order', default=2, type=int, help='The order parameter f
 EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
                                help='The path to save evaluation results.')
 PREDICTION_TASK = click.option('--task', default='link_prediction',
-                               type=click.Choice([None, 'link_prediction', 'node_classification']),
+                               type=click.Choice(['none', 'link_prediction', 'node_classification']),
                                help='The prediction task for the model')
 LABELs_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
 
