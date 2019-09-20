@@ -15,6 +15,7 @@ import pandas as pd
 import pybel
 from bionev import pipeline
 from bionev.embed_train import embedding_training
+from bionev.utils import read_node_labels
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
 
@@ -163,12 +164,21 @@ def do_optimization(
     labels_file,
 ):
     """Run optimization a specific method and graph."""
-    graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
-        input_path=input_path,
-        training_path=training_path,
-        testing_path=testing_path,
-        seed=seed,
-    )
+    if prediction_task == 'link_prediction':
+        node_list=None
+        labels=None
+        graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
+            input_path=input_path,
+            training_path=training_path,
+            testing_path=testing_path,
+            seed=seed,
+        )
+    else:
+        if not labels_file:
+            raise ValueError("No input label file. Exit.")
+        node_list, labels = read_node_labels(labels_file)
+        train_graph_filename=input_path
+        graph, graph_train, testing_pos_edges = None, None, None
     if method == 'HOPE':
         study = hope_optimization(
             graph=graph,
@@ -181,7 +191,8 @@ def do_optimization(
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
-            labels_file=labels_file,
+            node_list=node_list,
+            labels=labels,
         )
 
     elif method == 'DeepWalk':
@@ -196,7 +207,8 @@ def do_optimization(
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
-            labels_file=labels_file,
+            node_list=node_list,
+            labels=labels,
         )
 
     elif method == 'node2vec':
@@ -211,7 +223,8 @@ def do_optimization(
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
-            labels_file=labels_file,
+            node_list=node_list,
+            labels=labels,
         )
 
     elif method == 'GraRep':
@@ -226,7 +239,8 @@ def do_optimization(
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
-            labels_file=labels_file,
+            node_list=node_list,
+            labels=labels,
         )
 
     elif method == 'SDNE':
@@ -240,7 +254,8 @@ def do_optimization(
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
-            labels_file=labels_file,
+            node_list=node_list,
+            labels=labels,
         )
 
     else:
@@ -255,7 +270,8 @@ def do_optimization(
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
-            labels_file=labels_file,
+            node_list=node_list,
+            labels=labels,
         )
 
     study_json = study_to_json(study)

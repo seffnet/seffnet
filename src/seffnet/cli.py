@@ -36,7 +36,7 @@ KSTEP = click.option('--kstep', type=int, default=30, help='The kstep parameter 
 ORDER = click.option('--order', default=2, type=int, help='The order parameter for LINE. Could be 1, 2 or 3')
 EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
                                help='The path to save evaluation results.')
-PREDICTION_TASK = click.option('--task', default='link_prediction',
+PREDICTION_TASK = click.option('--prediction-task', default='link_prediction',
                                type=click.Choice(['none', 'link_prediction', 'node_classification']),
                                help='The prediction task for the model')
 LABELs_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
@@ -75,20 +75,23 @@ def optimize(
     output,
 ):
     """Run the optimization pipeline for a given method and graph."""
-    do_optimization(
-        input_path=input_path,
-        training_path=training_path,
-        testing_path=testing_path,
-        prediction_task=prediction_task,
-        labels_file=labels_file,
-        method=method,
-        trials=trials,
-        storage=storage,
-        dimensions_range=dimensions_range,
-        name=name,
-        output=output,
-        seed=seed,
-    )
+    if prediction_task == 'none':
+        raise Exception('Optimization cannot be done without selecting a prediction task for evaluation.')
+    else:
+        do_optimization(
+            input_path=input_path,
+            training_path=training_path,
+            testing_path=testing_path,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
+            method=method,
+            trials=trials,
+            storage=storage,
+            dimensions_range=dimensions_range,
+            name=name,
+            output=output,
+            seed=seed,
+        )
 
 
 @main.command()
