@@ -67,19 +67,18 @@ def predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos
         trial.set_user_attr('auc_pr', round(auc_pr, 3))
         trial.set_user_attr('accuracy', round(accuracy, 3))
         trial.set_user_attr('f1', round(f1, 3))
+        return round(1.0 - mcc, 3)
     else:
-        accuracy, mcc, micro_f1, macro_f1 = pipeline.do_node_classification(
+        accuracy, micro_f1, macro_f1 = pipeline.do_node_classification(
             embeddings=embeddings,
             node_list=node_list,
             labels=labels,
             seed=seed,
         )
-        trial.set_user_attr('mcc', round(mcc, 3))
         trial.set_user_attr('accuracy', round(accuracy, 3))
         trial.set_user_attr('micro_f1', round(micro_f1, 3))
         trial.set_user_attr('macro_f1', round(macro_f1, 3))
-
-    return round(1.0 - mcc, 3)
+        return round(1.0 - accuracy, 3)
 
 
 def hope_optimization(
