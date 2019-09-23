@@ -120,7 +120,7 @@ class Predictor:
         """
         node_id = self._lookup_node(node_id=node_id, node_curie=node_curie, node_name=node_name)
         if node_id is None:
-            return
+            raise Exception('The curie you input does not exist.')
 
         node_info = self._get_entity_json(node_id)
 
