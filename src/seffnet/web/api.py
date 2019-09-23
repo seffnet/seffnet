@@ -34,7 +34,7 @@ def home():
     form = QueryForm()
 
     if not form.validate_on_submit():
-        test_url = url_for('.predict', curie='pubchem.compound:85')
+        test_url = url_for('.predict', curie='pubchem.compound:5095')
         return render_template('index.html', test_url=test_url, form=form)
 
     return redirect(url_for(
