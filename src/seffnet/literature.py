@@ -49,7 +49,7 @@ Examples of types:
 import logging
 import os
 import time
-from typing import Dict, List, Optional, Iterable, Mapping, Tuple, Set, Union
+from typing import Dict, Iterable, List, Mapping, Optional, Set, Tuple, Union
 
 import click
 import requests
