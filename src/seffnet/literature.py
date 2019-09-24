@@ -9,14 +9,13 @@ How to Use
 
 .. code-block:: sh
 
-    python3 literature.py --query="Ropinirole" --targets="umls:C0015371"
+    python -m seffnet.literature Ropinirole umls:C0015371
 
 2. Using the cli for combinations of entities:
 
 .. code-block:: sh
 
-    python3 literature.py --query="Ropinirole" --targets=['umls:C0013384','umls:C0015371']
-
+    python -m seffnet.literature Ropinirole umls:C0015371 umls:C0013384
 
 3. Using the main method in Python:
 
