@@ -103,7 +103,8 @@ def optimize(
 @click.option('--evaluation', is_flag=True, help='If true, a testing set will be used to evaluate model.')
 @EVALUATION_FILE
 @click.option('--embeddings-path', help='The path to save the embeddings file')
-@click.option('--model-path', help='The path to save the prediction model')
+@click.option('--predictive-model-path', help='The path to save the prediction model')
+@click.option('--training-model-path', help='The path to save the model used for training')
 @DIMENSIONS
 @NUMBER_WALKS
 @WALK_LENGTH
@@ -122,7 +123,8 @@ def train(
     evaluation,
     evaluation_file,
     embeddings_path,
-    model_path,
+    predictive_model_path,
+    training_model_path,
     seed,
     method,
     dimensions,
@@ -157,7 +159,8 @@ def train(
             order=order,
             seed=seed,
             embeddings_path=embeddings_path,
-            model_path=model_path,
+            predictive_model_path=predictive_model_path,
+            training_model_path=training_model_path,
             evaluation_file=evaluation_file
         )
         click.echo('Training is finished.')
@@ -178,7 +181,8 @@ def train(
             kstep=kstep,
             order=order,
             seed=seed,
-            model_path=model_path,
+            predictive_model_path=predictive_model_path,
+            training_model_path=training_model_path,
             embeddings_path=embeddings_path,
         )
         click.echo('Training is finished.')

@@ -69,8 +69,8 @@ def create_graphs(*, input_path, training_path, testing_path, seed):
 def do_evaluation(
     *,
     input_path,
-    training_path=None,
-    testing_path=None,
+    training_path: Optional[str] = None,
+    testing_path: Optional[str] =None,
     method,
     dimensions: int = 300,
     number_walks: int = 8,
@@ -85,8 +85,9 @@ def do_evaluation(
     order: int = 3,
     seed: Optional[int] = None,
     embeddings_path: Optional[str] = None,
-    model_path=None,
-    evaluation_file=None
+    predictive_model_path: Optional[str] =None,
+    training_model_path: Optional[str] =None,
+    evaluation_file: Optional[str] =None
 ):
     """Train and evaluate an NRL model."""
     if seed is None:
@@ -114,6 +115,8 @@ def do_evaluation(
         order=order,
         seed=seed,
     )
+    if training_model_path is not None:
+        model.save_model(training_model_path)
     if embeddings_path is not None:
         model.save_embeddings(embeddings_path)
     if method == 'LINE':
@@ -126,7 +129,7 @@ def do_evaluation(
         train_graph=graph_train,
         test_pos_edges=testing_pos_edges,
         seed=seed,
-        save_model=model_path
+        save_model=predictive_model_path
     )
     _results = dict(
         input=input_path,
@@ -282,22 +285,27 @@ def train_model(
     *,
     input_path,
     method,
-    dimensions,
-    number_walks,
-    walk_length,
-    window_size,
-    p,
-    q,
-    alpha,
-    beta,
-    epochs,
-    kstep,
-    order,
-    seed,
-    model_path,
-    embeddings_path,
+    dimensions: int = 300,
+    number_walks: int = 8,
+    walk_length: int = 8,
+    window_size: int = 4,
+    p: float = 1.5,
+    q: float = 2.1,
+    alpha: float = 0.1,
+    beta: float = 4,
+    epochs: int = 5,
+    kstep: int = 4,
+    order: int = 3,
+    seed: Optional[int] = None,
+    embeddings_path: Optional[str] = None,
+    predictive_model_path: Optional[str] = None,
+    training_model_path: Optional[str] = None,
 ):
     """Train a graph with an NRL model."""
+
+    if seed is None:
+        seed = random.randint(1, 2 ** 32 - 1)
+    
     model = embedding_training(
         train_graph_filename=input_path,
         method=method,
@@ -314,6 +322,8 @@ def train_model(
         order=order,
         seed=seed,
     )
+    if training_model_path is not None:
+        model.save_model(training_model_path)
     model.save_embeddings(embeddings_path)
     original_graph = nx.read_edgelist(input_path)
     if method == 'LINE':
@@ -324,7 +334,7 @@ def train_model(
         embeddings=embeddings,
         original_graph=original_graph,
         seed=seed,
-        save_model=model_path
+        save_model=predictive_model_path
     )
 
 
@@ -428,7 +438,7 @@ def repeat_experiment(
             kstep=kstep,
             order=order,
             embeddings_path=None,
-            model_path=None,
+            predictive_model_path=None,
             evaluation_file=None
         )
         for i in tqdm(range(n), desc="Repeating experiment")
