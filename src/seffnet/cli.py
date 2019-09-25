@@ -8,12 +8,17 @@ import random
 import sys
 
 import click
+import joblib
 import networkx as nx
+
+import bionev.OpenNE.graph as og
+from bionev.pipeline import create_prediction_model
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
 from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
+
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -40,6 +45,9 @@ PREDICTION_TASK = click.option('--prediction-task', default='link_prediction',
                                type=click.Choice(['none', 'link_prediction', 'node_classification']),
                                help='The prediction task for the model')
 LABELS_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
+TRAINING_MODEL_PATH = click.option('--training-model-path', help='The path to save the model used for training')
+PREDICTIVE_MODEL_PATH = click.option('--predictive-model-path', help='The path to save the prediction model')
+EMBEDDINGS_PATH = click.option('--embeddings-path', help='The path to save the embeddings file')
 
 
 @click.group()
@@ -102,9 +110,9 @@ def optimize(
 @METHOD
 @click.option('--evaluation', is_flag=True, help='If true, a testing set will be used to evaluate model.')
 @EVALUATION_FILE
-@click.option('--embeddings-path', help='The path to save the embeddings file')
-@click.option('--predictive-model-path', help='The path to save the prediction model')
-@click.option('--training-model-path', help='The path to save the model used for training')
+@EMBEDDINGS_PATH
+@PREDICTIVE_MODEL_PATH
+@TRAINING_MODEL_PATH
 @DIMENSIONS
 @NUMBER_WALKS
 @WALK_LENGTH
@@ -186,6 +194,42 @@ def train(
             embeddings_path=embeddings_path,
         )
         click.echo('Training is finished.')
+
+
+@main.command()
+@INPUT_PATH
+@click.option('--training-model-path', required=True, help='The path to save the model used for training')
+@click.option('--new-model-path', default=None, help='the path of the updated model. if empty will overwrite old model')
+@EMBEDDINGS_PATH
+@PREDICTIVE_MODEL_PATH
+@SEED
+def update(
+        input_path,
+        training_model_path,
+        new_model_path,
+        embeddings_path,
+        predictive_model_path,
+        seed,
+):
+    """Update node2vec training model."""
+    graph = og.Graph()
+    graph.read_edgelist(input_path, weighted=False)
+    model = joblib.load(training_model_path)
+    model.update_model(graph)
+    if new_model_path is None:
+        joblib.dump(model, training_model_path)
+    else:
+        joblib.dump(model, new_model_path)
+    if embeddings_path is not None:
+        model.save_embeddings(embeddings_path)
+    if predictive_model_path is not None:
+        original_graph = nx.read_edgelist(input_path)
+        create_prediction_model(
+            embeddings=model.get_embeddings(),
+            original_graph=original_graph,
+            seed=seed,
+            save_model=predictive_model_path
+        )
 
 
 @main.command()
