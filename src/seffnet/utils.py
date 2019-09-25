@@ -2,13 +2,12 @@
 
 """Utilities for :mod:`seffnet`."""
 
+import os
+import random
+
 import datetime
 import getpass
 import json
-import os
-import random
-from typing import Any, Mapping, Optional
-
 import networkx as nx
 import optuna
 import pandas as pd
@@ -18,6 +17,7 @@ from bionev.embed_train import embedding_training
 from bionev.utils import read_node_labels
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
+from typing import Any, Mapping, Optional
 
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
@@ -67,27 +67,27 @@ def create_graphs(*, input_path, training_path, testing_path, seed):
 
 
 def do_evaluation(
-    *,
-    input_path,
-    training_path: Optional[str] = None,
-    testing_path: Optional[str] =None,
-    method,
-    dimensions: int = 300,
-    number_walks: int = 8,
-    walk_length: int = 8,
-    window_size: int = 4,
-    p: float = 1.5,
-    q: float = 2.1,
-    alpha: float = 0.1,
-    beta: float = 4,
-    epochs: int = 5,
-    kstep: int = 4,
-    order: int = 3,
-    seed: Optional[int] = None,
-    embeddings_path: Optional[str] = None,
-    predictive_model_path: Optional[str] =None,
-    training_model_path: Optional[str] =None,
-    evaluation_file: Optional[str] =None
+        *,
+        input_path,
+        training_path: Optional[str] = None,
+        testing_path: Optional[str] = None,
+        method,
+        dimensions: int = 300,
+        number_walks: int = 8,
+        walk_length: int = 8,
+        window_size: int = 4,
+        p: float = 1.5,
+        q: float = 2.1,
+        alpha: float = 0.1,
+        beta: float = 4,
+        epochs: int = 5,
+        kstep: int = 4,
+        order: int = 3,
+        seed: Optional[int] = None,
+        embeddings_path: Optional[str] = None,
+        predictive_model_path: Optional[str] = None,
+        training_model_path: Optional[str] = None,
+        evaluation_file: Optional[str] = None
 ):
     """Train and evaluate an NRL model."""
     if seed is None:
@@ -152,19 +152,19 @@ def do_evaluation(
 
 
 def do_optimization(
-    *,
-    method,
-    input_path,
-    training_path,
-    testing_path,
-    trials,
-    seed,
-    dimensions_range,
-    storage,
-    name,
-    output,
-    prediction_task,
-    labels_file,
+        *,
+        method,
+        input_path,
+        training_path,
+        testing_path,
+        trials,
+        seed,
+        dimensions_range,
+        storage,
+        name,
+        output,
+        prediction_task,
+        labels_file,
 ):
     """Run optimization a specific method and graph."""
     if prediction_task == 'link_prediction':
@@ -282,30 +282,30 @@ def do_optimization(
 
 
 def train_model(
-    *,
-    input_path,
-    method,
-    dimensions: int = 300,
-    number_walks: int = 8,
-    walk_length: int = 8,
-    window_size: int = 4,
-    p: float = 1.5,
-    q: float = 2.1,
-    alpha: float = 0.1,
-    beta: float = 4,
-    epochs: int = 5,
-    kstep: int = 4,
-    order: int = 3,
-    seed: Optional[int] = None,
-    embeddings_path: Optional[str] = None,
-    predictive_model_path: Optional[str] = None,
-    training_model_path: Optional[str] = None,
+        *,
+        input_path,
+        method,
+        dimensions: int = 300,
+        number_walks: int = 8,
+        walk_length: int = 8,
+        window_size: int = 4,
+        p: float = 1.5,
+        q: float = 2.1,
+        alpha: float = 0.1,
+        beta: float = 4,
+        epochs: int = 5,
+        kstep: int = 4,
+        order: int = 3,
+        seed: Optional[int] = None,
+        embeddings_path: Optional[str] = None,
+        predictive_model_path: Optional[str] = None,
+        training_model_path: Optional[str] = None,
 ):
     """Train a graph with an NRL model."""
 
     if seed is None:
         seed = random.randint(1, 2 ** 32 - 1)
-    
+
     model = embedding_training(
         train_graph_filename=input_path,
         method=method,
@@ -339,13 +339,13 @@ def train_model(
 
 
 def split_training_testing_sets(
-    *,
-    rebuild: bool = False,
-    clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
-    graph=DEFAULT_FULLGRAPH_PICKLE,
-    g_train_path=DEFAULT_TRAINING_SET,
-    g_test_path=DEFAULT_TESTING_SET,
-    mapping_path=DEFAULT_MAPPING_PATH
+        *,
+        rebuild: bool = False,
+        clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
+        graph=DEFAULT_FULLGRAPH_PICKLE,
+        g_train_path=DEFAULT_TRAINING_SET,
+        g_test_path=DEFAULT_TESTING_SET,
+        mapping_path=DEFAULT_MAPPING_PATH
 ):
     """Split training and testing sets based on clustered chemicals."""
     # TODO: refractor and optimize
@@ -400,24 +400,24 @@ def split_training_testing_sets(
 
 
 def repeat_experiment(
-    *,
-    input_path,
-    training_path=None,
-    testing_path=None,
-    method,
-    dimensions=300,
-    number_walks=8,
-    walk_length=8,
-    window_size=4,
-    p=1.5,
-    q=2.1,
-    alpha=0.1,
-    beta=4,
-    epochs=5,
-    kstep=4,
-    order=3,
-    n=10,
-    evaluation_file=None,
+        *,
+        input_path,
+        training_path=None,
+        testing_path=None,
+        method,
+        dimensions=300,
+        number_walks=8,
+        walk_length=8,
+        window_size=4,
+        p=1.5,
+        q=2.1,
+        alpha=0.1,
+        beta=4,
+        epochs=5,
+        kstep=4,
+        order=3,
+        n=10,
+        evaluation_file=None,
 ):
     """Repeat an experiment several times."""
     all_results = {

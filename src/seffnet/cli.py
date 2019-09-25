@@ -2,23 +2,22 @@
 
 """Command line interface for :mod:`seffnet`."""
 
-import json
-import logging
 import random
 import sys
 
+import bionev.OpenNE.graph as og
 import click
 import joblib
+import json
+import logging
 import networkx as nx
-
-import bionev.OpenNE.graph as og
 from bionev.pipeline import create_prediction_model
+from seffnet.chemical_similarities import get_combined_graph_similarity
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
 from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
-
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -69,18 +68,18 @@ def main():
 @click.option('--name', help="Name for the study")
 @click.option('-o', '--output', type=click.File('w'), help="Output study summary", default=sys.stdout)
 def optimize(
-    input_path,
-    training_path,
-    testing_path,
-    seed,
-    prediction_task,
-    labels_file,
-    method,
-    trials,
-    dimensions_range,
-    storage,
-    name,
-    output,
+        input_path,
+        training_path,
+        testing_path,
+        seed,
+        prediction_task,
+        labels_file,
+        method,
+        trials,
+        dimensions_range,
+        storage,
+        name,
+        output,
 ):
     """Run the optimization pipeline for a given method and graph."""
     if prediction_task == 'none':
@@ -125,27 +124,27 @@ def optimize(
 @KSTEP
 @ORDER
 def train(
-    input_path,
-    training_path,
-    testing_path,
-    evaluation,
-    evaluation_file,
-    embeddings_path,
-    predictive_model_path,
-    training_model_path,
-    seed,
-    method,
-    dimensions,
-    number_walks,
-    walk_length,
-    window_size,
-    p,
-    q,
-    alpha,
-    beta,
-    epochs,
-    kstep,
-    order,
+        input_path,
+        training_path,
+        testing_path,
+        evaluation,
+        evaluation_file,
+        embeddings_path,
+        predictive_model_path,
+        training_model_path,
+        seed,
+        method,
+        dimensions,
+        number_walks,
+        walk_length,
+        window_size,
+        p,
+        q,
+        alpha,
+        beta,
+        epochs,
+        kstep,
+        order,
 ):
     """Train my model."""
     if evaluation:
@@ -251,23 +250,23 @@ def update(
 @ORDER
 @click.option('--n', default=10, help='number of repeats.')
 def repeat(
-    input_path,
-    training_path,
-    testing_path,
-    evaluation_file,
-    method,
-    dimensions,
-    number_walks,
-    walk_length,
-    window_size,
-    p,
-    q,
-    alpha,
-    beta,
-    epochs,
-    kstep,
-    order,
-    n,
+        input_path,
+        training_path,
+        testing_path,
+        evaluation_file,
+        method,
+        dimensions,
+        number_walks,
+        walk_length,
+        window_size,
+        p,
+        q,
+        alpha,
+        beta,
+        epochs,
+        kstep,
+        order,
+        n,
 ):
     """Repeat training n times."""
     results = repeat_experiment(
@@ -363,7 +362,8 @@ def rebuild():
     click.echo('Mapped graph and mapping dataframe are created!')
 
     click.secho('Rebuilding combined graph with chemical similarities', fg='blue', bold=True)
-    fullgraph_with_chemsim = get_similarity_graph(rebuild=True)
+    chemsim_graph = get_similarity_graph(rebuild=True)
+    fullgraph_with_chemsim = get_combined_graph_similarity(fullgraph, chemsim_graph)
     _echo_graph(fullgraph_with_chemsim)
 
     click.secho('Reclustering chemicals', fg='blue', bold=True)

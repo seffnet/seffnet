@@ -80,7 +80,8 @@ def get_similarity_graph(
     fullgraph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
     rebuild: bool = False,
     mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
-    similarity=0.5,
+    chemicals_list=None,
+    similarity=0.7,
     name='Chemical Similarity Graph',
     version='1.1.0',
     authors='',
@@ -90,12 +91,11 @@ def get_similarity_graph(
     """
     Create a BELGraph with chemicals as nodes, and similarity as edges.
 
-    :param pubchem_ids: a list of chemicals as pubchem ID
     :param similarity: the percent in which the chemicals are similar
     :param mapping_file: an existing dataframe with pubchemIDs and Smiles
     """
-    if not rebuild and os.path.exists(DEFAULT_GRAPH_PATH):
-        return nx.read_edgelist(DEFAULT_GRAPH_PATH)
+    if not rebuild and os.path.exists(DEFAULT_CHEMSIM_PICKLE):
+        return nx.read_edgelist(DEFAULT_CHEMSIM_PICKLE)
     fullgraph_without_chemsim = pybel.from_pickle(fullgraph)
     pubchem_ids = []
     for node in fullgraph_without_chemsim.nodes():
@@ -132,6 +132,17 @@ def get_similarity_graph(
             pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
             'association',
         )
+    pybel.to_pickle(chemsim_graph, DEFAULT_CHEMSIM_PICKLE)
+    return chemsim_graph
+
+
+def get_combined_graph_similarity(
+    fullgraph_without_chemsim,
+    chemsim_graph,
+    rebuild: bool = False
+):
+    if not rebuild and os.path.exists(DEFAULT_GRAPH_PATH):
+        return nx.read_edgelist(DEFAULT_GRAPH_PATH)
     fullgraph_with_chemsim = fullgraph_without_chemsim + chemsim_graph
     relabel_graph = {}
     i = 1
@@ -141,7 +152,6 @@ def get_similarity_graph(
     fullgraph_with_chemsim_relabeled = nx.relabel_nodes(fullgraph_with_chemsim, relabel_graph)
     nx.write_edgelist(fullgraph_with_chemsim_relabeled, DEFAULT_GRAPH_PATH, data=False)
     pybel.to_pickle(fullgraph_with_chemsim, DEFAULT_FULLGRAPH_PICKLE)
-    pybel.to_pickle(chemsim_graph, DEFAULT_CHEMSIM_PICKLE)
     return fullgraph_with_chemsim
 
 
