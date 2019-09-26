@@ -221,7 +221,7 @@ def update(
             from seffnet.chemical_similarities import add_new_chemicals
         except Exception:
             raise Exception('You need RDKit to update model')
-        new_graph = add_new_chemicals(new_chemicals=new_chemicals, graph=old_graph)
+        new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph)
         graph = og.Graph()
         graph.read_g(new_graph)
     else:

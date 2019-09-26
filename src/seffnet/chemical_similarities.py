@@ -197,16 +197,15 @@ def get_combined_graph_similarity(
     relabel_graph = {}
     for ind, row in mapping_df.iterrows():
         if row['namespace'] == PUBCHEM_NAMESPACE:
-            relabel_graph[row['node_id']] = pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE,
-                                                                identifier=row['identifier'])
+            relabel_graph[pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=row['identifier'])] = \
+                row['node_id']
         elif row['namespace'] == UNIPROT_NAMESPACE:
-            relabel_graph[row['node_id']] = pybel.dsl.Protein(namespace=UNIPROT_NAMESPACE,
-                                                              identifier=row['identifier'],
-                                                              name=row['name'])
+            relabel_graph[pybel.dsl.Protein(namespace=UNIPROT_NAMESPACE, identifier=row['identifier'],
+                                            name=row['name'])] = row['node_id']
         else:
-            relabel_graph[row['node_id']] = pybel.dsl.Pathology(namespace='umls',
-                                                                identifier=row['identifier'],
-                                                                name=row['name'])
+            relabel_graph[pybel.dsl.Pathology(namespace='umls', identifier=row['identifier'], name=row['name'])] = \
+                row['node_id']
+
     nx.relabel_nodes(fullgraph_with_chemsim, relabel_graph, copy=False)
     nx.write_edgelist(fullgraph_with_chemsim, DEFAULT_GRAPH_PATH, data=False)
     return fullgraph_with_chemsim
@@ -247,7 +246,7 @@ def cluster_chemicals(
 
 def add_new_chemicals(
         *,
-        new_chemicals,
+        chemicals_list,
         graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         mapping_file=DEFAULT_MAPPING_PATH,
 ):
@@ -261,8 +260,9 @@ def add_new_chemicals(
     namespace = []
     name = []
     node_id = []
+    new_chemicals = []
     max_node_id = len(fullgraph.nodes())
-    for chemical in new_chemicals:
+    for chemical in chemicals_list:
         node = pybel.dsl.Abundance(namespace='pubchem.compound', identifier=chemical)
         if node in fullgraph.nodes():
             continue
@@ -273,6 +273,7 @@ def add_new_chemicals(
         name.append(synonyms.split('\n')[0])
         max_node_id += 1
         node_id.append(max_node_id)
+        new_chemicals.append(chemical)
         fullgraph.add_node(node)
     new_nodes = pd.DataFrame({'node_id': node_id, 'namespace': namespace, 'name': name, 'identifier': new_chemicals})
     mapping_df = mapping_df.append(new_nodes)
