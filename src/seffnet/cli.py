@@ -14,7 +14,7 @@ import networkx as nx
 from bionev.pipeline import create_prediction_model
 from seffnet.chemical_similarities import get_combined_graph_similarity
 
-from .constants import DEFAULT_GRAPH_PATH
+from .constants import DEFAULT_GRAPH_PATH, DEFAULT_FULLGRAPH_PICKLE
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
 from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
@@ -196,14 +196,18 @@ def train(
 
 
 @main.command()
-@INPUT_PATH
+@click.option('--updated-graph', default=DEFAULT_GRAPH_PATH, help='an edgelist containing the graph with new nodes')
+@click.option('--chemicals-list', help='a file containing list of chemicals to update the model with')
+@click.option('--old-graph', default=DEFAULT_FULLGRAPH_PICKLE, help='The graph needed  to be updated. In pickle format')
 @click.option('--training-model-path', required=True, help='The path to save the model used for training')
 @click.option('--new-model-path', default=None, help='the path of the updated model. if empty will overwrite old model')
 @EMBEDDINGS_PATH
 @PREDICTIVE_MODEL_PATH
 @SEED
 def update(
-        input_path,
+        updated_graph,
+        old_graph,
+        chemicals_list,
         training_model_path,
         new_model_path,
         embeddings_path,
@@ -211,8 +215,18 @@ def update(
         seed,
 ):
     """Update node2vec training model."""
-    graph = og.Graph()
-    graph.read_edgelist(input_path, weighted=False)
+    if chemicals_list is not None:
+        new_chemicals = [line.rstrip('\n') for line in open(chemicals_list)]
+        try:
+            from seffnet.chemical_similarities import add_new_chemicals
+        except Exception:
+            raise Exception('You need RDKit to update model')
+        new_graph = add_new_chemicals(new_chemicals=new_chemicals, graph=old_graph)
+        graph = og.Graph()
+        graph.read_g(new_graph)
+    else:
+        graph = og.Graph()
+        graph.read_edgelist(updated_graph, weighted=False)
     model = joblib.load(training_model_path)
     model.update_model(graph)
     if new_model_path is None:
