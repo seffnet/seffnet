@@ -2,19 +2,19 @@
 
 """Command line interface for :mod:`seffnet`."""
 
+import json
+import logging
 import random
 import sys
 
 import bionev.OpenNE.graph as og
 import click
 import joblib
-import json
-import logging
 import networkx as nx
 from bionev.pipeline import create_prediction_model
-from seffnet.chemical_similarities import get_combined_graph_similarity
 
-from .constants import DEFAULT_GRAPH_PATH, DEFAULT_FULLGRAPH_PICKLE
+from .chemical_similarities import get_combined_graph_similarity
+from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
 from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
@@ -236,7 +236,7 @@ def update(
     if embeddings_path is not None:
         model.save_embeddings(embeddings_path)
     if predictive_model_path is not None:
-        original_graph = nx.read_edgelist(input_path)
+        original_graph = graph.G
         create_prediction_model(
             embeddings=model.get_embeddings(),
             original_graph=original_graph,

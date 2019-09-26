@@ -20,8 +20,8 @@ from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_CHEMSIM_PICKLE, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE,
-    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, PUBCHEM_NAMESPACE,
-    DEFAULT_MAPPING_PATH, UNIPROT_NAMESPACE)
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_MAPPING_PATH, PUBCHEM_NAMESPACE,
+    UNIPROT_NAMESPACE)
 from .get_url_requests import cid_to_smiles, cid_to_synonyms
 
 
@@ -175,12 +175,13 @@ def get_combined_graph_similarity(
         mapping_file=DEFAULT_MAPPING_PATH,
         rebuild: bool = False
 ):
+    """Combine chemical similarity graph with the fullgraph."""
     if not rebuild and os.path.exists(DEFAULT_GRAPH_PATH):
         return nx.read_edgelist(DEFAULT_GRAPH_PATH)
     if type(fullgraph_path) == pybel.struct.graph.BELGraph:
         fullgraph_without_chemsim = fullgraph_path
     else:
-        fullgraph_without_chemsim = pybel.from_pickle(fullgraph_without_chemsim_path)
+        fullgraph_without_chemsim = pybel.from_pickle(fullgraph_path)
     if type(chemsim_graph_path) == pybel.struct.graph.BELGraph:
         chemsim_graph = chemsim_graph_path
     else:
@@ -250,6 +251,14 @@ def add_new_chemicals(
         graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         mapping_file=DEFAULT_MAPPING_PATH,
 ):
+    """
+    Add new chemicals to a graph.
+
+    :param chemicals_list: a list of pubchem ids
+    :param graph: the graph to update
+    :param mapping_file: the node mapping file
+    :return: Graph, the fullgraph updated and relabeled
+    """
     mapping_df = pd.read_csv(
         mapping_file,
         sep="\t",
@@ -280,4 +289,3 @@ def add_new_chemicals(
     mapping_df.to_csv(mapping_file, sep='\t', index=False)
     chemsim_graph = get_similarity_graph(fullgraph=fullgraph, rebuild=True)
     return get_combined_graph_similarity(rebuild=True, fullgraph_path=fullgraph, chemsim_graph_path=chemsim_graph)
-
