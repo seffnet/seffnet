@@ -200,7 +200,8 @@ def train(
 @click.option('--chemicals-list', help='a file containing list of chemicals to update the model with')
 @click.option('--old-graph', default=DEFAULT_FULLGRAPH_PICKLE, help='The graph needed  to be updated. In pickle format')
 @click.option('--training-model-path', required=True, help='The path to save the model used for training')
-@click.option('--new-model-path', default=None, help='the path of the updated model. if empty will overwrite old model')
+@click.option('--new-training-model-path', required=True,
+              help='the path of the updated training model')
 @EMBEDDINGS_PATH
 @PREDICTIVE_MODEL_PATH
 @SEED
@@ -209,7 +210,7 @@ def update(
         old_graph,
         chemicals_list,
         training_model_path,
-        new_model_path,
+        new_training_model_path,
         embeddings_path,
         predictive_model_path,
         seed,
@@ -229,10 +230,7 @@ def update(
         graph.read_edgelist(updated_graph, weighted=False)
     model = joblib.load(training_model_path)
     model.update_model(graph)
-    if new_model_path is None:
-        joblib.dump(model, training_model_path)
-    else:
-        joblib.dump(model, new_model_path)
+    joblib.dump(model, new_training_model_path)
     if embeddings_path is not None:
         model.save_embeddings(embeddings_path)
     if predictive_model_path is not None:

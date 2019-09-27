@@ -190,7 +190,7 @@ def get_combined_graph_similarity(
     mapping_df = pd.read_csv(
         mapping_file,
         sep="\t",
-        dtype={'identifier': str},
+        dtype={'identifier': str, 'node_id': str},
         index_col=False,
     )
     fullgraph_with_chemsim = fullgraph_without_chemsim + chemsim_graph
@@ -263,6 +263,7 @@ def add_new_chemicals(
         mapping_file,
         sep="\t",
         index_col=False,
+        dtype={'identifier': str, 'node_id': str},
     )
 
     fullgraph = pybel.from_pickle(graph)
@@ -281,7 +282,7 @@ def add_new_chemicals(
             synonyms = synonyms.decode("utf-8")
         name.append(synonyms.split('\n')[0])
         max_node_id += 1
-        node_id.append(max_node_id)
+        node_id.append(str(max_node_id))
         new_chemicals.append(chemical)
         fullgraph.add_node(node)
     new_nodes = pd.DataFrame({'node_id': node_id, 'namespace': namespace, 'name': name, 'identifier': new_chemicals})
