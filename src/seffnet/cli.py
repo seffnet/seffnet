@@ -13,7 +13,6 @@ import joblib
 import networkx as nx
 from bionev.pipeline import create_prediction_model
 
-from .chemical_similarities import get_combined_graph_similarity
 from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
@@ -348,7 +347,7 @@ def rebuild():
     from pybel.struct import count_functions, count_namespaces
     from .graph_preprocessing import get_drugbank_graph, get_sider_graph, get_combined_sider_drugbank
     try:
-        from seffnet.chemical_similarities import get_similarity_graph, cluster_chemicals
+        from .chemical_similarities import get_similarity_graph, cluster_chemicals, get_combined_graph_similarity
     except Exception:
         raise Exception('You need RDKit to rebuild the graphs')
 
