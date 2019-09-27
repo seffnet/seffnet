@@ -2,18 +2,19 @@
 
 """Command line interface for :mod:`seffnet`."""
 
+import json
+import logging
 import random
 import sys
 
 import bionev.OpenNE.graph as og
 import click
 import joblib
-import json
-import logging
 import networkx as nx
 from bionev.pipeline import create_prediction_model
 
-from .constants import DEFAULT_GRAPH_PATH
+from .chemical_similarities import get_combined_graph_similarity
+from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
 from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
@@ -195,39 +196,57 @@ def train(
 
 
 @main.command()
-@INPUT_PATH
+@click.option('--updated-graph', default=DEFAULT_GRAPH_PATH, help='an edgelist containing the graph with new nodes')
+@click.option('--chemicals-list', help='a file containing list of chemicals to update the model with')
+@click.option('--old-graph', default=DEFAULT_FULLGRAPH_PICKLE, help='The graph needed  to be updated. In pickle format')
 @click.option('--training-model-path', required=True, help='The path to save the model used for training')
-@click.option('--new-model-path', default=None, help='the path of the updated model. if empty will overwrite old model')
+@click.option('--new-training-model-path', required=True,
+              help='the path of the updated training model')
 @EMBEDDINGS_PATH
 @PREDICTIVE_MODEL_PATH
 @SEED
 def update(
-        input_path,
+        updated_graph,
+        old_graph,
+        chemicals_list,
         training_model_path,
-        new_model_path,
+        new_training_model_path,
         embeddings_path,
         predictive_model_path,
         seed,
 ):
     """Update node2vec training model."""
-    graph = og.Graph()
-    graph.read_edgelist(input_path, weighted=False)
-    model = joblib.load(training_model_path)
-    model.update_model(graph)
-    if new_model_path is None:
-        joblib.dump(model, training_model_path)
+    if chemicals_list is not None:
+        new_chemicals = [line.rstrip('\n') for line in open(chemicals_list)]
+        try:
+            from seffnet.chemical_similarities import add_new_chemicals
+        except Exception:
+            raise Exception('You need RDKit to update model')
+        click.secho('Updating graph', fg='blue', bold=True)
+        new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph)
+        graph = og.Graph()
+        graph.read_g(new_graph)
     else:
-        joblib.dump(model, new_model_path)
+        click.secho('Loading graph', fg='blue', bold=True)
+        graph = og.Graph()
+        graph.read_edgelist(updated_graph, weighted=False)
+    click.secho('Loading training model', fg='blue', bold=True)
+    model = joblib.load(training_model_path)
+    click.secho('Updating training model', fg='blue', bold=True)
+    model.update_model(graph)
+    joblib.dump(model, new_training_model_path)
     if embeddings_path is not None:
         model.save_embeddings(embeddings_path)
     if predictive_model_path is not None:
-        original_graph = nx.read_edgelist(input_path)
+        click.secho('Building predictive model', fg='blue', bold=True)
+        original_graph = graph.G
         create_prediction_model(
             embeddings=model.get_embeddings(),
             original_graph=original_graph,
             seed=seed,
             save_model=predictive_model_path
         )
+    click.secho('Process is complete', fg='blue', bold=True)
 
 
 @main.command()

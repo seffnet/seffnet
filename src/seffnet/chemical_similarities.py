@@ -20,9 +20,9 @@ from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_CHEMSIM_PICKLE, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE,
-    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, PUBCHEM_NAMESPACE,
-)
-from .get_url_requests import cid_to_smiles
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_MAPPING_PATH, PUBCHEM_NAMESPACE,
+    UNIPROT_NAMESPACE)
+from .get_url_requests import cid_to_smiles, cid_to_synonyms
 
 
 def get_smiles(pubchem_ids):
@@ -43,18 +43,17 @@ def get_smiles(pubchem_ids):
     return pubchem_id_to_smiles
 
 
-def get_similarity(pubchem_id_to_smiles):
+def get_similarity(pubchem_id_to_fingerprint):
     """
     Get the similarities between all pair combinations of chemicals in the list.
 
     :param pubchem_id_to_smiles: a dictionary with pubchemID as key and smiles as value
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
-    fps = get_fingerprints(pubchem_id_to_smiles)
     chem_sim = {
         (pubchem_id_1, pubchem_id_2): DataStructs.FingerprintSimilarity(mol_1, mol_2)
         for (pubchem_id_1, mol_1), (pubchem_id_2, mol_2) in
-        tqdm(itt.combinations(fps.items(), 2), desc='Calculating Similarities')
+        tqdm(itt.combinations(pubchem_id_to_fingerprint.items(), 2), desc='Calculating Similarities')
     }
     return chem_sim
 
@@ -80,7 +79,7 @@ def get_similarity_graph(
     fullgraph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
     rebuild: bool = False,
     mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
-    chemicals_list=None,
+    clustered: bool = True,
     similarity=0.7,
     name='Chemical Similarity Graph',
     version='1.1.0',
@@ -96,7 +95,10 @@ def get_similarity_graph(
     """
     if not rebuild and os.path.exists(DEFAULT_CHEMSIM_PICKLE):
         return nx.read_edgelist(DEFAULT_CHEMSIM_PICKLE)
-    fullgraph_without_chemsim = pybel.from_pickle(fullgraph)
+    if type(fullgraph) == pybel.struct.graph.BELGraph:
+        fullgraph_without_chemsim = fullgraph
+    else:
+        fullgraph_without_chemsim = pybel.from_pickle(fullgraph)
     pubchem_ids = []
     for node in fullgraph_without_chemsim.nodes():
         if node.namespace != 'pubchem.compound':
@@ -110,113 +112,181 @@ def get_similarity_graph(
             dtype={'PubchemID': str, 'Smiles': str},
             index_col=False,
         )
-        chemicals_mapping = chemicals_mapping.dropna()
         pubchem_id_to_smiles = {}
+        new_chemicals = []
+        smiles = []
         for pubchem_id in tqdm(pubchem_ids, desc="Getting SMILES"):
             if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id].empty:
-                pubchem_id_to_smiles[pubchem_id] = cid_to_smiles(pubchem_id)
+                chemical_smiles = cid_to_smiles(pubchem_id)
+                if not isinstance(chemical_smiles, str):
+                    chemical_smiles = chemical_smiles.decode("utf-8")
+                pubchem_id_to_smiles[pubchem_id] = chemical_smiles
+                new_chemicals.append(pubchem_id)
+                smiles.append(chemical_smiles)
             else:
                 pubchem_id_to_smiles[pubchem_id] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id,
                                                                          "Smiles"].iloc[0]
+        new_df = pd.DataFrame({"PubchemID": new_chemicals, "Smiles": smiles})
+        chemicals_mapping = chemicals_mapping.append(new_df)
+        chemicals_mapping.to_csv(mapping_file, sep='\t', index=False)
     else:
         pubchem_id_to_smiles = get_smiles(pubchem_ids)
 
-    similarities = get_similarity(pubchem_id_to_smiles)
+    pubchem_id_to_fingerprint = get_fingerprints(pubchem_id_to_smiles)
 
     chemsim_graph = pybel.BELGraph(name, version, description, authors, contact)
-    for (source_pubchem_id, target_pubchem_id), sim in tqdm(similarities.items(), desc='Creating BELGraph'):
-        if sim < similarity:
-            continue
-        chemsim_graph.add_unqualified_edge(
-            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=source_pubchem_id),
-            pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
-            'association',
-        )
+
+    if clustered:
+        clustered_df = cluster_chemicals(rebuild=True, chemicals_dict=pubchem_id_to_fingerprint)
+        clusters = clustered_df['Cluster'].unique().tolist()
+        for cluster in tqdm(clusters, desc='Creating similarity BELGraph'):
+            chemicals = clustered_df.loc[clustered_df.Cluster == cluster]
+            if len(chemicals) == 1:
+                continue
+            for ind, row in chemicals.iterrows():
+                for ind1, row1 in chemicals.iterrows():
+                    if row['PubchemID'] == row1['PubchemID']:
+                        continue
+                    chemical_01 = pybel.dsl.Abundance(namespace='pubchem.compound', identifier=row['PubchemID'])
+                    chemical_02 = pybel.dsl.Abundance(namespace='pubchem.compound', identifier=row1['PubchemID'])
+                    if chemsim_graph.has_edge(chemical_01, chemical_02) or chemsim_graph.has_edge(chemical_02,
+                                                                                                  chemical_01):
+                        continue
+                    chemsim_graph.add_unqualified_edge(chemical_01, chemical_02, 'association')
+    else:
+        similarities = get_similarity(pubchem_id_to_fingerprint)
+        for (source_pubchem_id, target_pubchem_id), sim in tqdm(similarities.items(),
+                                                                desc='Creating similarity BELGraph'):
+            if sim < similarity:
+                continue
+            chemsim_graph.add_unqualified_edge(
+                pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=source_pubchem_id),
+                pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
+                'association',
+            )
     pybel.to_pickle(chemsim_graph, DEFAULT_CHEMSIM_PICKLE)
     return chemsim_graph
 
 
 def get_combined_graph_similarity(
-    fullgraph_without_chemsim,
-    chemsim_graph,
-    rebuild: bool = False
+        *,
+        fullgraph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+        chemsim_graph_path=DEFAULT_CHEMSIM_PICKLE,
+        mapping_file=DEFAULT_MAPPING_PATH,
+        rebuild: bool = False
 ):
+    """Combine chemical similarity graph with the fullgraph."""
     if not rebuild and os.path.exists(DEFAULT_GRAPH_PATH):
         return nx.read_edgelist(DEFAULT_GRAPH_PATH)
+    if type(fullgraph_path) == pybel.struct.graph.BELGraph:
+        fullgraph_without_chemsim = fullgraph_path
+    else:
+        fullgraph_without_chemsim = pybel.from_pickle(fullgraph_path)
+    if type(chemsim_graph_path) == pybel.struct.graph.BELGraph:
+        chemsim_graph = chemsim_graph_path
+    else:
+        chemsim_graph = pybel.from_pickle(chemsim_graph_path)
+
+    mapping_df = pd.read_csv(
+        mapping_file,
+        sep="\t",
+        dtype={'identifier': str, 'node_id': str},
+        index_col=False,
+    )
     fullgraph_with_chemsim = fullgraph_without_chemsim + chemsim_graph
-    relabel_graph = {}
-    i = 1
-    for node in fullgraph_with_chemsim.nodes():
-        relabel_graph[node] = i
-        i += 1
-    fullgraph_with_chemsim_relabeled = nx.relabel_nodes(fullgraph_with_chemsim, relabel_graph)
-    nx.write_edgelist(fullgraph_with_chemsim_relabeled, DEFAULT_GRAPH_PATH, data=False)
     pybel.to_pickle(fullgraph_with_chemsim, DEFAULT_FULLGRAPH_PICKLE)
+    relabel_graph = {}
+    for ind, row in mapping_df.iterrows():
+        if row['namespace'] == PUBCHEM_NAMESPACE:
+            relabel_graph[pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=row['identifier'])] = \
+                row['node_id']
+        elif row['namespace'] == UNIPROT_NAMESPACE:
+            relabel_graph[pybel.dsl.Protein(namespace=UNIPROT_NAMESPACE, identifier=row['identifier'],
+                                            name=row['name'])] = row['node_id']
+        else:
+            relabel_graph[pybel.dsl.Pathology(namespace='umls', identifier=row['identifier'], name=row['name'])] = \
+                row['node_id']
+
+    nx.relabel_nodes(fullgraph_with_chemsim, relabel_graph, copy=False)
+    nx.write_edgelist(fullgraph_with_chemsim, DEFAULT_GRAPH_PATH, data=False)
     return fullgraph_with_chemsim
 
 
 def cluster_chemicals(
     *,
     rebuild: bool = False,
-    graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
-    mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
+    chemicals_dict,
 ):
     """Cluster chemicals based on their similarities."""
-    # TODO: refactor and optimize this code
     if not rebuild and os.path.exists(DEFAULT_CLUSTERED_CHEMICALS):
         return pd.read_csv(
             DEFAULT_CLUSTERED_CHEMICALS,
             sep="\t",
             index_col=False,
+            dtype={'PubchemID': str}
         )
-    fullgraph = pybel.from_pickle(graph)
-    chemicals_mapping = pd.read_csv(
-        mapping_file,
-        sep="\t",
-        dtype={'PubchemID': str, 'Smiles': str},
-        index_col=False,
-    )
-    chem_list = []
-    for node in fullgraph.nodes():
-        if node.namespace != 'pubchem.compound':
-            continue
-        chem_list.append(node.identifier)
-    mols_dict = {}
-    for index, row in chemicals_mapping.iterrows():
-        if str(row['PubchemID']) not in chem_list:
-            continue
-        mols_dict[row['PubchemID']] = Chem.MolFromSmiles(row['Smiles'])
-    for chem in tqdm(chem_list):
-        if chem not in mols_dict.keys():
-            smiles = cid_to_smiles(chem)
-            if not isinstance(smiles, str):
-                smiles = smiles.decode("utf-8")
-            if smiles is None:
-                continue
-            mols_dict[chem] = Chem.MolFromSmiles(smiles)
-    fps_drug = {}
-    fps = []
-    drugs = []
-    for drug, mol in tqdm(mols_dict.items()):
-        if mol is None:
-            continue
-        fp = MACCSkeys.GenMACCSKeys(mol)
-        fps.append(fp)
-        drugs.append(drug)
-        fps_drug[drug] = fp
     dists = []
-    nfps = len(fps)
-    for i in tqdm(range(1, nfps)):
+    drugs, fps = zip(*chemicals_dict.items())
+
+    nfps = len(chemicals_dict)
+    for i in tqdm(range(1, nfps), desc='Calculating distance for clustering'):
         sims = DataStructs.BulkTanimotoSimilarity(fps[i], fps[:i])
         dists.extend([1 - x for x in sims])
     cs = Butina.ClusterData(dists, nfps, 0.3, isDistData=True)
     df = pd.DataFrame(columns=['PubchemID', 'Cluster'])
+
     i = 1
-    j = 1
-    for cluster in cs:
+    for j, cluster in enumerate(cs, start=1):
         for drug in cluster:
             df.loc[i] = [drugs[drug - 1]] + [j]
             i += 1
-        j += 1
+
     df.to_csv(DEFAULT_CLUSTERED_CHEMICALS, sep='\t', index=False)
     return df
+
+
+def add_new_chemicals(
+        *,
+        chemicals_list,
+        graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+        mapping_file=DEFAULT_MAPPING_PATH,
+):
+    """
+    Add new chemicals to a graph.
+
+    :param chemicals_list: a list of pubchem ids
+    :param graph: the graph to update
+    :param mapping_file: the node mapping file
+    :return: Graph, the fullgraph updated and relabeled
+    """
+    mapping_df = pd.read_csv(
+        mapping_file,
+        sep="\t",
+        index_col=False,
+        dtype={'identifier': str, 'node_id': str},
+    )
+
+    fullgraph = pybel.from_pickle(graph)
+    namespace = []
+    name = []
+    node_id = []
+    new_chemicals = []
+    max_node_id = len(fullgraph.nodes())
+    for chemical in chemicals_list:
+        node = pybel.dsl.Abundance(namespace='pubchem.compound', identifier=chemical)
+        if node in fullgraph.nodes():
+            continue
+        namespace.append('pubchem.compound')
+        synonyms = cid_to_synonyms(chemical)
+        if not isinstance(synonyms, str):
+            synonyms = synonyms.decode("utf-8")
+        name.append(synonyms.split('\n')[0])
+        max_node_id += 1
+        node_id.append(str(max_node_id))
+        new_chemicals.append(chemical)
+        fullgraph.add_node(node)
+    new_nodes = pd.DataFrame({'node_id': node_id, 'namespace': namespace, 'name': name, 'identifier': new_chemicals})
+    mapping_df = mapping_df.append(new_nodes)
+    mapping_df.to_csv(mapping_file, sep='\t', index=False)
+    chemsim_graph = get_similarity_graph(fullgraph=fullgraph, rebuild=True)
+    return get_combined_graph_similarity(rebuild=True, fullgraph_path=fullgraph, chemsim_graph_path=chemsim_graph)

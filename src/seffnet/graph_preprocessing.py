@@ -147,9 +147,9 @@ def get_mapped_graph(
         chemical_mapping = pd.read_csv(
             DEFAULT_CHEMICALS_MAPPING_PATH,
             sep="\t",
-            dtype={'PubchemID': str, 'InChiKey': str},
+            dtype={'PubchemID': str, 'Smiles': str},
             index_col=False,
-        ).dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
+        )
     relabel_graph = {}
     i = 1
     for node in tqdm(graph.nodes(), desc='Relabel graph nodes'):

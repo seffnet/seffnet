@@ -2,12 +2,13 @@
 
 """Utilities for :mod:`seffnet`."""
 
-import os
-import random
-
 import datetime
 import getpass
 import json
+import os
+import random
+from typing import Any, Mapping, Optional
+
 import networkx as nx
 import optuna
 import pandas as pd
@@ -17,7 +18,6 @@ from bionev.embed_train import embedding_training
 from bionev.utils import read_node_labels
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
-from typing import Any, Mapping, Optional
 
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
@@ -302,7 +302,6 @@ def train_model(
         training_model_path: Optional[str] = None,
 ):
     """Train a graph with an NRL model."""
-
     if seed is None:
         seed = random.randint(1, 2 ** 32 - 1)
 
