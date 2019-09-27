@@ -12,7 +12,6 @@ import json
 import logging
 import networkx as nx
 from bionev.pipeline import create_prediction_model
-from seffnet.chemical_similarities import get_combined_graph_similarity
 
 from .constants import DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
