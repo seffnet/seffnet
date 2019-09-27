@@ -222,18 +222,23 @@ def update(
             from seffnet.chemical_similarities import add_new_chemicals
         except Exception:
             raise Exception('You need RDKit to update model')
+        click.secho('Updating graph', fg='blue', bold=True)
         new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph)
         graph = og.Graph()
         graph.read_g(new_graph)
     else:
+        click.secho('Loading graph', fg='blue', bold=True)
         graph = og.Graph()
         graph.read_edgelist(updated_graph, weighted=False)
+    click.secho('Loading training model', fg='blue', bold=True)
     model = joblib.load(training_model_path)
+    click.secho('Updating training model', fg='blue', bold=True)
     model.update_model(graph)
     joblib.dump(model, new_training_model_path)
     if embeddings_path is not None:
         model.save_embeddings(embeddings_path)
     if predictive_model_path is not None:
+        click.secho('Building predictive model', fg='blue', bold=True)
         original_graph = graph.G
         create_prediction_model(
             embeddings=model.get_embeddings(),
@@ -241,6 +246,7 @@ def update(
             seed=seed,
             save_model=predictive_model_path
         )
+    click.secho('Process is complete', fg='blue', bold=True)
 
 
 @main.command()
