@@ -40,7 +40,18 @@ def run_study(
     return study
 
 
-def predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial, labels, node_list):
+def predict_and_evaluate(
+        *
+        prediction_task,
+        model,
+        graph,
+        graph_train,
+        testing_pos_edges,
+        seed,
+        trial,
+        labels,
+        node_list,
+        classifier_type):
     """Predict and evaluate the NRL model.
 
     :param model: NRL model
@@ -62,6 +73,7 @@ def predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos
             train_graph=graph_train,
             test_pos_edges=testing_pos_edges,
             seed=seed,
+            classifier_type=classifier_type
         )
         trial.set_user_attr('mcc', round(mcc, 3))
         trial.set_user_attr('auc_roc', round(auc_roc, 3))
@@ -75,6 +87,7 @@ def predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos
             node_list=node_list,
             labels=labels,
             seed=seed,
+            classifier_type=classifier_type
         )
         trial.set_user_attr('accuracy', round(accuracy, 3))
         trial.set_user_attr('micro_f1', round(micro_f1, 3))
@@ -95,6 +108,7 @@ def hope_optimization(
         prediction_task,
         node_list,
         labels,
+        classifier_type,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize HOPE method.
@@ -120,8 +134,18 @@ def hope_optimization(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
         )
-        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
-                                    labels, node_list)
+        return predict_and_evaluate(
+            prediction_task=prediction_task,
+            model=model,
+            graph=graph,
+            graph_train=graph_train,
+            testing_pos_edges=testing_pos_edges,
+            seed=seed,
+            trial=trial,
+            labels=labels,
+            node_list=node_list,
+            classifier_type=classifier_type,
+        )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -139,6 +163,7 @@ def deepwalk_optimization(
         prediction_task,
         node_list,
         labels,
+        classifier_type,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize DeepWalk method.
@@ -170,8 +195,18 @@ def deepwalk_optimization(
             number_walks=number_walks,
             window_size=window_size,
         )
-        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
-                                    labels, node_list)
+        return predict_and_evaluate(
+            prediction_task=prediction_task,
+            model=model,
+            graph=graph,
+            graph_train=graph_train,
+            testing_pos_edges=testing_pos_edges,
+            seed=seed,
+            trial=trial,
+            labels=labels,
+            node_list=node_list,
+            classifier_type=classifier_type,
+        )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -189,6 +224,7 @@ def node2vec_optimization(
         prediction_task,
         node_list,
         labels,
+        classifier_type,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize node2vec method.
@@ -223,8 +259,18 @@ def node2vec_optimization(
             window_size=window_size,
             p=p,
             q=q)
-        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
-                                    labels, node_list)
+        return predict_and_evaluate(
+            prediction_task=prediction_task,
+            model=model,
+            graph=graph,
+            graph_train=graph_train,
+            testing_pos_edges=testing_pos_edges,
+            seed=seed,
+            trial=trial,
+            labels=labels,
+            node_list=node_list,
+            classifier_type=classifier_type,
+        )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -241,6 +287,7 @@ def sdne_optimization(
         prediction_task,
         node_list,
         labels,
+        classifier_type,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize SDNE method.
@@ -270,8 +317,18 @@ def sdne_optimization(
             beta=beta,
             epochs=epochs,
         )
-        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
-                                    labels, node_list)
+        return predict_and_evaluate(
+            prediction_task=prediction_task,
+            model=model,
+            graph=graph,
+            graph_train=graph_train,
+            testing_pos_edges=testing_pos_edges,
+            seed=seed,
+            trial=trial,
+            labels=labels,
+            node_list=node_list,
+            classifier_type=classifier_type,
+        )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -289,6 +346,7 @@ def grarep_optimization(
         prediction_task,
         node_list,
         labels,
+        classifier_type,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize GraRep method.
@@ -318,8 +376,18 @@ def grarep_optimization(
             dimensions=dimensions,
             kstep=kstep,
         )
-        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
-                                    labels, node_list)
+        return predict_and_evaluate(
+            prediction_task=prediction_task,
+            model=model,
+            graph=graph,
+            graph_train=graph_train,
+            testing_pos_edges=testing_pos_edges,
+            seed=seed,
+            trial=trial,
+            labels=labels,
+            node_list=node_list,
+            classifier_type=classifier_type,
+        )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
 
@@ -337,6 +405,7 @@ def line_optimization(
         prediction_task,
         node_list,
         labels,
+        classifier_type,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize LINE method.
@@ -366,7 +435,17 @@ def line_optimization(
             order=order,
             epochs=epochs,
         )
-        return predict_and_evaluate(prediction_task, model, graph, graph_train, testing_pos_edges, seed, trial,
-                                    labels, node_list)
+        return predict_and_evaluate(
+            prediction_task=prediction_task,
+            model=model,
+            graph=graph,
+            graph_train=graph_train,
+            testing_pos_edges=testing_pos_edges,
+            seed=seed,
+            trial=trial,
+            labels=labels,
+            node_list=node_list,
+            classifier_type=classifier_type,
+        )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)

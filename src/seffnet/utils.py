@@ -87,7 +87,8 @@ def do_evaluation(
         embeddings_path: Optional[str] = None,
         predictive_model_path: Optional[str] = None,
         training_model_path: Optional[str] = None,
-        evaluation_file: Optional[str] = None
+        evaluation_file: Optional[str] = None,
+        classifier_type: Optional[str] = 'LR',
 ):
     """Train and evaluate an NRL model."""
     if seed is None:
@@ -129,7 +130,8 @@ def do_evaluation(
         train_graph=graph_train,
         test_pos_edges=testing_pos_edges,
         seed=seed,
-        save_model=predictive_model_path
+        save_model=predictive_model_path,
+        classifier_type=classifier_type,
     )
     _results = dict(
         input=input_path,
@@ -165,6 +167,7 @@ def do_optimization(
         output,
         prediction_task,
         labels_file,
+        classifier_type,
 ):
     """Run optimization a specific method and graph."""
     if prediction_task == 'link_prediction':
@@ -196,6 +199,7 @@ def do_optimization(
             prediction_task=prediction_task,
             node_list=node_list,
             labels=labels,
+            classifier_type=classifier_type,
         )
 
     elif method == 'DeepWalk':
@@ -212,6 +216,7 @@ def do_optimization(
             prediction_task=prediction_task,
             node_list=node_list,
             labels=labels,
+            classifier_type=classifier_type,
         )
 
     elif method == 'node2vec':
@@ -228,6 +233,7 @@ def do_optimization(
             prediction_task=prediction_task,
             node_list=node_list,
             labels=labels,
+            classifier_type=classifier_type,
         )
 
     elif method == 'GraRep':
@@ -244,6 +250,7 @@ def do_optimization(
             prediction_task=prediction_task,
             node_list=node_list,
             labels=labels,
+            classifier_type=classifier_type,
         )
 
     elif method == 'SDNE':
@@ -259,6 +266,7 @@ def do_optimization(
             prediction_task=prediction_task,
             node_list=node_list,
             labels=labels,
+            classifier_type=classifier_type,
         )
 
     else:
@@ -275,6 +283,7 @@ def do_optimization(
             prediction_task=prediction_task,
             node_list=node_list,
             labels=labels,
+            classifier_type=classifier_type,
         )
 
     study_json = study_to_json(study)
@@ -300,6 +309,7 @@ def train_model(
         embeddings_path: Optional[str] = None,
         predictive_model_path: Optional[str] = None,
         training_model_path: Optional[str] = None,
+        classifier_type='LR',
 ):
     """Train a graph with an NRL model."""
     if seed is None:
@@ -333,7 +343,8 @@ def train_model(
         embeddings=embeddings,
         original_graph=original_graph,
         seed=seed,
-        save_model=predictive_model_path
+        save_model=predictive_model_path,
+        classifier_type=classifier_type,
     )
 
 

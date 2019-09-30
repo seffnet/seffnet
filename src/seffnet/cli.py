@@ -46,6 +46,8 @@ LABELS_FILE = click.option('--labels-file', default='', help='The labels file fo
 TRAINING_MODEL_PATH = click.option('--training-model-path', help='The path to save the model used for training')
 PREDICTIVE_MODEL_PATH = click.option('--predictive-model-path', help='The path to save the prediction model')
 EMBEDDINGS_PATH = click.option('--embeddings-path', help='The path to save the embeddings file')
+CLASSIFIER_TYPE = click.option('--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF']), default='LR',
+                               help='Choose type of classifier for predictive model')
 
 
 @click.group()
@@ -66,6 +68,7 @@ def main():
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
 @click.option('--name', help="Name for the study")
 @click.option('-o', '--output', type=click.File('w'), help="Output study summary", default=sys.stdout)
+@CLASSIFIER_TYPE
 def optimize(
         input_path,
         training_path,
@@ -79,6 +82,7 @@ def optimize(
         storage,
         name,
         output,
+        classifier_type
 ):
     """Run the optimization pipeline for a given method and graph."""
     if prediction_task == 'none':
@@ -97,6 +101,7 @@ def optimize(
             name=name,
             output=output,
             seed=seed,
+            classifier_type=classifier_type
         )
 
 
@@ -122,6 +127,7 @@ def optimize(
 @EPOCHS
 @KSTEP
 @ORDER
+@CLASSIFIER_TYPE
 def train(
         input_path,
         training_path,
@@ -131,6 +137,7 @@ def train(
         embeddings_path,
         predictive_model_path,
         training_model_path,
+        classifier_type,
         seed,
         method,
         dimensions,
@@ -167,7 +174,8 @@ def train(
             embeddings_path=embeddings_path,
             predictive_model_path=predictive_model_path,
             training_model_path=training_model_path,
-            evaluation_file=evaluation_file
+            evaluation_file=evaluation_file,
+            classifier_type=classifier_type,
         )
         click.echo('Training is finished.')
         click.echo(results)
