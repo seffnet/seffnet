@@ -198,6 +198,8 @@ def train(
 @click.option('--updated-graph', default=DEFAULT_GRAPH_PATH, help='an edgelist containing the graph with new nodes')
 @click.option('--chemicals-list', help='a file containing list of chemicals to update the model with')
 @click.option('--old-graph', default=DEFAULT_FULLGRAPH_PICKLE, help='The graph needed  to be updated. In pickle format')
+@click.option('--updated-graph-path', required=True, help='The path to save the updated fullgraph')
+@click.option('--chemsim-graph-path', required=True, help='The path to save the chemical similarity graph')
 @click.option('--training-model-path', required=True, help='The path to save the model used for training')
 @click.option('--new-training-model-path', required=True,
               help='the path of the updated training model')
@@ -208,6 +210,8 @@ def update(
         updated_graph,
         old_graph,
         chemicals_list,
+        updated_graph_path,
+        chemsim_graph_path,
         training_model_path,
         new_training_model_path,
         embeddings_path,
@@ -222,7 +226,10 @@ def update(
         except Exception:
             raise Exception('You need RDKit to update model')
         click.secho('Updating graph', fg='blue', bold=True)
-        new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph)
+        pickled_graph_path = updated_graph_path.split('.')[0] + '.pickle'
+        new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph,
+                                      updated_graph_path=updated_graph_path, chemsim_graph_path=chemsim_graph_path,
+                                      pickled_graph_path=pickled_graph_path)
         graph = og.Graph()
         graph.read_g(new_graph)
     else:
