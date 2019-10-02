@@ -41,7 +41,7 @@ def run_study(
 
 
 def predict_and_evaluate(
-        *
+        *,
         prediction_task,
         model,
         graph,
@@ -136,7 +136,6 @@ def hope_optimization(
             dimensions=dimensions,
         )
         return predict_and_evaluate(
-            prediction_task=prediction_task,
             model=model,
             graph=graph,
             graph_train=graph_train,
@@ -146,6 +145,7 @@ def hope_optimization(
             labels=labels,
             node_list=node_list,
             classifier_type=classifier_type,
+            prediction_task=prediction_task,
         )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
