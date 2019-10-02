@@ -51,7 +51,8 @@ def predict_and_evaluate(
         trial,
         labels,
         node_list,
-        classifier_type):
+        classifier_type: Optional[str] = None
+):
     """Predict and evaluate the NRL model.
 
     :param model: NRL model

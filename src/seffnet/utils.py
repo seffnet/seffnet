@@ -108,7 +108,7 @@ def do_evaluation(
         predictive_model_path: Optional[str] = None,
         training_model_path: Optional[str] = None,
         evaluation_file: Optional[str] = None,
-        classifier_type: Optional[str] = 'LR',
+        classifier_type: Optional[str] = None,
 ):
     """Train and evaluate an NRL model."""
     if seed is None:
@@ -329,7 +329,7 @@ def train_model(
         embeddings_path: Optional[str] = None,
         predictive_model_path: Optional[str] = None,
         training_model_path: Optional[str] = None,
-        classifier_type='LR',
+        classifier_type: Optional[str] = None,
 ):
     """Train a graph with an NRL model."""
     if seed is None:
