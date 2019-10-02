@@ -79,6 +79,7 @@ def get_similarity_graph(
     fullgraph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
     rebuild: bool = False,
     mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
+    chemsim_graph_path=DEFAULT_CHEMSIM_PICKLE,
     clustered: bool = True,
     similarity=0.7,
     name='Chemical Similarity Graph',
@@ -164,7 +165,7 @@ def get_similarity_graph(
                 pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
                 'association',
             )
-    pybel.to_pickle(chemsim_graph, DEFAULT_CHEMSIM_PICKLE)
+    pybel.to_pickle(chemsim_graph, chemsim_graph_path)
     return chemsim_graph
 
 
@@ -173,6 +174,8 @@ def get_combined_graph_similarity(
         fullgraph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         chemsim_graph_path=DEFAULT_CHEMSIM_PICKLE,
         mapping_file=DEFAULT_MAPPING_PATH,
+        new_graph_path=DEFAULT_GRAPH_PATH,
+        pickle_graph_path=DEFAULT_FULLGRAPH_PICKLE,
         rebuild: bool = False
 ):
     """Combine chemical similarity graph with the fullgraph."""
@@ -194,7 +197,7 @@ def get_combined_graph_similarity(
         index_col=False,
     )
     fullgraph_with_chemsim = fullgraph_without_chemsim + chemsim_graph
-    pybel.to_pickle(fullgraph_with_chemsim, DEFAULT_FULLGRAPH_PICKLE)
+    pybel.to_pickle(fullgraph_with_chemsim, pickle_graph_path)
     relabel_graph = {}
     for ind, row in mapping_df.iterrows():
         if row['namespace'] == PUBCHEM_NAMESPACE:
@@ -208,7 +211,7 @@ def get_combined_graph_similarity(
                 row['node_id']
 
     nx.relabel_nodes(fullgraph_with_chemsim, relabel_graph, copy=False)
-    nx.write_edgelist(fullgraph_with_chemsim, DEFAULT_GRAPH_PATH, data=False)
+    nx.write_edgelist(fullgraph_with_chemsim, new_graph_path, data=False)
     return fullgraph_with_chemsim
 
 
@@ -250,6 +253,9 @@ def add_new_chemicals(
         chemicals_list,
         graph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         mapping_file=DEFAULT_MAPPING_PATH,
+        chemsim_graph_path=DEFAULT_CHEMSIM_PICKLE,
+        updated_graph_path=DEFAULT_GRAPH_PATH,
+        pickled_graph_path=DEFAULT_FULLGRAPH_PICKLE,
 ):
     """
     Add new chemicals to a graph.
@@ -288,5 +294,6 @@ def add_new_chemicals(
     new_nodes = pd.DataFrame({'node_id': node_id, 'namespace': namespace, 'name': name, 'identifier': new_chemicals})
     mapping_df = mapping_df.append(new_nodes)
     mapping_df.to_csv(mapping_file, sep='\t', index=False)
-    chemsim_graph = get_similarity_graph(fullgraph=fullgraph, rebuild=True)
-    return get_combined_graph_similarity(rebuild=True, fullgraph_path=fullgraph, chemsim_graph_path=chemsim_graph)
+    chemsim_graph = get_similarity_graph(fullgraph=fullgraph, rebuild=True, chemsim_graph_path=chemsim_graph_path)
+    return get_combined_graph_similarity(rebuild=True, fullgraph_path=fullgraph, chemsim_graph_path=chemsim_graph,
+                                         new_graph_path=updated_graph_path, pickle_graph_path=pickled_graph_path)
