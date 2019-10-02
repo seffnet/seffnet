@@ -29,25 +29,45 @@ from .optimization import (
 )
 
 
-def study_to_json(study: optuna.Study) -> Mapping[str, Any]:
+def study_to_json(study: optuna.Study, prediction_task) -> Mapping[str, Any]:
     """Serialize a study to JSON."""
-    return {
-        'n_trials': len(study.trials),
-        'name': study.study_name,
-        'id': study.study_id,
-        'start': study.user_attrs['Date'],
-        'best': {
-            'mcc': study.best_trial.user_attrs['mcc'],
-            'accuracy': study.best_trial.user_attrs['accuracy'],
-            'auc_roc': study.best_trial.user_attrs['auc_roc'],
-            'auc_pr': study.best_trial.user_attrs['auc_pr'],
-            'f1': study.best_trial.user_attrs['f1'],
-            'method': study.best_trial.user_attrs['method'],
-            'params': study.best_params,
-            'trial': study.best_trial.number,
-            'value': study.best_value,
-        },
-    }
+    if prediction_task == 'link-prediction':
+        return {
+            'n_trials': len(study.trials),
+            'name': study.study_name,
+            'id': study.study_id,
+            'prediction_task': prediction_task,
+            'start': study.user_attrs['Date'],
+            'best': {
+                'mcc': study.best_trial.user_attrs['mcc'],
+                'accuracy': study.best_trial.user_attrs['accuracy'],
+                'auc_roc': study.best_trial.user_attrs['auc_roc'],
+                'auc_pr': study.best_trial.user_attrs['auc_pr'],
+                'f1': study.best_trial.user_attrs['f1'],
+                'method': study.best_trial.user_attrs['method'],
+                'params': study.best_params,
+                'trial': study.best_trial.number,
+                'value': study.best_value,
+            },
+        }
+    else:
+        return {
+            'n_trials': len(study.trials),
+            'name': study.study_name,
+            'id': study.study_id,
+            'prediction_task': prediction_task,
+            'start': study.user_attrs['Date'],
+            'best': {
+                'mcc': study.best_trial.user_attrs['mcc'],
+                'accuracy': study.best_trial.user_attrs['accuracy'],
+                'micro_f1': study.best_trial.user_attrs['micro_f1'],
+                'macro_f1': study.best_trial.user_attrs['macro_f1'],
+                'method': study.best_trial.user_attrs['method'],
+                'params': study.best_params,
+                'trial': study.best_trial.number,
+                'value': study.best_value,
+            },
+        }
 
 
 def create_graphs(*, input_path, training_path, testing_path, seed):
@@ -277,7 +297,7 @@ def do_optimization(
             labels=labels,
         )
 
-    study_json = study_to_json(study)
+    study_json = study_to_json(study, prediction_task)
     json.dump(study_json, output, indent=2, sort_keys=True)
 
 
