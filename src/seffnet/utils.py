@@ -95,6 +95,7 @@ def do_evaluation(
         training_path: Optional[str] = None,
         testing_path: Optional[str] = None,
         method,
+        prediction_task,
         dimensions: int = 300,
         number_walks: int = 8,
         walk_length: int = 8,
@@ -113,18 +114,28 @@ def do_evaluation(
         evaluation_file: Optional[str] = None,
         classifier_type: Optional[str] = None,
         weighted: bool = False,
+        labels_file,
 ):
     """Train and evaluate an NRL model."""
     if seed is None:
         seed = random.randint(1, 2 ** 32 - 1)
 
-    graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
-        input_path=input_path,
-        training_path=training_path,
-        testing_path=testing_path,
-        seed=seed,
-        weighted=weighted,
-    )
+    if prediction_task == 'link_prediction':
+        node_list = None
+        labels = None
+        graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
+            input_path=input_path,
+            training_path=training_path,
+            testing_path=testing_path,
+            seed=seed,
+            weighted=weighted,
+        )
+    else:
+        if not labels_file:
+            raise ValueError("No input label file. Exit.")
+        node_list, labels = read_node_labels(labels_file)
+        train_graph_filename = input_path
+        graph, graph_train, testing_pos_edges = None, None, None
     model = embedding_training(
         train_graph_filename=train_graph_filename,
         method=method,
@@ -150,15 +161,7 @@ def do_evaluation(
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
-    auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
-        embeddings=embeddings,
-        original_graph=graph,
-        train_graph=graph_train,
-        test_pos_edges=testing_pos_edges,
-        seed=seed,
-        save_model=predictive_model_path,
-        classifier_type=classifier_type,
-    )
+
     _results = dict(
         input=input_path,
         method=method,
@@ -167,13 +170,37 @@ def do_evaluation(
         date=datetime.datetime.now().strftime('%Y-%m-%d-%H%M%S'),
         seed=seed,
     )
-    _results['results'] = dict(
-        auc_roc=auc_roc,
-        auc_pr=auc_pr,
-        accuracy=accuracy,
-        f1=f1,
-        mcc=mcc,
-    )
+    if prediction_task == 'link_prediction':
+        auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
+            embeddings=embeddings,
+            original_graph=graph,
+            train_graph=graph_train,
+            test_pos_edges=testing_pos_edges,
+            seed=seed,
+            save_model=predictive_model_path,
+            classifier_type=classifier_type,
+        )
+        _results['results'] = dict(
+            auc_roc=auc_roc,
+            auc_pr=auc_pr,
+            accuracy=accuracy,
+            f1=f1,
+            mcc=mcc,
+        )
+    else:
+        accuracy, macro_f1, micro_f1 = pipeline.do_node_classification(
+            embeddings=embeddings,
+            node_list=node_list,
+            labels=labels,
+            seed=seed,
+            save_model=predictive_model_path,
+            classifier_type=classifier_type,
+        )
+        _results['results'] = dict(
+            accuracy=accuracy,
+            macro_f1=macro_f1,
+            micro_f1=micro_f1,
+        )
     if evaluation_file is not None:
         json.dump(_results, evaluation_file, sort_keys=True, indent=2)
     return _results
@@ -345,11 +372,18 @@ def train_model(
         training_model_path: Optional[str] = None,
         classifier_type: Optional[str] = None,
         weighted : bool = False,
+        labels_file: Optional[str] = None,
+        prediction_task,
 ):
     """Train a graph with an NRL model."""
     if seed is None:
         seed = random.randint(1, 2 ** 32 - 1)
 
+    node_list, labels = None, None
+    if prediction_task == 'node_classification':
+        if not labels_file:
+            raise ValueError("No input label file. Exit.")
+        node_list, labels = read_node_labels(labels_file)
     model = embedding_training(
         train_graph_filename=input_path,
         method=method,
@@ -375,13 +409,22 @@ def train_model(
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
-    pipeline.create_prediction_model(
-        embeddings=embeddings,
-        original_graph=original_graph,
-        seed=seed,
-        save_model=predictive_model_path,
-        classifier_type=classifier_type,
-    )
+    if prediction_task == 'link_prediction':
+        pipeline.create_prediction_model(
+            embeddings=embeddings,
+            original_graph=original_graph,
+            seed=seed,
+            save_model=predictive_model_path,
+            classifier_type=classifier_type,
+        )
+    else:
+        pipeline.do_node_classification(
+            embeddings=embeddings,
+            node_list=node_list,
+            labels=labels,
+            classifier_type=classifier_type,
+            save_model=predictive_model_path,
+        )
 
 
 def split_training_testing_sets(

@@ -133,6 +133,8 @@ def optimize(
 @ORDER
 @CLASSIFIER_TYPE
 @WEIGHTED
+@PREDICTION_TASK
+@LABELS_FILE
 def train(
         input_path,
         training_path,
@@ -157,6 +159,8 @@ def train(
         kstep,
         order,
         weighted,
+        prediction_task,
+        labels_file,
 ):
     """Train my model."""
     if evaluation:
@@ -183,6 +187,8 @@ def train(
             evaluation_file=evaluation_file,
             classifier_type=classifier_type,
             weighted=weighted,
+            prediction_task=prediction_task,
+            labels_file=labels_file,
         )
         click.echo('Training is finished.')
         click.echo(results)
@@ -206,6 +212,7 @@ def train(
             training_model_path=training_model_path,
             embeddings_path=embeddings_path,
             weighted=weighted,
+            prediction_task=prediction_task,
         )
         click.echo('Training is finished.')
 
