@@ -129,6 +129,7 @@ def hope_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'hope')
         trial.set_user_attr('seed', seed)
+        trial.set_user_attr('classifier', classifier_type)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         model = embed_train.train_embed_hope(
@@ -184,6 +185,7 @@ def deepwalk_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'deepwalk')
         trial.set_user_attr('seed', seed)
+        trial.set_user_attr('classifier', classifier_type)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
@@ -245,6 +247,7 @@ def node2vec_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'node2vec')
         trial.set_user_attr('seed', seed)
+        trial.set_user_attr('classifier', classifier_type)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
@@ -308,6 +311,7 @@ def sdne_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'sdne')
         trial.set_user_attr('seed', seed)
+        trial.set_user_attr('classifier', classifier_type)
 
         alpha = trial.suggest_uniform('alpha', 0, 0.4)
         beta = trial.suggest_int('beta', 0, 30)
@@ -367,6 +371,7 @@ def grarep_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'grarep')
         trial.set_user_attr('seed', seed)
+        trial.set_user_attr('classifier', classifier_type)
         # TODO: need to choose kstep in which it can divide the dimension
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         kstep = trial.suggest_int('kstep', 1, 7)
@@ -426,6 +431,7 @@ def line_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'line')
         trial.set_user_attr('seed', seed)
+        trial.set_user_attr('classifier', classifier_type)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         order = trial.suggest_categorical('order', [1, 2, 3])
