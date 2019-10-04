@@ -58,7 +58,6 @@ def study_to_json(study: optuna.Study, prediction_task) -> Mapping[str, Any]:
             'prediction_task': prediction_task,
             'start': study.user_attrs['Date'],
             'best': {
-                'mcc': study.best_trial.user_attrs['mcc'],
                 'accuracy': study.best_trial.user_attrs['accuracy'],
                 'micro_f1': study.best_trial.user_attrs['micro_f1'],
                 'macro_f1': study.best_trial.user_attrs['macro_f1'],
