@@ -71,18 +71,20 @@ def study_to_json(study: optuna.Study, prediction_task) -> Mapping[str, Any]:
         }
 
 
-def create_graphs(*, input_path, training_path, testing_path, seed):
+def create_graphs(*, input_path, training_path, testing_path, seed, weighted):
     """Create the training/testing graphs needed for evalution."""
     if training_path and testing_path is not None:
         graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
             input_path,
             training_path,
             testing_path,
+            weighted=weighted,
         )
     else:
         graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.split_train_test_graph(
             input_path,
-            seed
+            seed,
+            weighted=weighted,
         )
     return graph, graph_train, testing_pos_edges, train_graph_filename
 
@@ -189,6 +191,7 @@ def do_optimization(
         prediction_task,
         labels_file,
         classifier_type,
+        weighted: bool = False,
 ):
     """Run optimization a specific method and graph."""
     if prediction_task == 'link_prediction':
@@ -199,6 +202,7 @@ def do_optimization(
             training_path=training_path,
             testing_path=testing_path,
             seed=seed,
+            weighted=weighted,
         )
     else:
         if not labels_file:
@@ -221,6 +225,7 @@ def do_optimization(
             node_list=node_list,
             labels=labels,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
 
     elif method == 'DeepWalk':
@@ -238,6 +243,7 @@ def do_optimization(
             node_list=node_list,
             labels=labels,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
 
     elif method == 'node2vec':
@@ -255,6 +261,7 @@ def do_optimization(
             node_list=node_list,
             labels=labels,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
 
     elif method == 'GraRep':
@@ -272,6 +279,7 @@ def do_optimization(
             node_list=node_list,
             labels=labels,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
 
     elif method == 'SDNE':
@@ -288,6 +296,7 @@ def do_optimization(
             node_list=node_list,
             labels=labels,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
 
     else:
@@ -305,6 +314,7 @@ def do_optimization(
             node_list=node_list,
             labels=labels,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
 
     study_json = study_to_json(study, prediction_task)

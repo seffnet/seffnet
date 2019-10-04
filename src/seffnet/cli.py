@@ -68,6 +68,7 @@ def main():
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
 @click.option('--name', help="Name for the study")
 @click.option('-o', '--output', type=click.File('w'), help="Output study summary", default=sys.stdout)
+@click.option('--weighted', is_flag=False, help='True if graph is weighted.')
 @CLASSIFIER_TYPE
 def optimize(
         input_path,
@@ -82,7 +83,8 @@ def optimize(
         storage,
         name,
         output,
-        classifier_type
+        classifier_type,
+        weighted,
 ):
     """Run the optimization pipeline for a given method and graph."""
     if prediction_task == 'none':
@@ -101,7 +103,8 @@ def optimize(
             name=name,
             output=output,
             seed=seed,
-            classifier_type=classifier_type
+            classifier_type=classifier_type,
+            weighted=weighted,
         )
 
 

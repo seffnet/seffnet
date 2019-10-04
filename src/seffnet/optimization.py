@@ -228,6 +228,7 @@ def node2vec_optimization(
         node_list,
         labels,
         classifier_type,
+        weighted=False,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize node2vec method.
@@ -262,7 +263,9 @@ def node2vec_optimization(
             number_walks=number_walks,
             window_size=window_size,
             p=p,
-            q=q)
+            q=q,
+            weighted=weighted,
+        )
         return predict_and_evaluate(
             prediction_task=prediction_task,
             model=model,
@@ -292,6 +295,7 @@ def sdne_optimization(
         node_list,
         labels,
         classifier_type,
+        weighted=False,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize SDNE method.
@@ -321,6 +325,7 @@ def sdne_optimization(
             alpha=alpha,
             beta=beta,
             epochs=epochs,
+            weighted=weighted,
         )
         return predict_and_evaluate(
             prediction_task=prediction_task,
@@ -352,6 +357,7 @@ def grarep_optimization(
         node_list,
         labels,
         classifier_type,
+        weighted=False,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize GraRep method.
@@ -381,6 +387,7 @@ def grarep_optimization(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
             kstep=kstep,
+            weighted=weighted,
         )
         return predict_and_evaluate(
             prediction_task=prediction_task,
@@ -412,6 +419,7 @@ def line_optimization(
         node_list,
         labels,
         classifier_type,
+        weighted=False,
         study_name: Optional[str] = None,
 ) -> Study:  # noqa: D202
     """Optimize LINE method.
@@ -441,6 +449,7 @@ def line_optimization(
             dimensions=dimensions,
             order=order,
             epochs=epochs,
+            weighted=weighted,
         )
         return predict_and_evaluate(
             prediction_task=prediction_task,
