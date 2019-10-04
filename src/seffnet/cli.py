@@ -48,6 +48,7 @@ PREDICTIVE_MODEL_PATH = click.option('--predictive-model-path', help='The path t
 EMBEDDINGS_PATH = click.option('--embeddings-path', help='The path to save the embeddings file')
 CLASSIFIER_TYPE = click.option('--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF']), default=None,
                                help='Choose type of classifier for predictive model')
+WEIGHTED = click.option('--weighted', is_flag=False, help='True if graph is weighted.')
 
 
 @click.group()
@@ -68,7 +69,7 @@ def main():
 @click.option('--storage', help="SQL connection string for study database. Example: sqlite:///optuna.db")
 @click.option('--name', help="Name for the study")
 @click.option('-o', '--output', type=click.File('w'), help="Output study summary", default=sys.stdout)
-@click.option('--weighted', is_flag=False, help='True if graph is weighted.')
+@WEIGHTED
 @CLASSIFIER_TYPE
 def optimize(
         input_path,
@@ -131,6 +132,7 @@ def optimize(
 @KSTEP
 @ORDER
 @CLASSIFIER_TYPE
+@WEIGHTED
 def train(
         input_path,
         training_path,
@@ -154,6 +156,7 @@ def train(
         epochs,
         kstep,
         order,
+        weighted,
 ):
     """Train my model."""
     if evaluation:
@@ -179,6 +182,7 @@ def train(
             training_model_path=training_model_path,
             evaluation_file=evaluation_file,
             classifier_type=classifier_type,
+            weighted=weighted,
         )
         click.echo('Training is finished.')
         click.echo(results)
@@ -201,6 +205,7 @@ def train(
             predictive_model_path=predictive_model_path,
             training_model_path=training_model_path,
             embeddings_path=embeddings_path,
+            weighted=weighted,
         )
         click.echo('Training is finished.')
 

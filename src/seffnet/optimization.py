@@ -111,6 +111,7 @@ def hope_optimization(
         labels,
         classifier_type,
         study_name: Optional[str] = None,
+        weighted: bool = False,
 ) -> Study:  # noqa: D202
     """Optimize HOPE method.
 
@@ -135,6 +136,7 @@ def hope_optimization(
         model = embed_train.train_embed_hope(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
+            weighted=weighted,
         )
         return predict_and_evaluate(
             model=model,
@@ -167,6 +169,7 @@ def deepwalk_optimization(
         labels,
         classifier_type,
         study_name: Optional[str] = None,
+        weighted: bool = False,
 ) -> Study:  # noqa: D202
     """Optimize DeepWalk method.
 
@@ -197,6 +200,7 @@ def deepwalk_optimization(
             walk_length=walk_length,
             number_walks=number_walks,
             window_size=window_size,
+            weighted=weighted,
         )
         return predict_and_evaluate(
             prediction_task=prediction_task,

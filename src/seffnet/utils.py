@@ -112,6 +112,7 @@ def do_evaluation(
         training_model_path: Optional[str] = None,
         evaluation_file: Optional[str] = None,
         classifier_type: Optional[str] = None,
+        weighted: bool = False,
 ):
     """Train and evaluate an NRL model."""
     if seed is None:
@@ -122,6 +123,7 @@ def do_evaluation(
         training_path=training_path,
         testing_path=testing_path,
         seed=seed,
+        weighted=weighted,
     )
     model = embedding_training(
         train_graph_filename=train_graph_filename,
@@ -138,6 +140,7 @@ def do_evaluation(
         kstep=kstep,
         order=order,
         seed=seed,
+        weighted=weighted,
     )
     if training_model_path is not None:
         model.save_model(training_model_path)
@@ -341,6 +344,7 @@ def train_model(
         predictive_model_path: Optional[str] = None,
         training_model_path: Optional[str] = None,
         classifier_type: Optional[str] = None,
+        weighted : bool = False,
 ):
     """Train a graph with an NRL model."""
     if seed is None:
@@ -361,6 +365,7 @@ def train_model(
         kstep=kstep,
         order=order,
         seed=seed,
+        weighted=weighted,
     )
     if training_model_path is not None:
         model.save_model(training_model_path)
