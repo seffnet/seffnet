@@ -109,7 +109,7 @@ def hope_optimization(
         prediction_task,
         node_list,
         labels,
-        classifier_type,
+        classifier_type: Optional[str] = None,
         study_name: Optional[str] = None,
         weighted: bool = False,
 ) -> Study:  # noqa: D202
@@ -130,7 +130,11 @@ def hope_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'hope')
         trial.set_user_attr('seed', seed)
-        trial.set_user_attr('classifier', classifier_type)
+        classifier = classifier_type
+        if classifier is None:
+            classifier = trial.suggest_categorical('classifier', ['SVM', 'EN', 'RF', 'LR'])
+        else:
+            trial.set_user_attr('classifier', classifier)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         model = embed_train.train_embed_hope(
@@ -147,7 +151,7 @@ def hope_optimization(
             trial=trial,
             labels=labels,
             node_list=node_list,
-            classifier_type=classifier_type,
+            classifier_type=classifier,
             prediction_task=prediction_task,
         )
 
@@ -188,8 +192,11 @@ def deepwalk_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'deepwalk')
         trial.set_user_attr('seed', seed)
-        trial.set_user_attr('classifier', classifier_type)
-
+        classifier = classifier_type
+        if classifier is None:
+            classifier = trial.suggest_categorical('classifier', ['SVM', 'EN', 'RF', 'LR'])
+        else:
+            trial.set_user_attr('classifier', classifier)
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
         number_walks = trial.suggest_categorical('number_walks', [8, 16, 32, 64, 128, 256])
@@ -212,7 +219,7 @@ def deepwalk_optimization(
             trial=trial,
             labels=labels,
             node_list=node_list,
-            classifier_type=classifier_type,
+            classifier_type=classifier,
         )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
@@ -252,7 +259,11 @@ def node2vec_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'node2vec')
         trial.set_user_attr('seed', seed)
-        trial.set_user_attr('classifier', classifier_type)
+        classifier = classifier_type
+        if classifier is None:
+            classifier = trial.suggest_categorical('classifier', ['SVM', 'EN', 'RF', 'LR'])
+        else:
+            trial.set_user_attr('classifier', classifier)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         walk_length = trial.suggest_categorical('walk_length', [8, 16, 32, 64, 128])
@@ -280,7 +291,7 @@ def node2vec_optimization(
             trial=trial,
             labels=labels,
             node_list=node_list,
-            classifier_type=classifier_type,
+            classifier_type=classifier,
         )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
@@ -319,7 +330,11 @@ def sdne_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'sdne')
         trial.set_user_attr('seed', seed)
-        trial.set_user_attr('classifier', classifier_type)
+        classifier = classifier_type
+        if classifier is None:
+            classifier = trial.suggest_categorical('classifier', ['SVM', 'EN', 'RF', 'LR'])
+        else:
+            trial.set_user_attr('classifier', classifier)
 
         alpha = trial.suggest_uniform('alpha', 0, 0.4)
         beta = trial.suggest_int('beta', 0, 30)
@@ -341,7 +356,7 @@ def sdne_optimization(
             trial=trial,
             labels=labels,
             node_list=node_list,
-            classifier_type=classifier_type,
+            classifier_type=classifier,
         )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
@@ -381,7 +396,11 @@ def grarep_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'grarep')
         trial.set_user_attr('seed', seed)
-        trial.set_user_attr('classifier', classifier_type)
+        classifier = classifier_type
+        if classifier is None:
+            classifier = trial.suggest_categorical('classifier', ['SVM', 'EN', 'RF', 'LR'])
+        else:
+            trial.set_user_attr('classifier', classifier)
         # TODO: need to choose kstep in which it can divide the dimension
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         kstep = trial.suggest_int('kstep', 1, 7)
@@ -403,7 +422,7 @@ def grarep_optimization(
             trial=trial,
             labels=labels,
             node_list=node_list,
-            classifier_type=classifier_type,
+            classifier_type=classifier,
         )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
@@ -443,7 +462,11 @@ def line_optimization(
     def objective(trial):
         trial.set_user_attr('method', 'line')
         trial.set_user_attr('seed', seed)
-        trial.set_user_attr('classifier', classifier_type)
+        classifier = classifier_type
+        if classifier is None:
+            classifier = trial.suggest_categorical('classifier', ['SVM', 'EN', 'RF', 'LR'])
+        else:
+            trial.set_user_attr('classifier', classifier)
 
         dimensions = trial.suggest_int('dimensions', dimensions_range[0], dimensions_range[1])
         order = trial.suggest_categorical('order', [1, 2, 3])
@@ -465,7 +488,7 @@ def line_optimization(
             trial=trial,
             labels=labels,
             node_list=node_list,
-            classifier_type=classifier_type,
+            classifier_type=classifier,
         )
 
     return run_study(objective, trial_number, storage=storage, study_name=study_name)
