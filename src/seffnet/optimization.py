@@ -93,7 +93,7 @@ def predict_and_evaluate(
         trial.set_user_attr('accuracy', round(accuracy, 3))
         trial.set_user_attr('micro_f1', round(micro_f1, 3))
         trial.set_user_attr('macro_f1', round(macro_f1, 3))
-        return round(accuracy, 3)
+        return round(micro_f1, 3)
 
 
 def hope_optimization(
