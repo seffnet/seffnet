@@ -83,7 +83,7 @@ def predict_and_evaluate(
         trial.set_user_attr('f1', round(f1, 3))
         return round(mcc, 3)
     else:
-        accuracy, micro_f1, macro_f1 = pipeline.do_node_classification(
+        accuracy, micro_f1, macro_f1, mcc = pipeline.do_node_classification(
             embeddings=embeddings,
             node_list=node_list,
             labels=labels,
@@ -93,7 +93,8 @@ def predict_and_evaluate(
         trial.set_user_attr('accuracy', round(accuracy, 3))
         trial.set_user_attr('micro_f1', round(micro_f1, 3))
         trial.set_user_attr('macro_f1', round(macro_f1, 3))
-        return round(micro_f1, 3)
+        trial.set_user_attr('mcc', round(mcc, 3))
+        return round(mcc, 3)
 
 
 def hope_optimization(

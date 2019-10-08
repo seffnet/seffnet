@@ -188,7 +188,7 @@ def do_evaluation(
             mcc=mcc,
         )
     else:
-        accuracy, macro_f1, micro_f1 = pipeline.do_node_classification(
+        accuracy, macro_f1, micro_f1, mcc = pipeline.do_node_classification(
             embeddings=embeddings,
             node_list=node_list,
             labels=labels,
@@ -200,6 +200,7 @@ def do_evaluation(
             accuracy=accuracy,
             macro_f1=macro_f1,
             micro_f1=micro_f1,
+            mcc=mcc,
         )
     if evaluation_file is not None:
         json.dump(_results, evaluation_file, sort_keys=True, indent=2)
