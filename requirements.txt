@@ -16,3 +16,4 @@ flask-bootstrap
 flask-wtf
 flasgger
 click
+pandas
