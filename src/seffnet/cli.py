@@ -212,6 +212,7 @@ def train(
             training_model_path=training_model_path,
             embeddings_path=embeddings_path,
             weighted=weighted,
+            labels_file=labels_file,
             prediction_task=prediction_task,
         )
         click.echo('Training is finished.')

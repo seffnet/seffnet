@@ -372,7 +372,7 @@ def train_model(
         predictive_model_path: Optional[str] = None,
         training_model_path: Optional[str] = None,
         classifier_type: Optional[str] = None,
-        weighted : bool = False,
+        weighted: bool = False,
         labels_file: Optional[str] = None,
         prediction_task,
 ):
