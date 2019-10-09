@@ -10,15 +10,16 @@ import random
 from typing import Any, Mapping, Optional
 
 import networkx as nx
+import numpy as np
 import optuna
 import pandas as pd
 import pybel
-from bionev import pipeline
-from bionev.embed_train import embedding_training
-from bionev.utils import read_node_labels
 from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
 
+from bionev import pipeline
+from bionev.embed_train import embedding_training
+from bionev.utils import read_node_labels
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
     DEFAULT_TRAINING_SET,
@@ -71,7 +72,7 @@ def study_to_json(study: optuna.Study, prediction_task) -> Mapping[str, Any]:
         }
 
 
-def create_graphs(*, input_path, training_path, testing_path, seed, weighted):
+def create_graphs(*, input_path, training_path, testing_path, weighted):
     """Create the training/testing graphs needed for evalution."""
     if training_path and testing_path is not None:
         graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.train_test_graph(
@@ -82,44 +83,39 @@ def create_graphs(*, input_path, training_path, testing_path, seed, weighted):
         )
     else:
         graph, graph_train, testing_pos_edges, train_graph_filename = pipeline.split_train_test_graph(
-            input_path,
-            seed,
+            input_edgelist=input_path,
             weighted=weighted,
         )
     return graph, graph_train, testing_pos_edges, train_graph_filename
 
 
 def do_evaluation(
-        *,
-        input_path,
-        training_path: Optional[str] = None,
-        testing_path: Optional[str] = None,
-        method,
-        prediction_task,
-        dimensions: int = 300,
-        number_walks: int = 8,
-        walk_length: int = 8,
-        window_size: int = 4,
-        p: float = 1.5,
-        q: float = 2.1,
-        alpha: float = 0.1,
-        beta: float = 4,
-        epochs: int = 5,
-        kstep: int = 4,
-        order: int = 3,
-        seed: Optional[int] = None,
-        embeddings_path: Optional[str] = None,
-        predictive_model_path: Optional[str] = None,
-        training_model_path: Optional[str] = None,
-        evaluation_file: Optional[str] = None,
-        classifier_type: Optional[str] = None,
-        weighted: bool = False,
-        labels_file,
+    *,
+    input_path,
+    training_path: Optional[str] = None,
+    testing_path: Optional[str] = None,
+    method,
+    prediction_task,
+    dimensions: int = 300,
+    number_walks: int = 8,
+    walk_length: int = 8,
+    window_size: int = 4,
+    p: float = 1.5,
+    q: float = 2.1,
+    alpha: float = 0.1,
+    beta: float = 4,
+    epochs: int = 5,
+    kstep: int = 4,
+    order: int = 3,
+    embeddings_path: Optional[str] = None,
+    predictive_model_path: Optional[str] = None,
+    training_model_path: Optional[str] = None,
+    evaluation_file: Optional[str] = None,
+    classifier_type: Optional[str] = None,
+    weighted: bool = False,
+    labels_file,
 ):
     """Train and evaluate an NRL model."""
-    if seed is None:
-        seed = random.randint(1, 2 ** 32 - 1)
-
     if prediction_task == 'link_prediction':
         node_list = None
         labels = None
@@ -127,7 +123,6 @@ def do_evaluation(
             input_path=input_path,
             training_path=training_path,
             testing_path=testing_path,
-            seed=seed,
             weighted=weighted,
         )
     else:
@@ -136,6 +131,7 @@ def do_evaluation(
         node_list, labels = read_node_labels(labels_file)
         train_graph_filename = input_path
         graph, graph_train, testing_pos_edges = None, None, None
+
     model = embedding_training(
         train_graph_filename=train_graph_filename,
         method=method,
@@ -150,7 +146,6 @@ def do_evaluation(
         epochs=epochs,
         kstep=kstep,
         order=order,
-        seed=seed,
         weighted=weighted,
     )
     if training_model_path is not None:
@@ -168,7 +163,6 @@ def do_evaluation(
         dimension=dimensions,
         user=getpass.getuser(),
         date=datetime.datetime.now().strftime('%Y-%m-%d-%H%M%S'),
-        seed=seed,
     )
     if prediction_task == 'link_prediction':
         auc_roc, auc_pr, accuracy, f1, mcc = pipeline.do_link_prediction(
@@ -176,7 +170,6 @@ def do_evaluation(
             original_graph=graph,
             train_graph=graph_train,
             test_pos_edges=testing_pos_edges,
-            seed=seed,
             save_model=predictive_model_path,
             classifier_type=classifier_type,
         )
@@ -192,7 +185,6 @@ def do_evaluation(
             embeddings=embeddings,
             node_list=node_list,
             labels=labels,
-            seed=seed,
             save_model=predictive_model_path,
             classifier_type=classifier_type,
         )
@@ -208,39 +200,40 @@ def do_evaluation(
 
 
 def do_optimization(
-        *,
-        method,
-        input_path,
-        training_path,
-        testing_path,
-        trials,
-        seed,
-        dimensions_range,
-        storage,
-        name,
-        output,
-        prediction_task,
-        labels_file,
-        classifier_type,
-        weighted: bool = False,
+    *,
+    method,
+    input_path,
+    training_path,
+    testing_path,
+    trials,
+    dimensions_range,
+    storage,
+    name,
+    output,
+    prediction_task,
+    labels_file,
+    classifier_type,
+    study_seed,
+    weighted: bool = False,
 ):
     """Run optimization a specific method and graph."""
+    np.random.seed(study_seed)
+    random.seed(study_seed)
+
     if prediction_task == 'link_prediction':
-        node_list = None
-        labels = None
+        node_list, labels = None, None
         graph, graph_train, testing_pos_edges, train_graph_filename = create_graphs(
             input_path=input_path,
             training_path=training_path,
             testing_path=testing_path,
-            seed=seed,
             weighted=weighted,
         )
+    elif not labels_file:
+        raise ValueError("No input label file. Exit.")
     else:
-        if not labels_file:
-            raise ValueError("No input label file. Exit.")
         node_list, labels = read_node_labels(labels_file)
-        train_graph_filename = input_path
-        graph, graph_train, testing_pos_edges = None, None, None
+        graph, graph_train, testing_pos_edges, train_graph_filename = None, None, None, input_path
+
     if method == 'HOPE':
         study = hope_optimization(
             graph=graph,
@@ -248,7 +241,6 @@ def do_optimization(
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=trials,
-            seed=seed,
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
@@ -257,6 +249,7 @@ def do_optimization(
             labels=labels,
             classifier_type=classifier_type,
             weighted=weighted,
+            seed=study_seed,
         )
 
     elif method == 'DeepWalk':
@@ -266,7 +259,7 @@ def do_optimization(
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=trials,
-            seed=seed,
+            study_seed=study_seed,
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
@@ -284,7 +277,7 @@ def do_optimization(
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=trials,
-            seed=seed,
+            study_seed=study_seed,
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
@@ -302,7 +295,7 @@ def do_optimization(
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=trials,
-            seed=seed,
+            study_seed=study_seed,
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
@@ -320,7 +313,7 @@ def do_optimization(
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=trials,
-            seed=seed,
+            study_seed=study_seed,
             storage=storage,
             study_name=name,
             prediction_task=prediction_task,
@@ -337,7 +330,7 @@ def do_optimization(
             testing_pos_edges=testing_pos_edges,
             train_graph_filename=train_graph_filename,
             trial_number=trials,
-            seed=seed,
+            study_seed=study_seed,
             dimensions_range=dimensions_range,
             storage=storage,
             study_name=name,
@@ -353,33 +346,29 @@ def do_optimization(
 
 
 def train_model(
-        *,
-        input_path,
-        method,
-        dimensions: int = 300,
-        number_walks: int = 8,
-        walk_length: int = 8,
-        window_size: int = 4,
-        p: float = 1.5,
-        q: float = 2.1,
-        alpha: float = 0.1,
-        beta: float = 4,
-        epochs: int = 5,
-        kstep: int = 4,
-        order: int = 3,
-        seed: Optional[int] = None,
-        embeddings_path: Optional[str] = None,
-        predictive_model_path: Optional[str] = None,
-        training_model_path: Optional[str] = None,
-        classifier_type: Optional[str] = None,
-        weighted: bool = False,
-        labels_file: Optional[str] = None,
-        prediction_task,
+    *,
+    input_path,
+    method,
+    dimensions: int = 300,
+    number_walks: int = 8,
+    walk_length: int = 8,
+    window_size: int = 4,
+    p: float = 1.5,
+    q: float = 2.1,
+    alpha: float = 0.1,
+    beta: float = 4,
+    epochs: int = 5,
+    kstep: int = 4,
+    order: int = 3,
+    embeddings_path: Optional[str] = None,
+    predictive_model_path: Optional[str] = None,
+    training_model_path: Optional[str] = None,
+    classifier_type: Optional[str] = None,
+    weighted: bool = False,
+    labels_file: Optional[str] = None,
+    prediction_task,
 ):
     """Train a graph with an NRL model."""
-    if seed is None:
-        seed = random.randint(1, 2 ** 32 - 1)
-
     node_list, labels = None, None
     if prediction_task == 'node_classification':
         if not labels_file:
@@ -399,7 +388,6 @@ def train_model(
         epochs=epochs,
         kstep=kstep,
         order=order,
-        seed=seed,
         weighted=weighted,
     )
     if training_model_path is not None:
@@ -414,7 +402,6 @@ def train_model(
         pipeline.create_prediction_model(
             embeddings=embeddings,
             original_graph=original_graph,
-            seed=seed,
             save_model=predictive_model_path,
             classifier_type=classifier_type,
         )
@@ -429,13 +416,13 @@ def train_model(
 
 
 def split_training_testing_sets(
-        *,
-        rebuild: bool = False,
-        clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
-        graph=DEFAULT_FULLGRAPH_PICKLE,
-        g_train_path=DEFAULT_TRAINING_SET,
-        g_test_path=DEFAULT_TESTING_SET,
-        mapping_path=DEFAULT_MAPPING_PATH
+    *,
+    rebuild: bool = False,
+    clustered_chemicals_file=DEFAULT_CLUSTERED_CHEMICALS,
+    graph=DEFAULT_FULLGRAPH_PICKLE,
+    g_train_path=DEFAULT_TRAINING_SET,
+    g_test_path=DEFAULT_TESTING_SET,
+    mapping_path=DEFAULT_MAPPING_PATH,
 ):
     """Split training and testing sets based on clustered chemicals."""
     # TODO: refractor and optimize
@@ -490,24 +477,24 @@ def split_training_testing_sets(
 
 
 def repeat_experiment(
-        *,
-        input_path,
-        training_path=None,
-        testing_path=None,
-        method,
-        dimensions=300,
-        number_walks=8,
-        walk_length=8,
-        window_size=4,
-        p=1.5,
-        q=2.1,
-        alpha=0.1,
-        beta=4,
-        epochs=5,
-        kstep=4,
-        order=3,
-        n=10,
-        evaluation_file=None,
+    *,
+    input_path,
+    training_path=None,
+    testing_path=None,
+    method,
+    dimensions=300,
+    number_walks=8,
+    walk_length=8,
+    window_size=4,
+    p=1.5,
+    q=2.1,
+    alpha=0.1,
+    beta=4,
+    epochs=5,
+    kstep=4,
+    order=3,
+    n=10,
+    evaluation_file=None,
 ):
     """Repeat an experiment several times."""
     all_results = {

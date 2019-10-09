@@ -7,12 +7,13 @@ import logging
 import random
 import sys
 
-import bionev.OpenNE.graph as og
 import click
 import joblib
 import networkx as nx
-from bionev.pipeline import create_prediction_model
+import numpy as np
 
+import bionev.OpenNE.graph as og
+from bionev.pipeline import create_prediction_model
 from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
@@ -25,7 +26,7 @@ TESTING_PATH = click.option('--testing-path', help='testing graph file. Only acc
 METHOD = click.option('--method', required=True,
                       type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
                       help='The NRL method to train the model')
-SEED = click.option('--seed', type=int, default=random.randint(1, 10000000))
+SEED = click.option('--seed', type=int, default=random.randrange(sys.maxsize))
 DIMENSIONS = click.option('--dimensions', type=int, default=200, help='The dimensions of embeddings.')
 NUMBER_WALKS = click.option('--number-walks', type=int, default=8, help='The number of walks for random-walk methods.')
 WALK_LENGTH = click.option('--walk-length', type=int, default=32, help='The walk length for random-walk methods.')
@@ -40,7 +41,8 @@ ORDER = click.option('--order', default=2, type=int, help='The order parameter f
 EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
                                help='The path to save evaluation results.')
 PREDICTION_TASK = click.option('--prediction-task', default='link_prediction',
-                               type=click.Choice(['none', 'link_prediction', 'node_classification']),
+                               type=click.Choice(['link_prediction', 'node_classification']),
+                               required=True,
                                help='The prediction task for the model')
 LABELS_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
 TRAINING_MODEL_PATH = click.option('--training-model-path', help='The path to save the model used for training')
@@ -72,41 +74,38 @@ def main():
 @WEIGHTED
 @CLASSIFIER_TYPE
 def optimize(
-        input_path,
-        training_path,
-        testing_path,
-        seed,
-        prediction_task,
-        labels_file,
-        method,
-        trials,
-        dimensions_range,
-        storage,
-        name,
-        output,
-        classifier_type,
-        weighted,
+    input_path,
+    training_path,
+    testing_path,
+    seed,
+    prediction_task,
+    labels_file,
+    method,
+    trials,
+    dimensions_range,
+    storage,
+    name,
+    output,
+    classifier_type,
+    weighted,
 ):
     """Run the optimization pipeline for a given method and graph."""
-    if prediction_task == 'none':
-        raise Exception('Optimization cannot be done without selecting a prediction task for evaluation.')
-    else:
-        do_optimization(
-            input_path=input_path,
-            training_path=training_path,
-            testing_path=testing_path,
-            prediction_task=prediction_task,
-            labels_file=labels_file,
-            method=method,
-            trials=trials,
-            storage=storage,
-            dimensions_range=dimensions_range,
-            name=name,
-            output=output,
-            seed=seed,
-            classifier_type=classifier_type,
-            weighted=weighted,
-        )
+    do_optimization(
+        input_path=input_path,
+        training_path=training_path,
+        testing_path=testing_path,
+        prediction_task=prediction_task,
+        labels_file=labels_file,
+        method=method,
+        trials=trials,
+        storage=storage,
+        dimensions_range=dimensions_range,
+        name=name,
+        output=output,
+        classifier_type=classifier_type,
+        weighted=weighted,
+        study_seed=seed,
+    )
 
 
 @main.command()
@@ -136,33 +135,36 @@ def optimize(
 @PREDICTION_TASK
 @LABELS_FILE
 def train(
-        input_path,
-        training_path,
-        testing_path,
-        evaluation,
-        evaluation_file,
-        embeddings_path,
-        predictive_model_path,
-        training_model_path,
-        classifier_type,
-        seed,
-        method,
-        dimensions,
-        number_walks,
-        walk_length,
-        window_size,
-        p,
-        q,
-        alpha,
-        beta,
-        epochs,
-        kstep,
-        order,
-        weighted,
-        prediction_task,
-        labels_file,
+    input_path,
+    training_path,
+    testing_path,
+    evaluation,
+    evaluation_file,
+    embeddings_path,
+    predictive_model_path,
+    training_model_path,
+    classifier_type,
+    seed,
+    method,
+    dimensions,
+    number_walks,
+    walk_length,
+    window_size,
+    p,
+    q,
+    alpha,
+    beta,
+    epochs,
+    kstep,
+    order,
+    weighted,
+    prediction_task,
+    labels_file,
 ):
     """Train my model."""
+    np.random.seed(seed)
+    random.seed(seed)
+
     if evaluation:
         results = do_evaluation(
             input_path=input_path,
@@ -180,7 +182,6 @@ def train(
             epochs=epochs,
             kstep=kstep,
             order=order,
-            seed=seed,
             embeddings_path=embeddings_path,
             predictive_model_path=predictive_model_path,
             training_model_path=training_model_path,
@@ -207,7 +208,6 @@ def train(
             epochs=epochs,
             kstep=kstep,
             order=order,
-            seed=seed,
             predictive_model_path=predictive_model_path,
             training_model_path=training_model_path,
             embeddings_path=embeddings_path,
@@ -231,18 +231,21 @@ def train(
 @PREDICTIVE_MODEL_PATH
 @SEED
 def update(
-        updated_graph,
-        old_graph,
-        chemicals_list,
-        updated_graph_path,
-        chemsim_graph_path,
-        training_model_path,
-        new_training_model_path,
-        embeddings_path,
-        predictive_model_path,
-        seed,
+    updated_graph,
+    old_graph,
+    chemicals_list,
+    updated_graph_path,
+    chemsim_graph_path,
+    training_model_path,
+    new_training_model_path,
+    embeddings_path,
+    predictive_model_path,
+    seed,
 ):
     """Update node2vec training model."""
+    np.random.seed(seed)
+    random.seed(seed)
+
     if chemicals_list is not None:
         new_chemicals = [line.rstrip('\n') for line in open(chemicals_list)]
         try:
@@ -273,7 +276,6 @@ def update(
         create_prediction_model(
             embeddings=model.get_embeddings(),
             original_graph=original_graph,
-            seed=seed,
             save_model=predictive_model_path
         )
     click.secho('Process is complete', fg='blue', bold=True)
@@ -297,26 +299,31 @@ def update(
 @KSTEP
 @ORDER
 @click.option('--n', default=10, help='number of repeats.')
+@SEED
 def repeat(
-        input_path,
-        training_path,
-        testing_path,
-        evaluation_file,
-        method,
-        dimensions,
-        number_walks,
-        walk_length,
-        window_size,
-        p,
-        q,
-        alpha,
-        beta,
-        epochs,
-        kstep,
-        order,
-        n,
+    input_path,
+    training_path,
+    testing_path,
+    evaluation_file,
+    method,
+    dimensions,
+    number_walks,
+    walk_length,
+    window_size,
+    p,
+    q,
+    alpha,
+    beta,
+    epochs,
+    kstep,
+    order,
+    n,
+    seed,
 ):
     """Repeat training n times."""
+    np.random.seed(seed)
+    random.seed(seed)
+
     results = repeat_experiment(
         input_path=input_path,
         training_path=training_path,
