@@ -74,11 +74,13 @@ Network representation learning models can be optimized with:
 Web Application
 ~~~~~~~~~~~~~~~
 The web application allows users to get results from the model programmatically. Make 
-sure the extra dependencies have been installed as well using the `[web]`
+sure the extra dependencies have been installed as well using the `[web]` extra.
+Unfortunately, this doesn't work when installing directly from GitHub, so see the
+``setup.cfg`` for the Flask dependencies.
 
 .. code-block:: sh
 
-    $ pip install git+https://github.com/seffnet/seffnet.git[web]
+    $ pip install -e .[web]
 
 Run development server with:
 
