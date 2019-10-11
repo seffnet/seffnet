@@ -18,8 +18,8 @@
         <div class="panel panel-default">
             <div class="panel-body">
                 <p>
-                    Check the <a href="{{ test_url }}">results</a> for ropinirole
-                    (<a href="https://identifiers.org/pubchem.compound:5095">pubchem:5095</a>)
+                    Check the <a href="{{ url_for('.predict', curie=example_compound) }}">results</a> for {{ example_compound_name }}
+                    (<a href="https://identifiers.org/{{ example_compound }}">{{ example_compound }}</a>)
                 </p>
 
                 {{ wtf.quick_form(form, form_type='horizontal', button_map={'submit_button': 'btn btn-primary'}) }}

@@ -21,7 +21,7 @@ class QueryForm(FlaskForm):
             ('chemical', 'Look for chemicals'),
             ('phenotype', 'Look for side effects'),
             ('target', 'Look for targets'),
-            (None, 'Look for everythhing'),
+            ('everything', 'Look for everything'),
         ],
         default='phenotype',
     )

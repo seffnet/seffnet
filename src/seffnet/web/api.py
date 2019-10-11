@@ -19,6 +19,8 @@ predictor = LocalProxy(lambda: current_app.config['predictor'])
 def get_result(curie: str):
     """Get the prediction results using the current request."""
     results_type = request.args.get('results_type', 'phenotype')
+    if results_type == 'everything':
+        results_type = None
     k = request.args.get('k', 30, type=int) or None
 
     return predictor.find_new_relations(
@@ -34,8 +36,12 @@ def home():
     form = QueryForm()
 
     if not form.validate_on_submit():
-        test_url = url_for('.predict', curie='pubchem.compound:5095')
-        return render_template('index.html', test_url=test_url, form=form)
+        return render_template(
+            'index.html',
+            example_compound='pubchem.compound:5095',
+            example_compound_name='ropinirole',
+            form=form,
+        )
 
     return redirect(url_for(
         '.predict',
