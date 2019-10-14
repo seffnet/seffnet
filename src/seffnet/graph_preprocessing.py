@@ -86,14 +86,14 @@ def get_combined_sider_drugbank(
         mapping_df = pd.read_csv(
             chemical_mapping,
             sep="\t",
-            dtype={'PubchemID': str, 'Smiles': str},
+            dtype={'pubchem_id': str, 'Smiles': str},
             index_col=False,
         )
     for node in tqdm(sider_graph.nodes()):
         if node.namespace != 'pubchem.compound':
             continue
         if node.identifier in mapping_df.values:
-            smiles = mapping_df.loc[mapping_df['PubchemID'] == node.identifier, 'Smiles'].iloc[0]
+            smiles = mapping_df.loc[mapping_df['pubchem_id'] == node.identifier, 'Smiles'].iloc[0]
         else:
             smiles = cid_to_smiles(node.identifier)
             if not isinstance(smiles, str):
@@ -105,7 +105,7 @@ def get_combined_sider_drugbank(
         if node in smiles_dict.keys():
             continue
         if node.identifier in mapping_df.values:
-            smiles = mapping_df.loc[mapping_df['PubchemID'] == node.identifier, 'Smiles'].iloc[0]
+            smiles = mapping_df.loc[mapping_df['pubchem_id'] == node.identifier, 'Smiles'].iloc[0]
         else:
             smiles = cid_to_smiles(node.identifier)
             if not isinstance(smiles, str):
@@ -147,7 +147,7 @@ def get_mapped_graph(
         chemical_mapping = pd.read_csv(
             DEFAULT_CHEMICALS_MAPPING_PATH,
             sep="\t",
-            dtype={'PubchemID': str, 'Smiles': str},
+            dtype={'pubchem_id': str, 'smiles': str},
             index_col=False,
         )
     relabel_graph = {}
@@ -159,13 +159,13 @@ def get_mapped_graph(
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
         if node.namespace == PUBCHEM_NAMESPACE:
-            if chemical_mapping.loc[chemical_mapping["PubchemID"] == node.identifier].empty:
+            if chemical_mapping.loc[chemical_mapping["pubchem_id"] == node.identifier].empty:
                 synonyms = cid_to_synonyms(node.identifier)
                 if not isinstance(synonyms, str):
                     synonyms = synonyms.decode("utf-8")
                 name = synonyms.split('\n')[0]
             else:
-                name = chemical_mapping.loc[chemical_mapping['PubchemID'] == node.identifier, 'DrugbankName'].iloc[0]
+                name = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier, 'name'].iloc[0]
         node_mapping_list.append((node_id, node.namespace, node.identifier, name))
     node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])
     node_mapping_df.to_csv(mapping_path, index=False, sep='\t')
@@ -192,7 +192,7 @@ def get_chemicals_mapping_file(
         return pd.read_csv(
             DEFAULT_CHEMICALS_MAPPING_PATH,
             sep="\t",
-            dtype={'PubchemID': str, 'Smiles': str},
+            dtype={'pubchem_id': str, 'smiles': str},
             index_col=False,
         )
     tree = ElementTree.parse(drugbank_file)
@@ -201,35 +201,36 @@ def get_chemicals_mapping_file(
     inchikey_template = "{ns}calculated-properties/{ns}property[{ns}kind='InChIKey']/{ns}value"
     pubchem_template = \
         "{ns}external-identifiers/{ns}external-identifier[{ns}resource='PubChem Compound']/{ns}identifier"
-    drugbank_name = []
-    drugbank_id = []
-    drug_smiles = []
-    pubchem_ids = []
+    chembl_template = \
+        "{ns}external-identifiers/{ns}external-identifier[{ns}resource='chEMBL']/{ns}identifier"
+    drug_group_template = "{ns}groups/{ns}group"
+    mapping_list = []
     for i, drug in tqdm(enumerate(root), desc="Getting DrugBank info"):
         assert drug.tag == ns + 'drug'
         if drug.attrib['type'] == "biotech":
             continue
         if drug.findtext(inchikey_template.format(ns=ns)) is None:
             continue
-        drugbank_name.append(drug.findtext(ns + "name"))
+        name = drug.findtext(ns + "name")
         inchikey = drug.findtext(inchikey_template.format(ns=ns))
-        drugbank_id.append(drug.findtext(ns + "drugbank-id"))
+        drugbank_id = drug.findtext(ns + "drugbank-id")
         pubchem_id = drug.findtext(pubchem_template.format(ns=ns))
+        chembl_id = drug.findtext(chembl_template.format(ns=ns))
         if pubchem_id is None:
             pubchem_id = inchikey_to_cid(inchikey)
             if not isinstance(pubchem_id, str):
                 pubchem_id = pubchem_id.decode("utf-8")
         if '\n' in pubchem_id:
             pubchem_id = pubchem_id.split('\n')[0]
-        pubchem_ids.append(pubchem_id)
         smiles = cid_to_smiles(pubchem_id)
         if not isinstance(smiles, str):
             smiles = smiles.decode("utf-8")
-        drug_smiles.append(smiles)
-    mapping_dict = {
-        'PubchemID': pubchem_ids, 'DrugbankID': drugbank_id, 'DrugbankName': drugbank_name, 'Smiles': drug_smiles
-    }
-    mapping_df = pd.DataFrame(mapping_dict)
+        drug_group = drug.findtext(drug_group_template.format(ns=ns))
+        mapping_list.append((pubchem_id, drugbank_id, chembl_id, name, drug_group, smiles))
+    mapping_df = pd.DataFrame(
+        mapping_list,
+        columns=['pubchem_id', 'drugbank_id', 'chembl_id', 'name', 'drug_group', 'smiles']
+    )
     mapping_df = mapping_df.dropna()
     mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
     return mapping_df
