@@ -7,14 +7,15 @@ import os
 import networkx as nx
 import pandas as pd
 import pybel
+from chembl_webresource_client.new_client import new_client
 from defusedxml import ElementTree
 from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
-)
-from .get_url_requests import cid_to_smiles, cid_to_synonyms, smiles_to_cid
+    UNIPROT_NAMESPACE)
+from .get_url_requests import cid_to_smiles, cid_to_synonyms, inchikey_to_cid
 
 
 def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
@@ -166,8 +167,18 @@ def get_mapped_graph(
                 name = synonyms.split('\n')[0]
             else:
                 name = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier, 'name'].iloc[0]
-        node_mapping_list.append((node_id, node.namespace, node.identifier, name))
-    node_mapping_df = pd.DataFrame(node_mapping_list, columns=['node_id', 'namespace', 'identifier', 'name'])
+            entity_type = chemical_mapping['drug_group'] + ' drug'
+            chembl = chemical_mapping['chembl_id']
+            if chembl is None:
+                pass
+        else:
+            chembl = None
+            entity_type = 'phenotype'
+        node_mapping_list.append((node_id, node.namespace, node.identifier, chembl, name, entity_type))
+    node_mapping_df = pd.DataFrame(
+        node_mapping_list,
+        columns=['node_id', 'namespace', 'identifier', 'chembl_id', 'name', 'type']
+    )
     node_mapping_df.to_csv(mapping_path, index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
     nx.write_edgelist(graph_id, edgelist_path, data=False)
@@ -198,7 +209,7 @@ def get_chemicals_mapping_file(
     tree = ElementTree.parse(drugbank_file)
     root = tree.getroot()
     ns = '{http://www.drugbank.ca}'
-    smiles_template = "{ns}calculated-properties/{ns}property[{ns}kind='SMILES']/{ns}value"
+    inchikey_template = "{ns}calculated-properties/{ns}property[{ns}kind='InChIKey']/{ns}value"
     pubchem_template = \
         "{ns}external-identifiers/{ns}external-identifier[{ns}resource='PubChem Compound']/{ns}identifier"
     chembl_template = \
@@ -213,15 +224,14 @@ def get_chemicals_mapping_file(
         drugbank_id = drug.findtext(ns + "drugbank-id")
         pubchem_id = drug.findtext(pubchem_template.format(ns=ns))
         chembl_id = drug.findtext(chembl_template.format(ns=ns))
-        smiles = drug.findtext(smiles_template.format(ns=ns))
+        inchikey = drug.findtext(inchikey_template.format(ns=ns))
         if pubchem_id is None:
-            pubchem_id = smiles_to_cid(smiles)
+            pubchem_id = inchikey_to_cid(inchikey)
             if not isinstance(pubchem_id, str):
                 pubchem_id = pubchem_id.decode("utf-8")
         if '\n' in pubchem_id:
             pubchem_id = pubchem_id.split('\n')[0]
-        if smiles is None:
-            smiles = cid_to_smiles(pubchem_id)
+        smiles = cid_to_smiles(pubchem_id)
         if not isinstance(smiles, str):
             smiles = smiles.decode("utf-8")
         drug_group = drug.findtext(drug_group_template.format(ns=ns))

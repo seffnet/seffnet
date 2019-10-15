@@ -73,7 +73,7 @@ def cid_to_synonyms(cid):
     return get_result("https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/%s/synonyms/TXT" % cid)
 
 
-def get_gene_names(uniprot_list):
+def get_gene_names(uniprot_list, from_id='ACC+ID', to_id='GENENAME'):
     """
     Get gene names from uniport ID.
 
@@ -86,8 +86,8 @@ def get_gene_names(uniprot_list):
         uniprot_ids += prot + ' '
 
     params = {
-        'from': 'ACC+ID',
-        'to': 'GENENAME',
+        'from': from_id,
+        'to': to_id,
         'format': 'tab',
         'query': uniprot_ids
     }
