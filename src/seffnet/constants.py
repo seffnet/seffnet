@@ -47,7 +47,7 @@ DEFAULT_PREDICTIVE_MODEL_PATH = os.path.join(PREDICTIVE_MODELS, "1209_node2vec_p
 #DEFAULT_TRAINING_MODEL_PATH = os.path.join(TRAINING_MODELS, )
 
 MAPPING = os.path.join(RESOURCES, "mapping")
-DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "drugbank_pubchem_mapping.tsv")
+DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "chemicals_mapping.tsv")
 DEFAULT_MAPPING_PATH = os.path.join(MAPPING, "fullgraph_nodes_mapping.tsv")
 DEFAULT_CLUSTERED_CHEMICALS = os.path.join(MAPPING, "clustered_chemicals.tsv")
 
