@@ -15,7 +15,7 @@ from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
     UNIPROT_NAMESPACE)
-from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, inchikey_to_cid
+from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, inchikey_to_cid, get_gene_names
 
 
 def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
@@ -179,7 +179,8 @@ def get_mapped_graph(
                     continue
             else:
                 name = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier, 'name'].iloc[0]
-                entity_type = chemical_mapping['drug_group'] + ' drug'
+                entity_type = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier,
+                                                   'drug_group'].iloc[0] + ' drug'
                 chembl = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier, 'chembl_id'].iloc[0]
                 if chembl is None:
                     if chemical_mapping.loc[chemical_mapping["pubchem_id"] == node.identifier].empty:
@@ -194,9 +195,11 @@ def get_mapped_graph(
                     except:
                         continue
         elif node.namespace == UNIPROT_NAMESPACE:
-            target = new_client.target
-            target_res = target.search(name)
-            chembl = target_res[0]['target_chembl_id']
+            try:
+                target = get_gene_names([node.identifier], to_id='CHEMBL_ID')
+                chembl = target[node.identifier]
+            except:
+                continue
             entity_type = 'target'
         else:
             chembl = None
