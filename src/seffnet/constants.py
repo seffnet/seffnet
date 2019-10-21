@@ -24,6 +24,7 @@ __all__ = [
     'DEFAULT_CLUSTERED_CHEMICALS',
     'DEFAULT_TRAINING_SET',
     'DEFAULT_TESTING_SET',
+    'DEFAULT_POTENCY_MAPPING_PATH'
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
@@ -50,6 +51,7 @@ MAPPING = os.path.join(RESOURCES, "mapping")
 DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "chemicals_mapping.tsv")
 DEFAULT_MAPPING_PATH = os.path.join(MAPPING, "fullgraph_nodes_mapping.tsv")
 DEFAULT_CLUSTERED_CHEMICALS = os.path.join(MAPPING, "clustered_chemicals.tsv")
+DEFAULT_POTENCY_MAPPING_PATH = os.path.join(MAPPING, "potency_mapping.tsv")
 
 CHEMSIM_50_GRAPHS = os.path.join(RESOURCES, "chemsim_50_graphs")
 DEFAULT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_graph.pickle")
@@ -57,3 +59,4 @@ DEFAULT_FULLGRAPH_PICKLE = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.pi
 DEFAULT_GRAPH_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.edgelist")
 DEFAULT_TRAINING_SET = os.path.join(BASIC_GRAPHS, "training_set.edgelist")
 DEFAULT_TESTING_SET = os.path.join(BASIC_GRAPHS, "testing_set.edgelist")
+

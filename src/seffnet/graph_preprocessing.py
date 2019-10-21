@@ -9,12 +9,13 @@ import pandas as pd
 import pybel
 from chembl_webresource_client.new_client import new_client
 from defusedxml import ElementTree
+from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
-    UNIPROT_NAMESPACE)
+    UNIPROT_NAMESPACE, DEFAULT_POTENCY_MAPPING_PATH)
 from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, inchikey_to_cid, get_gene_names
 
 
@@ -36,7 +37,11 @@ def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
     return sider_graph
 
 
-def get_drugbank_graph(rebuild: bool = False, **kwargs) -> pybel.BELGraph:
+def get_drugbank_graph(
+        rebuild: bool = False,
+        weighted: bool = False,
+        **kwargs,
+) -> pybel.BELGraph:
     """Get the DrugBank graph."""
     if not rebuild and os.path.exists(DEFAULT_DRUGBANK_PICKLE):
         return pybel.from_pickle(DEFAULT_DRUGBANK_PICKLE)
@@ -145,7 +150,7 @@ def get_mapped_graph(
         graph = graph_path
     else:
         graph = pybel.from_pickle(graph_path)
-    chemical_mapping = None
+    chemicals_info = {}
     if os.path.exists(DEFAULT_CHEMICALS_MAPPING_PATH):
         chemical_mapping = pd.read_csv(
             DEFAULT_CHEMICALS_MAPPING_PATH,
@@ -153,6 +158,12 @@ def get_mapped_graph(
             dtype={'pubchem_id': str, 'smiles': str},
             index_col=False,
         )
+        for pubchem_id, drugbank_id, chembl_id, name, drug_group, smiles, inchikey in chemical_mapping.values:
+            if pubchem_id is not None:
+                chemicals_info[pubchem_id] = dict(
+                    name=name,
+                    drug_group=drug_group,
+                )
     relabel_graph = {}
     i = 1
     for node in tqdm(graph.nodes(), desc='Relabel graph nodes'):
@@ -162,52 +173,23 @@ def get_mapped_graph(
     for node, node_id in tqdm(relabel_graph.items(), desc='Create mapping dataframe'):
         name = node.name
         if node.namespace == PUBCHEM_NAMESPACE:
-            if chemical_mapping.loc[chemical_mapping["pubchem_id"] == node.identifier].empty:
+            if node.identifier not in chemicals_info.keys():
                 synonyms = cid_to_synonyms(node.identifier)
                 if not isinstance(synonyms, str):
                     synonyms = synonyms.decode("utf-8")
                 name = synonyms.split('\n')[0]
                 entity_type = 'chemical'
-                inchikey = cid_to_inchikey(node.identifier)
-                if not isinstance(inchikey, str):
-                    inchikey = inchikey.decode("utf-8")
-                try:
-                    molecule = new_client.molecule
-                    m1 = molecule.get(inchikey)
-                    chembl = m1['molecule_chembl_id']
-                except:
-                    continue
             else:
-                name = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier, 'name'].iloc[0]
-                entity_type = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier,
-                                                   'drug_group'].iloc[0] + ' drug'
-                chembl = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier, 'chembl_id'].iloc[0]
-                if chembl is None:
-                    if chemical_mapping.loc[chemical_mapping["pubchem_id"] == node.identifier].empty:
-                        inchikey = cid_to_inchikey(node.identifier)
-                    else:
-                        inchikey = chemical_mapping.loc[chemical_mapping['pubchem_id'] == node.identifier,
-                                                        'inchikey'].iloc[0]
-                    try:
-                        molecule = new_client.molecule
-                        m1 = molecule.get(inchikey)
-                        chembl = m1['molecule_chembl_id']
-                    except:
-                        continue
+                name = chemicals_info[node.identifier]['name']
+                entity_type = chemicals_info[node.identifier]['drug_group'] + ' drug'
         elif node.namespace == UNIPROT_NAMESPACE:
-            try:
-                target = get_gene_names([node.identifier], to_id='CHEMBL_ID')
-                chembl = target[node.identifier]
-            except:
-                continue
             entity_type = 'target'
         else:
-            chembl = None
             entity_type = 'phenotype'
-        node_mapping_list.append((node_id, node.namespace, node.identifier, chembl, name, entity_type))
+        node_mapping_list.append((node_id, node.namespace, node.identifier, name, entity_type))
     node_mapping_df = pd.DataFrame(
         node_mapping_list,
-        columns=['node_id', 'namespace', 'identifier', 'chembl_id', 'name', 'type']
+        columns=['node_id', 'namespace', 'identifier', 'name', 'type']
     )
     node_mapping_df.to_csv(mapping_path, index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
@@ -270,5 +252,66 @@ def get_chemicals_mapping_file(
         mapping_list,
         columns=['pubchem_id', 'drugbank_id', 'chembl_id', 'name', 'drug_group', 'smiles', 'inchikey']
     )
+    mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
+    return mapping_df
+
+
+def map_chemical_target_potency(
+        *,
+        graph_path=DEFAULT_DRUGBANK_PICKLE,
+        chemicals_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
+        mapping_filepath=DEFAULT_POTENCY_MAPPING_PATH,
+):
+    """Extract chemical to target potency from chembl and normalize the values."""
+    graph = nx.DiGraph(nx.read_gpickle(graph_path))
+    chemicals_info = {}
+    if os.path.exists(chemicals_mapping):
+        chemical_mapping = pd.read_csv(
+            DEFAULT_CHEMICALS_MAPPING_PATH,
+            sep="\t",
+            dtype={'pubchem_id': str, 'smiles': str},
+            index_col=False,
+        )
+        for pubchem_id, drugbank_id, chembl_id, name, drug_group, smiles, inchikey in \
+                tqdm(chemical_mapping.values, desc='Parse chemical mapping'):
+            if pubchem_id is not None:
+                chemicals_info[pubchem_id] = dict(
+                    chembl_id=chembl_id,
+                    inchikey=inchikey,
+                )
+    mapping_list = []
+    for edge in tqdm(graph.edges(), desc='Find pchembl values of interactions'):
+        if edge[0].identifier not in chemicals_info.keys():
+            inchikey = cid_to_inchikey(edge[0].identifier)
+            if not isinstance(inchikey, str):
+                inchikey = inchikey.decode("utf-8")
+            try:
+                molecule = new_client.molecule
+                m1 = molecule.get(inchikey)
+                chemical_chembl = m1['molecule_chembl_id']
+            except:
+                continue
+        else:
+            chemical_chembl = chemicals_info[edge[0].identifier]['chembl_id']
+        try:
+            target = get_gene_names([edge[1].identifier], to_id='CHEMBL_ID')
+            target_chembl = target[edge[1].identifier]
+        except:
+            continue
+        activities = new_client.activity
+        results = activities.filter(molecule_chembl_id=chemical_chembl, target_chembl_id=target_chembl,
+                            pchembl_value__isnull=False)
+        pchembl = 0
+        for result in results:
+            pchembl += float(result['pchembl_value'])
+        if pchembl != 0:
+            pchembl = round(pchembl / len(results), 3)
+        mapping_list.append([edge[0].identifier, chemical_chembl, edge[1].identifier, target_chembl, pchembl])
+    mapping_df = pd.DataFrame(
+        mapping_list,
+        columns=['chemical_pubchem_id', 'chemical_chembl_id', 'target_uniprot_id', 'target_chembl_id', 'pchembl'])
+    scaler = MinMaxScaler()
+    pchembl_scaled = scaler.fit_transform(mapping_df[['pchembl']].values.astype(float))
+    mapping_df['normalize_pchembl'] = pchembl_scaled
     mapping_df.to_csv(mapping_filepath, sep='\t', index=False)
     return mapping_df
