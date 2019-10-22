@@ -5,6 +5,7 @@
 import os
 
 import networkx as nx
+import numpy as np
 import pandas as pd
 import pybel
 from chembl_webresource_client.new_client import new_client
@@ -281,7 +282,7 @@ def map_chemical_target_potency(
                 )
     mapping_list = []
     for edge in tqdm(graph.edges(), desc='Find pchembl values of interactions'):
-        if edge[0].identifier not in chemicals_info.keys():
+        if edge[0].identifier not in chemicals_info:
             inchikey = cid_to_inchikey(edge[0].identifier)
             if not isinstance(inchikey, str):
                 inchikey = inchikey.decode("utf-8")
@@ -301,12 +302,12 @@ def map_chemical_target_potency(
         activities = new_client.activity
         results = activities.filter(molecule_chembl_id=chemical_chembl, target_chembl_id=target_chembl,
                             pchembl_value__isnull=False)
-        pchembl = 0
-        for result in results:
-            pchembl += float(result['pchembl_value'])
-        if pchembl != 0:
-            pchembl = round(pchembl / len(results), 3)
-        mapping_list.append([edge[0].identifier, chemical_chembl, edge[1].identifier, target_chembl, pchembl])
+        pchembls = np.array([float(result['pchembl_value']) for result in results])
+        if pchembls.size:
+            avg_pchembl = np.mean(pchembls)
+        else:
+            avg_pchembl = 0
+        mapping_list.append([edge[0].identifier, chemical_chembl, edge[1].identifier, target_chembl, avg_pchembl])
     mapping_df = pd.DataFrame(
         mapping_list,
         columns=['chemical_pubchem_id', 'chemical_chembl_id', 'target_uniprot_id', 'target_chembl_id', 'pchembl'])
