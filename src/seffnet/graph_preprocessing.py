@@ -16,7 +16,7 @@ from tqdm import tqdm
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
-    UNIPROT_NAMESPACE, DEFAULT_POTENCY_MAPPING_PATH)
+    UNIPROT_NAMESPACE, DEFAULT_POTENCY_MAPPING_PATH, DEFAULT_DRUGBANK_WEIGHTED_PICKLE)
 from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, inchikey_to_cid, get_gene_names
 
 
@@ -41,10 +41,13 @@ def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
 def get_drugbank_graph(
         rebuild: bool = False,
         weighted: bool = False,
+        potency_filepath=DEFAULT_POTENCY_MAPPING_PATH,
         **kwargs,
 ) -> pybel.BELGraph:
     """Get the DrugBank graph."""
-    if not rebuild and os.path.exists(DEFAULT_DRUGBANK_PICKLE):
+    if not rebuild and os.path.exists(DEFAULT_DRUGBANK_WEIGHTED_PICKLE) and weighted:
+        return pybel.from_pickle(DEFAULT_DRUGBANK_WEIGHTED_PICKLE)
+    elif not rebuild and os.path.exists(DEFAULT_DRUGBANK_PICKLE):
         return pybel.from_pickle(DEFAULT_DRUGBANK_PICKLE)
 
     import bio2bel_drugbank
@@ -54,8 +57,34 @@ def get_drugbank_graph(
         drugbank_manager.populate()
     drugbank_graph = drugbank_manager.to_bel(**kwargs)
 
-    if os.path.exists(RESOURCES):
-        pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_PICKLE)
+    if weighted:
+        potency_mapping = pd.read_csv(
+            potency_filepath,
+            sep='\t',
+            index_col=False,
+            dtype={'chemical_pubchem_id': str}
+        )
+        edge_weights = {
+            (chemical_pubchem, target_uniprot): normalized_pchembl
+            for chemical_pubchem,
+            chemical_chembl,
+            target_uniprot,
+            target_chembl,
+            pchembl,
+            normalized_pchembl in potency_mapping.values
+        }
+        for source, target in drugbank_graph.edges():
+            for iden, edge_d in drugbank_graph[source][target].items():
+                if (str(source.identifier), str(target.identifier)) in edge_weights:
+                    drugbank_graph[source][target][iden]['weight'] = edge_weights[str(source.identifier),
+                                                                                  str(target.identifier)]
+                else:
+                    drugbank_graph[source][target][iden]['weight'] = 0.0
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_WEIGHTED_PICKLE)
+    else:
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_PICKLE)
 
     return drugbank_graph
 
@@ -307,7 +336,13 @@ def map_chemical_target_potency(
             avg_pchembl = np.mean(pchembls)
         else:
             avg_pchembl = 0
-        mapping_list.append([edge[0].identifier, chemical_chembl, edge[1].identifier, target_chembl, avg_pchembl])
+        mapping_list.append(
+            [edge[0].identifier,
+             chemical_chembl,
+             edge[1].identifier,
+             target_chembl,
+             round(avg_pchembl, 3)]
+        )
     mapping_df = pd.DataFrame(
         mapping_list,
         columns=['chemical_pubchem_id', 'chemical_chembl_id', 'target_uniprot_id', 'target_chembl_id', 'pchembl'])

@@ -24,7 +24,8 @@ __all__ = [
     'DEFAULT_CLUSTERED_CHEMICALS',
     'DEFAULT_TRAINING_SET',
     'DEFAULT_TESTING_SET',
-    'DEFAULT_POTENCY_MAPPING_PATH'
+    'DEFAULT_POTENCY_MAPPING_PATH',
+    'DEFAULT_DRUGBANK_WEIGHTED_PICKLE'
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
@@ -36,6 +37,7 @@ RESOURCES = os.path.abspath(os.path.join(HERE, os.pardir, os.pardir, 'resources'
 
 BASIC_GRAPHS = os.path.join(RESOURCES, 'basic_graphs')
 DEFAULT_DRUGBANK_PICKLE = os.path.join(BASIC_GRAPHS, 'drugbank_graph.pickle')
+DEFAULT_DRUGBANK_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, 'drugbank_weighted_graph.pickle')
 DEFAULT_SIDER_PICKLE = os.path.join(BASIC_GRAPHS, 'sider_graph.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.edgelist')
