@@ -78,34 +78,46 @@ def get_drugbank_graph(
     drugbank_graph = drugbank_manager.to_bel(**kwargs)
 
     if weighted:
-        potency_mapping = pd.read_csv(
-            potency_filepath,
-            sep='\t',
-            index_col=False,
-            dtype={'chemical_pubchem_id': str}
+        weighted_drugbank_graph = get_weighted_drugbank_graph(
+            drugbank_graph=drugbank_graph,
+            potency_filepath=potency_filepath
         )
-        edge_weights = {
-            (chemical_pubchem, target_uniprot): normalized_pchembl
-            for chemical_pubchem,
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(weighted_drugbank_graph, DEFAULT_DRUGBANK_WEIGHTED_PICKLE)
+        return weighted_drugbank_graph
+    else:
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_PICKLE)
+        return drugbank_graph
+
+
+def get_weighted_drugbank_graph(
+        *,
+        drugbank_graph,
+        potency_filepath,
+):
+    potency_mapping = pd.read_csv(
+        potency_filepath,
+        sep='\t',
+        index_col=False,
+        dtype={'chemical_pubchem_id': str}
+    )
+    edge_weights = {
+        (chemical_pubchem, target_uniprot): normalized_pchembl
+        for chemical_pubchem,
             chemical_chembl,
             target_uniprot,
             target_chembl,
             pchembl,
             normalized_pchembl in potency_mapping.values
-        }
-        for source, target in drugbank_graph.edges():
-            for iden, edge_d in drugbank_graph[source][target].items():
-                if (str(source.identifier), str(target.identifier)) in edge_weights:
-                    drugbank_graph[source][target][iden]['weight'] = edge_weights[str(source.identifier),
-                                                                                  str(target.identifier)]
-                else:
-                    drugbank_graph[source][target][iden]['weight'] = 0.0
-        if os.path.exists(RESOURCES):
-            pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_WEIGHTED_PICKLE)
-    else:
-        if os.path.exists(RESOURCES):
-            pybel.to_pickle(drugbank_graph, DEFAULT_DRUGBANK_PICKLE)
-
+    }
+    for source, target in drugbank_graph.edges():
+        for iden, edge_d in drugbank_graph[source][target].items():
+            if (str(source.identifier), str(target.identifier)) in edge_weights:
+                drugbank_graph[source][target][iden]['weight'] = edge_weights[str(source.identifier),
+                                                                              str(target.identifier)]
+            else:
+                drugbank_graph[source][target][iden]['weight'] = 0.0
     return drugbank_graph
 
 
