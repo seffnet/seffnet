@@ -139,7 +139,7 @@ def get_combined_sider_drugbank(
     elif drugbank_graph_path is not None and os.path.exists(drugbank_graph_path):
         drugbank_graph = pybel.from_pickle(drugbank_graph_path)
     else:
-        drugbank_graph = get_drugbank_graph(rebuild=rebuild, weighted=weighted)
+        drugbank_graph = get_drugbank_graph(rebuild=rebuild, weighted=weighted, drug_namespace='pubchem.compound')
     smiles_dict = {}
     if chemical_mapping is not None:
         mapping_df = pd.read_csv(
