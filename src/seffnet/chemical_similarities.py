@@ -21,7 +21,7 @@ from tqdm import tqdm
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_CHEMSIM_PICKLE, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_MAPPING_PATH, PUBCHEM_NAMESPACE,
-    UNIPROT_NAMESPACE, DEFAULT_CHEMSIM_WEIGHTED_PICKLE)
+    UNIPROT_NAMESPACE, DEFAULT_CHEMSIM_WEIGHTED_PICKLE, DEFAULT_GRAPH_WEIGHTED_PATH)
 from .get_url_requests import cid_to_smiles, cid_to_synonyms
 
 
@@ -95,7 +95,9 @@ def get_similarity_graph(
     :param similarity: the percent in which the chemicals are similar
     :param mapping_file: an existing dataframe with pubchemIDs and Smiles
     """
-    if not rebuild and os.path.exists(DEFAULT_CHEMSIM_PICKLE):
+    if not rebuild and weighted and os.path.exists(DEFAULT_CHEMSIM_WEIGHTED_PICKLE):
+        return nx.read_edgelist(DEFAULT_CHEMSIM_WEIGHTED_PICKLE)
+    elif not rebuild and os.path.exists(DEFAULT_CHEMSIM_PICKLE):
         return nx.read_edgelist(DEFAULT_CHEMSIM_PICKLE)
     if type(fullgraph) == pybel.struct.graph.BELGraph:
         fullgraph_without_chemsim = fullgraph
@@ -190,12 +192,15 @@ def get_combined_graph_similarity(
         fullgraph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
         chemsim_graph_path=DEFAULT_CHEMSIM_PICKLE,
         mapping_file=DEFAULT_MAPPING_PATH,
-        new_graph_path=DEFAULT_GRAPH_PATH,
+        new_graph_path=None,
         pickle_graph_path=DEFAULT_FULLGRAPH_PICKLE,
-        rebuild: bool = False
+        rebuild: bool = False,
+        weighted: bool = False,
 ):
     """Combine chemical similarity graph with the fullgraph."""
-    if not rebuild and os.path.exists(DEFAULT_GRAPH_PATH):
+    if not rebuild and weighted and os.path.exists(DEFAULT_GRAPH_WEIGHTED_PATH):
+        return nx.read_edgelist(DEFAULT_GRAPH_WEIGHTED_PATH)
+    elif not rebuild and os.path.exists(DEFAULT_GRAPH_PATH):
         return nx.read_edgelist(DEFAULT_GRAPH_PATH)
     if type(fullgraph_path) == pybel.struct.graph.BELGraph:
         fullgraph_without_chemsim = fullgraph_path
@@ -227,7 +232,15 @@ def get_combined_graph_similarity(
                 row['node_id']
 
     nx.relabel_nodes(fullgraph_with_chemsim, relabel_graph, copy=False)
-    nx.write_edgelist(fullgraph_with_chemsim, new_graph_path, data=False)
+    if new_graph_path is None:
+        if weighted:
+            new_graph_path = DEFAULT_GRAPH_WEIGHTED_PATH
+        else:
+            new_graph_path = DEFAULT_GRAPH_PATH
+    if weighted:
+        nx.write_weighted_edgelist(fullgraph_with_chemsim, new_graph_path)
+    else:
+        nx.write_edgelist(fullgraph_with_chemsim, new_graph_path, data=False)
     return fullgraph_with_chemsim
 
 

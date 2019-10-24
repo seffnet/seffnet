@@ -16,11 +16,12 @@ from tqdm import tqdm
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
-    UNIPROT_NAMESPACE, DEFAULT_POTENCY_MAPPING_PATH, DEFAULT_DRUGBANK_WEIGHTED_PICKLE)
+    UNIPROT_NAMESPACE, DEFAULT_POTENCY_MAPPING_PATH, DEFAULT_DRUGBANK_WEIGHTED_PICKLE, DEFAULT_SIDER_WEIGHTED_PICKLE,
+    DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE, DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST)
 from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, inchikey_to_cid, get_gene_names
 
 
-def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
+def get_sider_graph(rebuild: bool = False, weighted: bool = False) -> pybel.BELGraph:
     """Get the SIDER graph."""
     if not rebuild and os.path.exists(DEFAULT_SIDER_PICKLE):
         return pybel.from_pickle(DEFAULT_SIDER_PICKLE)
@@ -32,8 +33,27 @@ def get_sider_graph(rebuild: bool = False) -> pybel.BELGraph:
         sider_manager.populate()
     sider_graph = sider_manager.to_bel()
 
-    if os.path.exists(RESOURCES):
-        pybel.to_pickle(sider_graph, DEFAULT_SIDER_PICKLE)
+    if weighted:
+        frequency_df = bio2bel_sider.parser.get_se_frequency_df()
+        frequency_dict = {}
+        for stitch_flat, stitch_stereo, umls, effect, desc, freq_lb, freq_up, meddra, umls_meddra, name in frequency_df.values:
+            pubchem_id = str(abs(int(stitch_flat[3:])) - 100000000)
+            freq = (freq_lb + freq_up)/2
+            frequency_dict[(pubchem_id, umls)] = freq
+        for source, target in sider_graph.edges():
+            for iden, edge_d in sider_graph[source][target].items():
+                if edge_d['relation'] == 'increases':
+                    sider_graph[source][target][iden]['weight'] = 1.0
+                else:
+                    if (str(source.identifier), str(target.identifier)) in frequency_dict:
+                        sider_graph[source][target][iden]['weight'] = frequency_dict[(source.identifier, target.identifier)]
+                    else:
+                        sider_graph[source][target][iden]['weight'] = 0.0
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(sider_graph, DEFAULT_SIDER_WEIGHTED_PICKLE)
+    else:
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(sider_graph, DEFAULT_SIDER_PICKLE)
 
     return sider_graph
 
@@ -94,6 +114,7 @@ def get_combined_sider_drugbank(
     rebuild: bool = False,
     drugbank_graph_path=None,
     sider_graph_path=None,
+    weighted: bool = False,
     chemical_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
 ):
     """
@@ -103,20 +124,22 @@ def get_combined_sider_drugbank(
     :param sider_graph_path: the path to sider graph
     :return: BELGraph
     """
-    if not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE):
+    if not rebuild and weighted and os.path.exists(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE):
+        return pybel.from_pickle(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE)
+    elif not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE):
         return pybel.from_pickle(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
     if type(sider_graph_path) == pybel.struct.graph.BELGraph:
         sider_graph = sider_graph_path
     elif sider_graph_path is not None and os.path.exists(sider_graph_path):
         sider_graph = pybel.from_pickle(sider_graph_path)
     else:
-        sider_graph = get_sider_graph()
+        sider_graph = get_sider_graph(rebuild=rebuild, weighted=weighted)
     if type(drugbank_graph_path) == pybel.struct.graph.BELGraph:
         drugbank_graph = drugbank_graph_path
     elif drugbank_graph_path is not None and os.path.exists(drugbank_graph_path):
         drugbank_graph = pybel.from_pickle(drugbank_graph_path)
     else:
-        drugbank_graph = get_drugbank_graph()
+        drugbank_graph = get_drugbank_graph(rebuild=rebuild, weighted=weighted)
     smiles_dict = {}
     if chemical_mapping is not None:
         mapping_df = pd.read_csv(
@@ -127,7 +150,7 @@ def get_combined_sider_drugbank(
         )
     else:
         mapping_df = None
-    for node in tqdm(sider_graph.nodes()):
+    for node in tqdm(sider_graph.nodes(), desc='get sider chemicals smiles'):
         if node.namespace != 'pubchem.compound':
             continue
         if node.identifier in mapping_df.values:
@@ -137,7 +160,7 @@ def get_combined_sider_drugbank(
             if not isinstance(smiles, str):
                 smiles = smiles.decode("utf-8")
         smiles_dict[node] = smiles
-    for node in tqdm(drugbank_graph.nodes()):
+    for node in tqdm(drugbank_graph.nodes(), desc='get drugbank chemicals smiles'):
         if node.namespace != 'pubchem.compound':
             continue
         if node in smiles_dict.keys():
@@ -154,17 +177,22 @@ def get_combined_sider_drugbank(
     full_graph = sider_relabeled + drugbank_relabeled
     smiles_dict_rev = {v: k for k, v in smiles_dict.items()}
     full_graph_relabel = nx.relabel_nodes(full_graph, smiles_dict_rev)
-    if os.path.exists(RESOURCES):
-        pybel.to_pickle(full_graph_relabel, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
+    if weighted:
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(full_graph_relabel, DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE)
+    else:
+        if os.path.exists(RESOURCES):
+            pybel.to_pickle(full_graph_relabel, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE)
     return full_graph_relabel
 
 
 def get_mapped_graph(
     *,
-    graph_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
+    graph_path=None,
     mapping_path=DEFAULT_MAPPING_PATH,
-    edgelist_path=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
+    edgelist_path=None,
     rebuild: bool = False,
+    weighted: bool = False,
 ):
     """
     Create graph mapping.
@@ -174,8 +202,20 @@ def get_mapped_graph(
     :param mapping_file_path: the path to save the node_mapping_df
     :return: a relabeled graph and a dataframe with the node information
     """
-    if not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST):
+    if not rebuild and weighted and os.path.exists(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST):
+        return nx.read_edgelist(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST)
+    elif not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST):
         return nx.read_edgelist(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST)
+    if graph_path is None:
+        if weighted:
+            graph_path = DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE
+        else:
+            graph_path = DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE
+    if edgelist_path is None:
+        if weighted:
+            edgelist_path = DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST
+        else:
+            edgelist_path = DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST
     if type(graph_path) == pybel.struct.graph.BELGraph:
         graph = graph_path
     else:
@@ -184,7 +224,7 @@ def get_mapped_graph(
     if os.path.exists(DEFAULT_CHEMICALS_MAPPING_PATH):
         chemical_mapping = pd.read_csv(
             DEFAULT_CHEMICALS_MAPPING_PATH,
-            sep="\t",
+            sep='\t',
             dtype={'pubchem_id': str, 'smiles': str},
             index_col=False,
         )
@@ -223,7 +263,10 @@ def get_mapped_graph(
     )
     node_mapping_df.to_csv(mapping_path, index=False, sep='\t')
     graph_id = nx.relabel_nodes(graph, relabel_graph)
-    nx.write_edgelist(graph_id, edgelist_path, data=False)
+    if weighted:
+        nx.write_weighted_edgelist(graph_id, edgelist_path)
+    else:
+        nx.write_edgelist(graph_id, edgelist_path, data=False)
     return graph_id
 
 

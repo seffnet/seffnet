@@ -26,7 +26,11 @@ __all__ = [
     'DEFAULT_TESTING_SET',
     'DEFAULT_POTENCY_MAPPING_PATH',
     'DEFAULT_DRUGBANK_WEIGHTED_PICKLE',
-    'DEFAULT_CHEMSIM_WEIGHTED_PICKLE'
+    'DEFAULT_CHEMSIM_WEIGHTED_PICKLE',
+    'DEFAULT_SIDER_WEIGHTED_PICKLE',
+    'DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE',
+    'DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST',
+    'DEFAULT_GRAPH_WEIGHTED_PATH'
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
@@ -40,8 +44,11 @@ BASIC_GRAPHS = os.path.join(RESOURCES, 'basic_graphs')
 DEFAULT_DRUGBANK_PICKLE = os.path.join(BASIC_GRAPHS, 'drugbank_graph.pickle')
 DEFAULT_DRUGBANK_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, 'drugbank_weighted_graph.pickle')
 DEFAULT_SIDER_PICKLE = os.path.join(BASIC_GRAPHS, 'sider_graph.pickle')
+DEFAULT_SIDER_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, 'sider_weighted_graph.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.edgelist')
+DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph_weighted_without_chemsim.pickle')
+DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_weighted_without_chemsim.edgelist')
 
 PREDICTIVE_MODELS = os.path.join(RESOURCES, "predictive_models")
 EMBEDDINGS = os.path.join(RESOURCES, "embeddings")
@@ -61,6 +68,7 @@ DEFAULT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_graph.pickle")
 DEFAULT_CHEMSIM_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_weighted_graph.pickle")
 DEFAULT_FULLGRAPH_PICKLE = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.pickle")
 DEFAULT_GRAPH_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.edgelist")
+DEFAULT_GRAPH_WEIGHTED_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim_weighted.edgelist")
 DEFAULT_TRAINING_SET = os.path.join(BASIC_GRAPHS, "training_set.edgelist")
 DEFAULT_TESTING_SET = os.path.join(BASIC_GRAPHS, "testing_set.edgelist")
 
