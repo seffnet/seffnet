@@ -21,7 +21,7 @@ from tqdm import tqdm
 from .constants import (
     DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_CHEMSIM_PICKLE, DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE,
     DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_MAPPING_PATH, PUBCHEM_NAMESPACE,
-    UNIPROT_NAMESPACE)
+    UNIPROT_NAMESPACE, DEFAULT_CHEMSIM_WEIGHTED_PICKLE)
 from .get_url_requests import cid_to_smiles, cid_to_synonyms
 
 
@@ -51,7 +51,7 @@ def get_similarity(pubchem_id_to_fingerprint):
     :return: a dictionary with the pair chemicals as key and similarity calculation as value
     """
     chem_sim = {
-        (pubchem_id_1, pubchem_id_2): DataStructs.FingerprintSimilarity(mol_1, mol_2)
+        (pubchem_id_1, pubchem_id_2): round(DataStructs.FingerprintSimilarity(mol_1, mol_2), 3)
         for (pubchem_id_1, mol_1), (pubchem_id_2, mol_2) in
         tqdm(itt.combinations(pubchem_id_to_fingerprint.items(), 2), desc='Calculating Similarities')
     }
@@ -79,8 +79,9 @@ def get_similarity_graph(
     fullgraph=DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE,
     rebuild: bool = False,
     mapping_file=DEFAULT_CHEMICALS_MAPPING_PATH,
-    chemsim_graph_path=DEFAULT_CHEMSIM_PICKLE,
+    chemsim_graph_path = None,
     clustered: bool = True,
+    weighted: bool = False,
     similarity=0.7,
     name='Chemical Similarity Graph',
     version='1.1.0',
@@ -110,14 +111,14 @@ def get_similarity_graph(
         chemicals_mapping = pd.read_csv(
             mapping_file,
             sep="\t",
-            dtype={'PubchemID': str, 'Smiles': str},
+            dtype={'pubchem_id': str, 'smiles': str},
             index_col=False,
         )
         pubchem_id_to_smiles = {}
         new_chemicals = []
         smiles = []
         for pubchem_id in tqdm(pubchem_ids, desc="Getting SMILES"):
-            if chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id].empty:
+            if chemicals_mapping.loc[chemicals_mapping["pubchem_id"] == pubchem_id].empty:
                 chemical_smiles = cid_to_smiles(pubchem_id)
                 if not isinstance(chemical_smiles, str):
                     chemical_smiles = chemical_smiles.decode("utf-8")
@@ -125,9 +126,9 @@ def get_similarity_graph(
                 new_chemicals.append(pubchem_id)
                 smiles.append(chemical_smiles)
             else:
-                pubchem_id_to_smiles[pubchem_id] = chemicals_mapping.loc[chemicals_mapping["PubchemID"] == pubchem_id,
-                                                                         "Smiles"].iloc[0]
-        new_df = pd.DataFrame({"PubchemID": new_chemicals, "Smiles": smiles})
+                pubchem_id_to_smiles[pubchem_id] = chemicals_mapping.loc[chemicals_mapping["pubchem_id"] == pubchem_id,
+                                                                         "smiles"].iloc[0]
+        new_df = pd.DataFrame({"pubchem_id": new_chemicals, "smiles": smiles})
         chemicals_mapping = chemicals_mapping.append(new_df)
         chemicals_mapping.to_csv(mapping_file, sep='\t', index=False)
     else:
@@ -138,6 +139,8 @@ def get_similarity_graph(
     chemsim_graph = pybel.BELGraph(name, version, description, authors, contact)
 
     if clustered:
+        if weighted:
+            similarities = get_similarity(pubchem_id_to_fingerprint)
         clustered_df = cluster_chemicals(rebuild=True, chemicals_dict=pubchem_id_to_fingerprint)
         clusters = clustered_df['Cluster'].unique().tolist()
         for cluster in tqdm(clusters, desc='Creating similarity BELGraph'):
@@ -154,18 +157,31 @@ def get_similarity_graph(
                                                                                                   chemical_01):
                         continue
                     chemsim_graph.add_unqualified_edge(chemical_01, chemical_02, 'association')
+                    if weighted:
+                        if (row['PubchemID'], row1['PubchemID']) in similarities:
+                            sim = similarities[(row['PubchemID'], row1['PubchemID'])]
+                        else:
+                            sim = similarities[(row1['PubchemID'], row['PubchemID'])]
+                        for iden, edge_d in chemsim_graph[chemical_01][chemical_02].items():
+                            chemsim_graph[chemical_01][chemical_02][iden]['weight'] = sim
     else:
         similarities = get_similarity(pubchem_id_to_fingerprint)
         for (source_pubchem_id, target_pubchem_id), sim in tqdm(similarities.items(),
                                                                 desc='Creating similarity BELGraph'):
             if sim < similarity:
                 continue
-            chemsim_graph.add_unqualified_edge(
-                pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=source_pubchem_id),
-                pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id),
-                'association',
-            )
-    pybel.to_pickle(chemsim_graph, chemsim_graph_path)
+            node_1 = pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=source_pubchem_id)
+            node_2 = pybel.dsl.Abundance(namespace=PUBCHEM_NAMESPACE, identifier=target_pubchem_id)
+            chemsim_graph.add_unqualified_edge(node_1, node_2, 'association')
+            if weighted:
+                for iden, edge_d in chemsim_graph[node_1][node_2].items():
+                    chemsim_graph[node_1][node_2][iden]['weight'] = sim
+    if chemsim_graph_path is not None:
+        pybel.to_pickle(chemsim_graph, chemsim_graph_path)
+    elif weighted:
+        pybel.to_pickle(chemsim_graph, DEFAULT_CHEMSIM_WEIGHTED_PICKLE)
+    else:
+        pybel.to_pickle(chemsim_graph, DEFAULT_CHEMSIM_PICKLE)
     return chemsim_graph
 
 

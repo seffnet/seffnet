@@ -25,7 +25,8 @@ __all__ = [
     'DEFAULT_TRAINING_SET',
     'DEFAULT_TESTING_SET',
     'DEFAULT_POTENCY_MAPPING_PATH',
-    'DEFAULT_DRUGBANK_WEIGHTED_PICKLE'
+    'DEFAULT_DRUGBANK_WEIGHTED_PICKLE',
+    'DEFAULT_CHEMSIM_WEIGHTED_PICKLE'
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
@@ -57,6 +58,7 @@ DEFAULT_POTENCY_MAPPING_PATH = os.path.join(MAPPING, "potency_mapping.tsv")
 
 CHEMSIM_50_GRAPHS = os.path.join(RESOURCES, "chemsim_50_graphs")
 DEFAULT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_graph.pickle")
+DEFAULT_CHEMSIM_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_weighted_graph.pickle")
 DEFAULT_FULLGRAPH_PICKLE = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.pickle")
 DEFAULT_GRAPH_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.edgelist")
 DEFAULT_TRAINING_SET = os.path.join(BASIC_GRAPHS, "training_set.edgelist")
