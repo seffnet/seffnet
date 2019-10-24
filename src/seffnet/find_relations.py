@@ -150,7 +150,6 @@ class Predictor:
         return self.node_curie_to_id.get((namespace, identifier))
 
     def _predict_helper(self, q):
-        # FIXME is this a 0 or a 1?!?!
         return self.model.predict_proba(q)[:, 0]
 
     def _get_entity_json(self, node_id: str) -> NodeInfo:
@@ -184,12 +183,11 @@ class Predictor:
         """Get the probability of having a relation between two entities."""
         source_id = self._lookup_node(node_id=source_id, node_curie=source_curie, node_name=source_name)
         target_id = self._lookup_node(node_id=target_id, node_curie=target_curie, node_name=target_name)
-        p = self.get_edge_probability(source_id, target_id)
+        lor = self.get_edge_probability(source_id, target_id)
         return {
             'source': self._get_entity_json(source_id),
             'target': self._get_entity_json(target_id),
-            'p': round(p, self.precision),
-            'mlp': -round(np.log10(p), self.precision),
+            'lor': round(lor, self.precision),
         }
 
     def get_edge_embedding(self, source_id: str, target_id: str) -> np.ndarray:
@@ -250,14 +248,13 @@ class Predictor:
         probabilities = self._predict_helper(relations)
         results = [
             {
-                'p': round(p, self.precision),
-                'mlp': -round(np.log10(p), self.precision),
+                'lor': round(lor, self.precision),
                 'novel': novel,
                 **node
             }
-            for node, p, novel in zip(nodes, probabilities, relation_novelties)
+            for node, lor, novel in zip(nodes, probabilities, relation_novelties)
         ]
-        results = sorted(results, key=itemgetter('p'))
+        results = sorted(results, key=itemgetter('lor'))
         if not self.positive_control:
             # results = [result for result in results if result['novel']]
             results = list(filter(itemgetter('novel'), results))
