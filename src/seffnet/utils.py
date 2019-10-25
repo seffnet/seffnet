@@ -9,17 +9,17 @@ import os
 import random
 from typing import Any, Mapping, Optional
 
+
+from bionev import pipeline
+from bionev.embed_train import embedding_training
+from sklearn.model_selection import GroupShuffleSplit
 import networkx as nx
 import numpy as np
 import optuna
 import pandas as pd
 import pybel
-
-from bionev import pipeline
-from bionev.embed_train import embedding_training
-from sklearn.model_selection import GroupShuffleSplit
-from tqdm import tqdm
 from bionev.utils import read_node_labels
+from tqdm import tqdm
 
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,

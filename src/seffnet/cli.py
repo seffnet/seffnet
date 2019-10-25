@@ -8,9 +8,9 @@ import random
 import sys
 
 import click
-import joblib
 
 import bionev.OpenNE.graph as Og
+import joblib
 import networkx as nx
 import numpy as np
 from bionev.pipeline import create_prediction_model
