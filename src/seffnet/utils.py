@@ -9,16 +9,15 @@ import os
 import random
 from typing import Any, Mapping, Optional
 
-
-from bionev import pipeline
-from bionev.embed_train import embedding_training
 import networkx as nx
 import numpy as np
 import optuna
 import pandas as pd
 import pybel
-from sklearn.model_selection import GroupShuffleSplit
+from bionev import pipeline
+from bionev.embed_train import embedding_training
 from bionev.utils import read_node_labels
+from sklearn.model_selection import GroupShuffleSplit
 from tqdm import tqdm
 
 from .constants import (
