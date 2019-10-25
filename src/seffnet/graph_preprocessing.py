@@ -352,7 +352,6 @@ def map_chemical_target_potency(
         mapping_filepath=DEFAULT_POTENCY_MAPPING_PATH,
 ):
     """Extract chemical to target potency from chembl and normalize the values."""
-
     from chembl_webresource_client.new_client import new_client
 
     graph = nx.DiGraph(nx.read_gpickle(graph_path))
