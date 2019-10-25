@@ -10,12 +10,11 @@ from typing import Optional, Union
 
 import numpy as np
 import optuna
-from optuna import Study, Trial
-from optuna.storages import BaseStorage
-
 from bionev import embed_train
 from bionev.OpenNE.line import LINE
 from bionev.pipeline import do_link_prediction, do_node_classification
+from optuna import Study, Trial
+from optuna.storages import BaseStorage
 
 
 def run_study(

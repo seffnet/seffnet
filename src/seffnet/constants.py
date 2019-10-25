@@ -30,7 +30,8 @@ __all__ = [
     'DEFAULT_SIDER_WEIGHTED_PICKLE',
     'DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE',
     'DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST',
-    'DEFAULT_GRAPH_WEIGHTED_PATH'
+    'DEFAULT_GRAPH_WEIGHTED_PATH',
+    'DEFAULT_WEIGHTED_FULLGRAPH_PICKLE',
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
@@ -47,15 +48,20 @@ DEFAULT_SIDER_PICKLE = os.path.join(BASIC_GRAPHS, 'sider_graph.pickle')
 DEFAULT_SIDER_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, 'sider_weighted_graph.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.pickle')
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.edgelist')
-DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph_weighted_without_chemsim.pickle')
-DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_weighted_without_chemsim.edgelist')
+DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE = os.path.join(
+    BASIC_GRAPHS,
+    'fullgraph_weighted_without_chemsim.pickle'
+)
+DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST = os.path.join(
+    BASIC_GRAPHS,
+    'fullgraph_weighted_without_chemsim.edgelist'
+)
 
 PREDICTIVE_MODELS = os.path.join(RESOURCES, "predictive_models")
 EMBEDDINGS = os.path.join(RESOURCES, "embeddings")
 TRAINING_MODELS = os.path.join(RESOURCES, "training_models")
 DEFAULT_EMBEDDINGS_PATH = os.path.join(EMBEDDINGS, "1209_node2vec_emb.embeddings")
 DEFAULT_PREDICTIVE_MODEL_PATH = os.path.join(PREDICTIVE_MODELS, "1209_node2vec_predictive_model.pkl")
-#DEFAULT_TRAINING_MODEL_PATH = os.path.join(TRAINING_MODELS, )
 
 MAPPING = os.path.join(RESOURCES, "mapping")
 DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "chemicals_mapping.tsv")
@@ -67,8 +73,8 @@ CHEMSIM_50_GRAPHS = os.path.join(RESOURCES, "chemsim_50_graphs")
 DEFAULT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_graph.pickle")
 DEFAULT_CHEMSIM_WEIGHTED_PICKLE = os.path.join(BASIC_GRAPHS, "chemsim_weighted_graph.pickle")
 DEFAULT_FULLGRAPH_PICKLE = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.pickle")
+DEFAULT_WEIGHTED_FULLGRAPH_PICKLE = os.path.join(BASIC_GRAPHS, "fullgraph_weighted_with_chemsim.pickle")
 DEFAULT_GRAPH_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.edgelist")
-DEFAULT_GRAPH_WEIGHTED_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim_weighted.edgelist")
+DEFAULT_GRAPH_WEIGHTED_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_weighted_with_chemsim.edgelist")
 DEFAULT_TRAINING_SET = os.path.join(BASIC_GRAPHS, "training_set.edgelist")
 DEFAULT_TESTING_SET = os.path.join(BASIC_GRAPHS, "testing_set.edgelist")
-

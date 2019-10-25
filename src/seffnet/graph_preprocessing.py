@@ -14,11 +14,13 @@ from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
 
 from .constants import (
-    DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST,
-    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_SIDER_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
-    UNIPROT_NAMESPACE, DEFAULT_POTENCY_MAPPING_PATH, DEFAULT_DRUGBANK_WEIGHTED_PICKLE, DEFAULT_SIDER_WEIGHTED_PICKLE,
-    DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE, DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST)
-from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, inchikey_to_cid, get_gene_names
+    DEFAULT_CHEMICALS_MAPPING_PATH, DEFAULT_DRUGBANK_PICKLE, DEFAULT_DRUGBANK_WEIGHTED_PICKLE,
+    DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST, DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE,
+    DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST, DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE, DEFAULT_MAPPING_PATH,
+    DEFAULT_POTENCY_MAPPING_PATH, DEFAULT_SIDER_PICKLE, DEFAULT_SIDER_WEIGHTED_PICKLE, PUBCHEM_NAMESPACE, RESOURCES,
+    UNIPROT_NAMESPACE
+)
+from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, get_gene_names, inchikey_to_cid
 
 
 def get_sider_graph(rebuild: bool = False, weighted: bool = False) -> pybel.BELGraph:
@@ -36,9 +38,10 @@ def get_sider_graph(rebuild: bool = False, weighted: bool = False) -> pybel.BELG
     if weighted:
         frequency_df = bio2bel_sider.parser.get_se_frequency_df()
         frequency_dict = {}
-        for stitch_flat, stitch_stereo, umls, effect, desc, freq_lb, freq_up, meddra, umls_meddra, name in frequency_df.values:
+        for stitch_flat, stitch_stereo, umls, effect, desc, freq_lb, freq_up, meddra, umls_meddra, name \
+                in frequency_df.values:
             pubchem_id = str(abs(int(stitch_flat[3:])) - 100000000)
-            freq = (freq_lb + freq_up)/2
+            freq = (freq_lb + freq_up) / 2
             frequency_dict[(pubchem_id, umls)] = freq
         for source, target in sider_graph.edges():
             for iden, edge_d in sider_graph[source][target].items():
@@ -46,7 +49,8 @@ def get_sider_graph(rebuild: bool = False, weighted: bool = False) -> pybel.BELG
                     sider_graph[source][target][iden]['weight'] = 1.0
                 else:
                     if (str(source.identifier), str(target.identifier)) in frequency_dict:
-                        sider_graph[source][target][iden]['weight'] = frequency_dict[(source.identifier, target.identifier)]
+                        sider_graph[source][target][iden]['weight'] = frequency_dict[
+                            (source.identifier, target.identifier)]
                     else:
                         sider_graph[source][target][iden]['weight'] = 0.0
         if os.path.exists(RESOURCES):
@@ -96,6 +100,7 @@ def get_weighted_drugbank_graph(
         drugbank_graph,
         potency_filepath,
 ):
+    """Get the weighted DrugBank graph."""
     potency_mapping = pd.read_csv(
         potency_filepath,
         sep='\t',
@@ -105,11 +110,11 @@ def get_weighted_drugbank_graph(
     edge_weights = {
         (chemical_pubchem, target_uniprot): normalized_pchembl
         for chemical_pubchem,
-            chemical_chembl,
-            target_uniprot,
-            target_chembl,
-            pchembl,
-            normalized_pchembl in potency_mapping.values
+        chemical_chembl,
+        target_uniprot,
+        target_chembl,
+        pchembl,
+        normalized_pchembl in potency_mapping.values
     }
     for source, target in drugbank_graph.edges():
         for iden, edge_d in drugbank_graph[source][target].items():
@@ -122,12 +127,12 @@ def get_weighted_drugbank_graph(
 
 
 def get_combined_sider_drugbank(
-    *,
-    rebuild: bool = False,
-    drugbank_graph_path=None,
-    sider_graph_path=None,
-    weighted: bool = False,
-    chemical_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
+        *,
+        rebuild: bool = False,
+        drugbank_graph_path=None,
+        sider_graph_path=None,
+        weighted: bool = False,
+        chemical_mapping=DEFAULT_CHEMICALS_MAPPING_PATH,
 ):
     """
     Combine the SIDER and DrugBank graphs.
@@ -199,12 +204,12 @@ def get_combined_sider_drugbank(
 
 
 def get_mapped_graph(
-    *,
-    graph_path=None,
-    mapping_path=DEFAULT_MAPPING_PATH,
-    edgelist_path=None,
-    rebuild: bool = False,
-    weighted: bool = False,
+        *,
+        graph_path=None,
+        mapping_path=DEFAULT_MAPPING_PATH,
+        edgelist_path=None,
+        rebuild: bool = False,
+        weighted: bool = False,
 ):
     """
     Create graph mapping.
@@ -283,10 +288,10 @@ def get_mapped_graph(
 
 
 def get_chemicals_mapping_file(
-    *,
-    drugbank_file=None,
-    mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
-    rebuild: bool = False,
+        *,
+        drugbank_file=None,
+        mapping_filepath=DEFAULT_CHEMICALS_MAPPING_PATH,
+        rebuild: bool = False,
 ):
     """
     Create a tsv file containing chemical mapping information.
@@ -374,18 +379,20 @@ def map_chemical_target_potency(
                 molecule = new_client.molecule
                 m1 = molecule.get(inchikey)
                 chemical_chembl = m1['molecule_chembl_id']
-            except:
-                continue
+            except Exception:
+                chemical_chembl = None
         else:
             chemical_chembl = chemicals_info[edge[0].identifier]['chembl_id']
         try:
             target = get_gene_names([edge[1].identifier], to_id='CHEMBL_ID')
             target_chembl = target[edge[1].identifier]
-        except:
+        except Exception:
+            target_chembl = None
+        if target_chembl is None or chemical_chembl is None:
             continue
         activities = new_client.activity
         results = activities.filter(molecule_chembl_id=chemical_chembl, target_chembl_id=target_chembl,
-                            pchembl_value__isnull=False)
+                                    pchembl_value__isnull=False)
         pchembls = np.array([float(result['pchembl_value']) for result in results])
         if pchembls.size:
             avg_pchembl = np.mean(pchembls)
