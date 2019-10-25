@@ -8,7 +8,6 @@ import random
 import sys
 
 import click
-
 import bionev.OpenNE.graph as Og
 import joblib
 import networkx as nx

@@ -12,12 +12,12 @@ from typing import Any, Mapping, Optional
 
 from bionev import pipeline
 from bionev.embed_train import embedding_training
-from sklearn.model_selection import GroupShuffleSplit
 import networkx as nx
 import numpy as np
 import optuna
 import pandas as pd
 import pybel
+from sklearn.model_selection import GroupShuffleSplit
 from bionev.utils import read_node_labels
 from tqdm import tqdm
 
