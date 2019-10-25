@@ -75,7 +75,7 @@ def get_fingerprints(pubchem_id_to_smiles):
     return pubchem_id_to_fingerprint
 
 
-def parse_chemical_mapping(mapping_file):
+def parse_chemical_mapping(mapping_file, pubchem_ids):
     """Parse chemical mapping file and create pubchem to smiles dict."""
     chemicals_mapping = pd.read_csv(
         mapping_file,
@@ -108,6 +108,7 @@ def create_clustered_chemsim_graph(
         pubchem_id_to_fingerprint,
         chemsim_graph,
         weighted: bool = False):
+    """Create clustered chemsim graph."""
     if weighted:
         similarities = get_similarity(pubchem_id_to_fingerprint)
     clustered_df = cluster_chemicals(rebuild=True, chemicals_dict=pubchem_id_to_fingerprint)
@@ -172,7 +173,7 @@ def get_similarity_graph(
         pubchem_ids.append(node.identifier)
 
     if os.path.exists(mapping_file):
-        pubchem_id_to_smiles = parse_chemical_mapping(mapping_file)
+        pubchem_id_to_smiles = parse_chemical_mapping(mapping_file, pubchem_ids)
     else:
         pubchem_id_to_smiles = get_smiles(pubchem_ids)
 

@@ -15,15 +15,16 @@ import optuna
 import pandas as pd
 import pybel
 from sklearn.model_selection import GroupShuffleSplit
-from tqdm import tqdm
 
 from bionev import pipeline
+from tqdm import tqdm
 from bionev.embed_train import embedding_training
 from bionev.utils import read_node_labels
 from .constants import (
     DEFAULT_CLUSTERED_CHEMICALS, DEFAULT_FULLGRAPH_PICKLE, DEFAULT_MAPPING_PATH, DEFAULT_TESTING_SET,
     DEFAULT_TRAINING_SET,
 )
+
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,

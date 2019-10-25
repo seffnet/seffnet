@@ -10,10 +10,11 @@ import sys
 import click
 import joblib
 import networkx as nx
+
+import bionev.OpenNE.graph as Og
+from bionev.pipeline import create_prediction_model
 import numpy as np
 
-import bionev.OpenNE.graph as og
-from bionev.pipeline import create_prediction_model
 from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
@@ -257,11 +258,11 @@ def update(
         new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph,
                                       updated_graph_path=updated_graph_path, chemsim_graph_path=chemsim_graph_path,
                                       pickled_graph_path=pickled_graph_path)
-        graph = og.Graph()
+        graph = Og.Graph()
         graph.read_g(new_graph)
     else:
         click.secho('Loading graph', fg='blue', bold=True)
-        graph = og.Graph()
+        graph = Og.Graph()
         graph.read_edgelist(updated_graph, weighted=False)
     click.secho('Loading training model', fg='blue', bold=True)
     model = joblib.load(training_model_path)
