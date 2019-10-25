@@ -8,7 +8,6 @@ import networkx as nx
 import numpy as np
 import pandas as pd
 import pybel
-from chembl_webresource_client.new_client import new_client
 from defusedxml import ElementTree
 from sklearn.preprocessing import MinMaxScaler
 from tqdm import tqdm
@@ -353,6 +352,9 @@ def map_chemical_target_potency(
         mapping_filepath=DEFAULT_POTENCY_MAPPING_PATH,
 ):
     """Extract chemical to target potency from chembl and normalize the values."""
+
+    from chembl_webresource_client.new_client import new_client
+
     graph = nx.DiGraph(nx.read_gpickle(graph_path))
     chemicals_info = {}
     if os.path.exists(chemicals_mapping):
