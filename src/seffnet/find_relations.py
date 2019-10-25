@@ -76,12 +76,13 @@ class Predictor:
         node_id_to_info = {}
         node_curie_to_id = {}
         node_name_to_id = {}
-        for node_id, namespace, identifier, name in mapping.values:
+        for node_id, namespace, identifier, name, entity_type in mapping.values:
             node_id_to_info[node_id] = dict(
                 node_id=node_id,
                 namespace=namespace,
                 identifier=identifier,
                 name=name,
+                entity_type=entity_type
             )
             node_curie_to_id[namespace, identifier] = node_id
             node_name_to_id[name] = node_id

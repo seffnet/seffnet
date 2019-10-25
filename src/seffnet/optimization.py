@@ -523,7 +523,7 @@ def line_optimization(
 
 
 def _set_trial_seed(trial: Trial) -> int:
-    new_seed = random.randrange(sys.maxsize)
+    new_seed = random.randrange(2**32 - 1)
     np.random.seed(new_seed)
     random.seed(new_seed)
     trial.set_user_attr('inner_seed', new_seed)
