@@ -26,7 +26,7 @@ TESTING_PATH = click.option('--testing-path', help='testing graph file. Only acc
 METHOD = click.option('--method', required=True,
                       type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
                       help='The NRL method to train the model')
-SEED = click.option('--seed', type=int, default=random.randrange(sys.maxsize))
+SEED = click.option('--seed', type=int, default=random.randrange(2**32 - 1))
 DIMENSIONS = click.option('--dimensions', type=int, default=200, help='The dimensions of embeddings.')
 NUMBER_WALKS = click.option('--number-walks', type=int, default=8, help='The number of walks for random-walk methods.')
 WALK_LENGTH = click.option('--walk-length', type=int, default=32, help='The walk length for random-walk methods.')
