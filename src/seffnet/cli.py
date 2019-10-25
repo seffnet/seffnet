@@ -9,11 +9,11 @@ import sys
 
 import click
 import joblib
-import networkx as nx
 
 import bionev.OpenNE.graph as Og
-from bionev.pipeline import create_prediction_model
+import networkx as nx
 import numpy as np
+from bionev.pipeline import create_prediction_model
 
 from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
