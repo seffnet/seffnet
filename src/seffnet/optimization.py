@@ -42,7 +42,7 @@ def run_study(
     )
     study.set_user_attr('Author', getuser())
     study.set_user_attr('Date', datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
-    study.set_user_attr('seed', study_seed)
+    study.set_user_attr('Seed', study_seed)
     study.optimize(objective, n_trials=n_trials)
     return study
 
@@ -289,7 +289,6 @@ def node2vec_optimization(
 
         # Set the inner trial seed
         _set_trial_seed(trial)
-
         model = embed_train.train_embed_node2vec(
             train_graph_filename=train_graph_filename,
             dimensions=dimensions,
