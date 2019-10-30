@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import pybel
 from defusedxml import ElementTree
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, QuantileTransformer
 from tqdm import tqdm
 
 from .constants import (
@@ -24,6 +24,8 @@ from .get_url_requests import cid_to_inchikey, cid_to_smiles, cid_to_synonyms, g
 
 def get_sider_graph(rebuild: bool = False, weighted: bool = False) -> pybel.BELGraph:
     """Get the SIDER graph."""
+    if not rebuild and os.path.exists(DEFAULT_SIDER_WEIGHTED_PICKLE) and weighted:
+        return pybel.from_pickle(DEFAULT_SIDER_WEIGHTED_PICKLE)
     if not rebuild and os.path.exists(DEFAULT_SIDER_PICKLE):
         return pybel.from_pickle(DEFAULT_SIDER_PICKLE)
 
@@ -42,9 +44,13 @@ def get_sider_graph(rebuild: bool = False, weighted: bool = False) -> pybel.BELG
             pubchem_id = str(abs(int(stitch_flat[3:])) - 100000000)
             freq = (freq_lb + freq_up) / 2
             frequency_dict[(pubchem_id, umls)] = freq
+        scaler = QuantileTransformer()
+        freq_scaled = scaler.fit_transform(np.array(list(frequency_dict.values())).reshape(-1, 1))
+        for i, key in enumerate(frequency_dict.keys()):
+            frequency_dict[key] = freq_scaled[i][0]
         for source, target in sider_graph.edges():
             for iden, edge_d in sider_graph[source][target].items():
-                if edge_d['relation'] == 'increases':
+                if edge_d['relation'] == 'decreases':
                     sider_graph[source][target][iden]['weight'] = 1.0
                 else:
                     if (str(source.identifier), str(target.identifier)) in frequency_dict:
