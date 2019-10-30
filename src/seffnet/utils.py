@@ -32,7 +32,7 @@ from .optimization import (
 
 def study_to_json(study: optuna.Study, prediction_task) -> Mapping[str, Any]:
     """Serialize a study to JSON."""
-    if prediction_task == 'link-prediction':
+    if prediction_task == 'link_prediction':
         return {
             'n_trials': len(study.trials),
             'name': study.study_name,
@@ -527,6 +527,7 @@ def repeat_experiment(
     if evaluation_file is not None:
         json.dump(all_results, evaluation_file, sort_keys=True, indent=2)
     return all_results
+
 
 def create_subgraph(
     *,
