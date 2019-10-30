@@ -527,3 +527,73 @@ def repeat_experiment(
     if evaluation_file is not None:
         json.dump(all_results, evaluation_file, sort_keys=True, indent=2)
     return all_results
+
+def create_subgraph(
+    *,
+    fullgraph_path,
+    source_name=None,
+    source_identifier=None,
+    source_type,
+    target_name=None,
+    target_identifier=None,
+    target_type,
+    weighted=False,
+    mapping_path=DEFAULT_MAPPING_PATH,
+):
+    """Create subgraph."""
+    fullgraph = pybel.from_pickle(fullgraph_path)
+    for edge in fullgraph.edges():
+        for ind, edge_d in fullgraph[edge[0]][edge[1]].items():
+            edge_d['weight'] = 1 - edge_d['weight']
+    mapping_df = pd.read_csv(
+        mapping_path,
+        sep="\t",
+        dtype={'identifier': str},
+        index_col=False,
+    ).dropna(axis=0, how='any', thresh=None, subset=None, inplace=False)
+    mapping_dict = {}
+    for ind, row in mapping_df.iterrows():
+        if row['namespace'] != 'pubchem.compound':
+            continue
+        if row['name'] == None:
+            continue
+        mapping_dict[
+            pybel.dsl.Abundance(namespace='pubchem.compound', identifier=row['identifier'])] = pybel.dsl.Abundance(
+            namespace='pubchem.compound', name=row['name'])
+    if source_type == 'chemical':
+        source = pybel.dsl.Abundance(namespace='pubchem.compound', identifier=source_identifier)
+    elif source_type == 'protein':
+        source = pybel.dsl.Protein(namespace='uniprot', name=source_name, identifier=source_identifier)
+    elif source_type == 'phenotype':
+        source = pybel.dsl.Pathology(namespace='umls', name=source_name, identifier=source_identifier)
+    else:
+        raise Exception('Source type is not valid!')
+    if target_type == 'chemical':
+        target = pybel.dsl.Abundance(namespace='pubchem.compound', identifier=target_identifier)
+    elif target_type == 'protein':
+        target = pybel.dsl.Protein(namespace='uniprot', name=target_name, identifier=target_identifier)
+    elif target_type == 'phenotype':
+        target = pybel.dsl.Pathology(namespace='umls', name=target_name, identifier=target_identifier)
+    else:
+        raise Exception('Target type is not valid!')
+    fullgraph_undirected = fullgraph.to_undirected()
+    if weighted:
+        paths = [p for p in nx.all_shortest_paths(fullgraph_undirected,source=source,target=target, weight='weight')]
+    else:
+        paths = [p for p in nx.all_shortest_paths(fullgraph_undirected,source=source,target=target, weight='weight')]
+    subgraph_nodes=[]
+    if len(paths) > 100:
+        for path in random.sample(paths, 10):
+            for node in path:
+                if node in subgraph_nodes:
+                    continue
+                subgraph_nodes.append(node)
+    else:
+        for path in paths:
+            for node in path:
+                if node in subgraph_nodes:
+                    continue
+                subgraph_nodes.append(node)
+    subgraph = fullgraph.subgraph(subgraph_nodes)
+    subgraph = nx.relabel_nodes(subgraph, mapping_dict)
+    return subgraph
