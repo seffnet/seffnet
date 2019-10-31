@@ -225,7 +225,7 @@ def get_mapped_graph(
     :return: a relabeled graph and a dataframe with the node information
     """
     if not rebuild and weighted and os.path.exists(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST):
-        return nx.read_edgelist(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST)
+        return nx.read_weighted_edgelist(DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST)
     elif not rebuild and os.path.exists(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST):
         return nx.read_edgelist(DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST)
     if graph_path is None:
