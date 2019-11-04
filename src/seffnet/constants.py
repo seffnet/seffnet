@@ -32,6 +32,8 @@ __all__ = [
     'DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST',
     'DEFAULT_GRAPH_WEIGHTED_PATH',
     'DEFAULT_WEIGHTED_FULLGRAPH_PICKLE',
+    'DEFAULT_WEIGHTED_TESTING_SET',
+    'DEFAULT_WEIGHTED_TRAINING_SET'
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
@@ -60,8 +62,8 @@ DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST = os.path.join(
 PREDICTIVE_MODELS = os.path.join(RESOURCES, "predictive_models")
 EMBEDDINGS = os.path.join(RESOURCES, "embeddings")
 TRAINING_MODELS = os.path.join(RESOURCES, "training_models")
-DEFAULT_EMBEDDINGS_PATH = os.path.join(EMBEDDINGS, "2510_weighted_node2vec_emb.embeddings")
-DEFAULT_PREDICTIVE_MODEL_PATH = os.path.join(PREDICTIVE_MODELS, "2510_weighted_node2vec_predictive_model.pkl")
+DEFAULT_EMBEDDINGS_PATH = os.path.join(EMBEDDINGS, "0411_weighted_node2vec_emb.embeddings")
+DEFAULT_PREDICTIVE_MODEL_PATH = os.path.join(PREDICTIVE_MODELS, "0411_weighted_node2vec_predictive_model.pkl")
 
 MAPPING = os.path.join(RESOURCES, "mapping")
 DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "chemicals_mapping.tsv")
@@ -78,3 +80,5 @@ DEFAULT_GRAPH_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_with_chemsim.edgelist
 DEFAULT_GRAPH_WEIGHTED_PATH = os.path.join(BASIC_GRAPHS, "fullgraph_weighted_with_chemsim.edgelist")
 DEFAULT_TRAINING_SET = os.path.join(BASIC_GRAPHS, "training_set.edgelist")
 DEFAULT_TESTING_SET = os.path.join(BASIC_GRAPHS, "testing_set.edgelist")
+DEFAULT_WEIGHTED_TRAINING_SET = os.path.join(BASIC_GRAPHS, "weighted_training_set.edgelist")
+DEFAULT_WEIGHTED_TESTING_SET = os.path.join(BASIC_GRAPHS, "weighted_testing_set.edgelist")
