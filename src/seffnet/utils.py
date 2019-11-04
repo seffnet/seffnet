@@ -544,8 +544,8 @@ def create_subgraph(
     """Create subgraph."""
     fullgraph = pybel.from_pickle(fullgraph_path)
     for edge in fullgraph.edges():
-        for ind, edge_d in fullgraph[edge[0]][edge[1]].items():
-            edge_d['weight'] = 1 - edge_d['weight']
+        for iden, edge_d in fullgraph[edge[0]][edge[1]].items():
+            fullgraph[edge[0]][edge[1]][iden]['weight'] = 1 - edge_d['weight']
     mapping_df = pd.read_csv(
         mapping_path,
         sep="\t",
@@ -556,7 +556,7 @@ def create_subgraph(
     for ind, row in mapping_df.iterrows():
         if row['namespace'] != 'pubchem.compound':
             continue
-        if row['name'] == None:
+        if row['name'] is None:
             continue
         mapping_dict[
             pybel.dsl.Abundance(namespace='pubchem.compound', identifier=row['identifier'])] = pybel.dsl.Abundance(
@@ -579,10 +579,10 @@ def create_subgraph(
         raise Exception('Target type is not valid!')
     fullgraph_undirected = fullgraph.to_undirected()
     if weighted:
-        paths = [p for p in nx.all_shortest_paths(fullgraph_undirected,source=source,target=target, weight='weight')]
+        paths = [p for p in nx.all_shortest_paths(fullgraph_undirected, source=source, target=target, weight='weight')]
     else:
-        paths = [p for p in nx.all_shortest_paths(fullgraph_undirected,source=source,target=target, weight='weight')]
-    subgraph_nodes=[]
+        paths = [p for p in nx.all_shortest_paths(fullgraph_undirected, source=source, target=target)]
+    subgraph_nodes = []
     if len(paths) > 100:
         for path in random.sample(paths, 10):
             for node in path:
