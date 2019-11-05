@@ -26,6 +26,11 @@ __all__ = [
 
 NodeInfo = Mapping[str, str]
 Embeddings = Mapping[str, np.ndarray]
+RelationsResults = Tuple[List[NodeInfo], List[np.ndarray], List[bool]]
+
+
+class MissingCurie(ValueError):
+    """Raised when a CURIE can't be found."""
 
 
 def _load_embedding(path: str) -> Embeddings:
@@ -118,15 +123,20 @@ class Predictor:
         :param results_type: can be 'phenotype', 'chemical', 'target', or None
         :param k: the amount of relations we want to find for the entity
         :return: a list of tuples containing the predicted entities and their probabilities
+        :raises: MissingCurie
         """
         node_id = self._lookup_node(node_id=node_id, node_curie=node_curie, node_name=node_name)
         if node_id is None:
-            raise Exception('The curie you input does not exist.')
+            raise MissingCurie('The curie you input does not exist.')
 
         node_info = self._get_entity_json(node_id)
 
         namespace = RESULTS_TYPE_TO_NAMESPACE.get(results_type)
-        node_list, relations_list, relation_novelties = self._find_relations_helper(node_id, namespace=namespace)
+        node_list, relations_list, relation_novelties = self._find_relations_helper(
+            source_id=node_id,
+            source_vector=self.embeddings[node_id],
+            namespace=namespace,
+        )
 
         prediction_list = self.get_probabilities(
             nodes=node_list,
@@ -200,14 +210,46 @@ class Predictor:
         edge_embedding = self.get_edge_embedding(source_id, target_id)
         return self._predict_helper([edge_embedding.tolist()])[0]
 
+    def _find_smiles_relations_helper(
+        self,
+        smiles: str,
+        namespace: Optional[str] = None
+    ) -> RelationsResults:
+        self._find_relations_helper(
+            source_id=f'smiles:{smiles}',
+            source_vector=self._get_smiles_vector(smiles),
+            namespace=namespace,
+        )
+
+    def _get_smiles_vector(self, smiles: str) -> np.ndarray:
+        """Get the smiles vector"""
+        # 1. parse smiles
+        source_fingerprint = self._get_fingerprint(smiles)
+        # 2. get distance to all chemicals
+        other_fingerprints = ...
+
+        vs = np.array([
+            self.embeddings[target_id] * self._chemical_similarity(source_fingerprint, target_fingerprint)
+            for target_id, target_fingerprint in other_fingerprints.items()
+        ])
+        return vs.mean(axis=1)
+
+    @staticmethod
+    def _get_fingerprint(smiles: str):
+        return NotImplemented
+
+    @staticmethod
+    def _chemical_similarity(fp1, fp2) -> float:
+        return 0.0
+
     def _find_relations_helper(
         self,
+        *,
         source_id: str,
         namespace: Optional[str] = None,
-    ) -> Tuple[List[NodeInfo], List[np.ndarray], List[bool]]:
+        source_vector: np.ndarray,
+    ) -> RelationsResults:
         node_list, relations_list, relation_novelties = [], [], []
-        source_vector = self.embeddings[source_id]
-
         for target_id, target_vector in self.embeddings.items():
             if source_id == target_id:
                 continue
@@ -223,6 +265,7 @@ class Predictor:
             node_list.append(node_info)
             relation_novelties.append(novel)
 
+            # apply that hadamard operator
             relation = source_vector * target_vector
             relations_list.append(relation.tolist())
 
