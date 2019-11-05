@@ -117,7 +117,7 @@ def do_evaluation(
     evaluation_file: Optional[str] = None,
     classifier_type: Optional[str] = None,
     weighted: bool = False,
-    labels_file,
+    labels_file: Optional[str] = None,
 ):
     """Train and evaluate an NRL model."""
     if prediction_task == 'link_prediction':
