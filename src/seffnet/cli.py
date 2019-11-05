@@ -50,7 +50,7 @@ PREDICTIVE_MODEL_PATH = click.option('--predictive-model-path', help='The path t
 EMBEDDINGS_PATH = click.option('--embeddings-path', help='The path to save the embeddings file')
 CLASSIFIER_TYPE = click.option('--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF']),
                                help='Choose type of classifier for predictive model')
-WEIGHTED = click.option('--weighted', is_flag=False, help='True if graph is weighted.')
+WEIGHTED = click.option('--weighted', is_flag=True, help='True if graph is weighted.')
 
 
 @click.group()
@@ -300,6 +300,7 @@ def update(
 @ORDER
 @click.option('--n', default=10, help='number of repeats.')
 @SEED
+@WEIGHTED
 def repeat(
     input_path,
     training_path,
@@ -319,6 +320,7 @@ def repeat(
     order,
     n,
     seed,
+    weighted,
 ):
     """Repeat training n times."""
     np.random.seed(seed)
@@ -342,6 +344,7 @@ def repeat(
         order=order,
         n=n,
         evaluation_file=evaluation_file,
+        weighted=weighted,
     )
     click.echo(results)
 

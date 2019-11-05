@@ -499,6 +499,7 @@ def repeat_experiment(
     order=3,
     n=10,
     evaluation_file=None,
+    weighted: bool = False,
 ):
     """Repeat an experiment several times."""
     all_results = {
@@ -520,7 +521,8 @@ def repeat_experiment(
             order=order,
             embeddings_path=None,
             predictive_model_path=None,
-            evaluation_file=None
+            evaluation_file=None,
+            weighted=weighted,
         )
         for i in tqdm(range(n), desc="Repeating experiment")
     }
