@@ -301,6 +301,7 @@ def update(
 @click.option('--n', default=10, help='number of repeats.')
 @SEED
 @WEIGHTED
+@PREDICTION_TASK
 def repeat(
     input_path,
     training_path,
@@ -321,6 +322,7 @@ def repeat(
     n,
     seed,
     weighted,
+    prediction_task,
 ):
     """Repeat training n times."""
     np.random.seed(seed)
@@ -345,6 +347,7 @@ def repeat(
         n=n,
         evaluation_file=evaluation_file,
         weighted=weighted,
+        prediction_task=prediction_task,
     )
     click.echo(results)
 
