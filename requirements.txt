@@ -18,3 +18,4 @@ flasgger
 click
 pandas
 chembl_webresource_client
+seaborn

@@ -14,6 +14,7 @@ import numpy as np
 import optuna
 import pandas as pd
 import pybel
+import seaborn as sns
 from bionev import pipeline
 from bionev.embed_train import embedding_training
 from bionev.utils import read_node_labels
@@ -602,3 +603,29 @@ def create_subgraph(
     subgraph = fullgraph.subgraph(subgraph_nodes)
     subgraph = nx.relabel_nodes(subgraph, mapping_dict)
     return subgraph
+
+
+def get_boxplot(
+        *,
+        dir_path: str,
+        metric: str = 'mcc',
+):
+    """
+    Make boxplot from repeat output.
+
+    :param dir_path: the path with the outputs from the repeats.
+    :param metric: the type of metric to plot in the boxplot.
+    :return: boxplot
+    """
+    method = []
+    metric_list = []
+
+    for filename in os.listdir(dir_path):
+        with open(dir_path+filename) as json_file:
+            data = json.load(json_file)
+            for key in data.keys():
+                method.append(data[key]['method'])
+                metric_list.append(data[key]['results'][metric])
+    df = pd.DataFrame(list(zip(method, metric_list)), columns=['method', metric])
+    boxplot = sns.boxplot(x="method", y=metric, data=df)
+    return boxplot
