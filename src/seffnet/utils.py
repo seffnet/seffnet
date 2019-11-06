@@ -545,6 +545,7 @@ def create_subgraph(
     target_type,
     weighted=False,
     mapping_path=DEFAULT_MAPPING_PATH,
+    common_targets: bool = False,
 ):
     """Create subgraph."""
     fullgraph = pybel.from_pickle(fullgraph_path)
@@ -600,7 +601,21 @@ def create_subgraph(
                 if node in subgraph_nodes:
                     continue
                 subgraph_nodes.append(node)
-    subgraph = fullgraph.subgraph(subgraph_nodes)
+    if common_targets:
+        for neighbor in fullgraph.neighbors(source):
+            if neighbor.namespace != 'uniprot':
+                continue
+            subgraph_nodes.append(neighbor)
+        for neighbor in fullgraph.neighbors(target):
+            if neighbor.namespace != 'uniprot':
+                continue
+            subgraph_nodes.append(neighbor)
+    subgraph = fullgraph.subgraph(subgraph_nodes).copy()
+    # the subgraph has the same number of degrees from the fullgraph so we need to create a copy of it
+    digraph = nx.DiGraph(subgraph)
+    if common_targets:
+        remove = [node for node in digraph.nodes() if digraph.degree(node) < 2]
+        subgraph.remove_nodes_from(remove)
     subgraph = nx.relabel_nodes(subgraph, mapping_dict)
     return subgraph
 
