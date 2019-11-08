@@ -4,6 +4,26 @@
 {% import "bootstrap/fixes.html" as fixes %}
 {% import "bootstrap/utils.html" as util %}
 
+{% block styles %}
+    {{ super() }}
+    <link rel="stylesheet" type="text/css"
+          href="https://cdn.datatables.net/r/bs-3.3.5/jq-2.1.4,dt-1.10.8/datatables.min.css">
+
+
+{% endblock %}
+
+{% block scripts %}
+    {{ super() }}
+
+    <script type="text/javascript"
+            src="https://cdn.datatables.net/r/bs-3.3.5/jqc-1.11.3,dt-1.10.8/datatables.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var table = $("#my-table").DataTable();
+        });
+    </script>
+{% endblock %}
+
 {% block title %}SEffNet Predictions{% endblock %}
 
 {% block content %}
@@ -16,30 +36,32 @@
         </div>
 
         <div class="panel panel-default">
-            <table class="table">
-                <thead>
-                <tr>
-                    <th>Type</th>
-                    <th>Entity</th>
-                    <th>Name</th>
-                    <th>LOR</th>
-                </tr>
-                </thead>
-                <tbody>
-                {% for prediction in predictions %}
+            <div style="margin-left: 15px; margin-right: 15px;margin-top: 15px; margin-bottom: 15px;">
+                <table class="table" id="my-table">
+                    <thead>
                     <tr>
-                        <td>{{ results_type }}</td>
-                        <td>
-                            <a href="https://identifiers.org/{{ prediction["namespace"] }}:{{ prediction["identifier"] }}">
-                                {{ prediction["namespace"] }}:{{ prediction["identifier"] }}
-                            </a>
-                        </td>
-                        <td>{{ prediction["name"] }}</td>
-                        <td>{{ prediction["lor"] }}</td>
+                        <th>Type</th>
+                        <th>Entity</th>
+                        <th>Name</th>
+                        <th>LOR</th>
                     </tr>
-                {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                    {% for prediction in predictions %}
+                        <tr>
+                            <td>{{ results_type }}</td>
+                            <td>
+                                <a href="https://identifiers.org/{{ prediction["namespace"] }}:{{ prediction["identifier"] }}">
+                                    {{ prediction["namespace"] }}:{{ prediction["identifier"] }}
+                                </a>
+                            </td>
+                            <td>{{ prediction["name"] }}</td>
+                            <td>{{ prediction["lor"] }}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 {% endblock %}
