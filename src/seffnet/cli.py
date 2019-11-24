@@ -13,12 +13,13 @@ import joblib
 import networkx as nx
 import numpy as np
 from bionev.pipeline import create_prediction_model
+from bionev.utils import split_train_test_graph
 
-from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
+from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_TRAINING_SET, DEFAULT_TESTING_SET
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
 from .pipeline import do_evaluation, do_optimization, repeat_experiment, train_model
-from .utils import split_training_testing_sets
+
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -390,6 +391,7 @@ def web(host, port):
 @main.command()
 def rebuild():
     """Build all resources from scratch."""
+    # TODO: option for rebuilding weighted graphs
     from pybel.struct import count_functions, count_namespaces
     from .graph_preprocessing import get_drugbank_graph, get_sider_graph, get_combined_sider_drugbank
     try:
@@ -424,17 +426,21 @@ def rebuild():
     get_mapped_graph(graph_path=fullgraph, rebuild=True)
     click.echo('Mapped graph and mapping dataframe are created!')
 
+    click.secho('Reclustering chemicals', fg='blue', bold=True)
+    cluster_chemicals(rebuild=True)
+    click.echo('Clustered chemicals dataframe is created!')
+
     click.secho('Rebuilding combined graph with chemical similarities', fg='blue', bold=True)
     chemsim_graph = get_similarity_graph(rebuild=True)
     fullgraph_with_chemsim = get_combined_graph_similarity(fullgraph, chemsim_graph)
     _echo_graph(fullgraph_with_chemsim)
 
-    click.secho('Reclustering chemicals', fg='blue', bold=True)
-    cluster_chemicals(rebuild=True)
-    click.echo('Clustered chemicals dataframe is created!')
-
     click.secho('Rebuilding training and testing sets', fg='blue', bold=True)
-    g_train, g_test = split_training_testing_sets(rebuild=True)
+    # TODO: make a function for this
+    _, g_train, g_test_edges, _ = split_train_test_graph(input_graph=fullgraph_with_chemsim)
+    nx.write_edgelist(g_train, DEFAULT_TRAINING_SET)
+    g_test = nx.add_from_edges(g_test_edges)
+    nx.write_edgelist(g_test, DEFAULT_TESTING_SET)
     click.echo(nx.info(g_train))
     click.echo(nx.info(g_test))
 
