@@ -76,7 +76,7 @@ def create_graphs(*, input_path, training_path, testing_path, weighted):
         )
     else:
         graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
-            input_edgelist=input_path,
+            input_graph=input_path,
             weighted=weighted,
         )
     return input_graph, graph_train, testing_pos_edges, train_graph_filename

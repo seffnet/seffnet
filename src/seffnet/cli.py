@@ -326,6 +326,7 @@ def repeat(
     seed,
     weighted,
     prediction_task,
+    randomization,
 ):
     """Repeat training n times."""
     np.random.seed(seed)
@@ -351,6 +352,7 @@ def repeat(
         evaluation_file=evaluation_file,
         weighted=weighted,
         prediction_task=prediction_task,
+        randomization=randomization,
     )
     click.echo(results)
 

@@ -14,13 +14,13 @@ from bionev.embed_train import embedding_training
 from bionev.pipeline import create_prediction_model, do_link_prediction, do_node_classification
 from bionev.utils import read_node_labels, read_graph, split_train_test_graph
 from tqdm import tqdm
-from utils import create_graphs, study_to_json
 import xswap
 
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
     node2vec_optimization, sdne_optimization,
 )
+from .utils import create_graphs, study_to_json
 
 
 def do_evaluation(
@@ -456,8 +456,8 @@ def randomize(
         random_graph = nx.powerlaw_cluster_graph(len(input_graph.nodes()), len(input_graph.edges()))
     else:
         return "Randomization method not valid."
-    graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
-        input_edgelist=random_graph,
+    _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
+        input_graph=random_graph,
         weighted=weighted,
     )
     model = embedding_training(
