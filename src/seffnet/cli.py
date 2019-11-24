@@ -17,7 +17,8 @@ from bionev.pipeline import create_prediction_model
 from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH
 from .find_relations import RESULTS_TYPE_TO_NAMESPACE
 from .graph_preprocessing import get_mapped_graph
-from .utils import do_evaluation, do_optimization, repeat_experiment, split_training_testing_sets, train_model
+from .pipeline import do_evaluation, do_optimization, repeat_experiment, train_model
+from .utils import split_training_testing_sets
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
