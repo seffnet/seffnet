@@ -371,6 +371,7 @@ def repeat_experiment(
     weighted: bool = False,
     prediction_task,
     randomization=None,
+    seed=0,
 ):
     """Repeat an experiment several times."""
     if randomization is None:
@@ -418,6 +419,7 @@ def repeat_experiment(
                 kstep=kstep,
                 order=order,
                 weighted=weighted,
+                seed=seed,
             )
             for i in tqdm(range(n), desc="Repeating randomization experiment")
         }
@@ -443,17 +445,15 @@ def randomize(
     kstep: int = 4,
     order: int = 3,
     weighted: bool = False,
+    seed=0,
 ):
     if randomization_method == 'xswap':
-        edges = list(input_graph.edges())
+        edges = [(int(edge[0]), int(edge[1])) for edge in input_graph.edges()]
         permuted_edges, permutation_statistics = xswap.permute_edge_list(
-            edges, allow_self_loops=True, allow_antiparallel=True,
-            multiplier=10)
+            edges, allow_self_loops=True, allow_antiparallel=True, multiplier=10, seed=seed)
         random_graph = nx.add_edges_from(permuted_edges)
     elif randomization_method == 'random':
-        random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()))
-    elif randomization_method == 'powerlaw':
-        random_graph = nx.powerlaw_cluster_graph(len(input_graph.nodes()), len(input_graph.edges()))
+        random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()), seed=seed)
     else:
         return "Randomization method not valid."
     if weighted:
@@ -461,7 +461,6 @@ def randomize(
             random_graph[edge[0]][edge[1]]['weight'] = random.random()
     _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
         input_graph=random_graph,
-
         weighted=weighted,
     )
     model = embedding_training(
