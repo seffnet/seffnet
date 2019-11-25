@@ -450,8 +450,9 @@ def randomize(
     if randomization_method == 'xswap':
         edges = [(int(edge[0]), int(edge[1])) for edge in input_graph.edges()]
         permuted_edges, permutation_statistics = xswap.permute_edge_list(
-            edges, allow_self_loops=True, allow_antiparallel=True, multiplier=10, seed=seed)
-        random_graph = nx.add_edges_from(permuted_edges)
+            edges, allow_antiparallel=True, multiplier=10, seed=seed)
+        random_graph = nx.DiGraph()
+        random_graph.add_edges_from(permuted_edges)
     elif randomization_method == 'random':
         random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()), seed=seed)
     else:
@@ -459,6 +460,13 @@ def randomize(
     if weighted:
         for edge in random_graph.edges():
             random_graph[edge[0]][edge[1]]['weight'] = random.random()
+    relabel = {
+        node: str(node)
+        for node in random_graph.nodes()
+    }
+    print(random_graph.nodes())
+    random_graph = nx.relabel_nodes(random_graph, relabel)
+    print(random_graph.nodes())
     _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
         input_graph=random_graph,
         weighted=weighted,
@@ -483,7 +491,7 @@ def randomize(
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
-
+    print(embeddings)
     _results = dict(
         input=input_graph,
         method=method,
@@ -493,7 +501,7 @@ def randomize(
     )
     auc_roc, auc_pr, accuracy, f1, mcc = do_link_prediction(
         embeddings=embeddings,
-        original_graph=input_graph,
+        original_graph=random_graph,
         train_graph=graph_train,
         test_pos_edges=testing_pos_edges,
         save_model=None,
