@@ -353,7 +353,6 @@ def repeat(
         weighted=weighted,
         prediction_task=prediction_task,
         randomization=randomization,
-        seed=seed,
     )
     click.echo(results)
 

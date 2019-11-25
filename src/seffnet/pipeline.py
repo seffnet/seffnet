@@ -371,7 +371,6 @@ def repeat_experiment(
     weighted: bool = False,
     prediction_task,
     randomization=None,
-    seed=0,
 ):
     """Repeat an experiment several times."""
     if randomization is None:
@@ -419,7 +418,6 @@ def repeat_experiment(
                 kstep=kstep,
                 order=order,
                 weighted=weighted,
-                seed=seed,
             )
             for i in tqdm(range(n), desc="Repeating randomization experiment")
         }
@@ -445,12 +443,11 @@ def randomize(
     kstep: int = 4,
     order: int = 3,
     weighted: bool = False,
-    seed=0,
 ):
+    seed = random.randrange(2**32 - 1)
     if randomization_method == 'xswap':
         edges = [(int(edge[0])-1, int(edge[1])-1) for edge in input_graph.edges()]
-        permuted_edges, permutation_statistics = xswap.permute_edge_list(
-            edges, allow_antiparallel=True, multiplier=10, seed=seed)
+        permuted_edges, permutation_statistics = xswap.permute_edge_list( edges, multiplier=100, seed=seed)
         random_graph = nx.DiGraph()
         random_graph.add_edges_from(permuted_edges)
     elif randomization_method == 'random':
