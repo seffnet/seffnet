@@ -460,6 +460,9 @@ def randomize(
         input_graph=random_graph,
         weighted=weighted,
     )
+    if weighted:
+        for edge in random_graph.edges():
+            random_graph[edge[0]][edge[1]]['weight'] = random.random()
     model = embedding_training(
         train_graph_filename=train_graph_filename,
         method=method,
