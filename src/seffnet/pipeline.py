@@ -456,13 +456,14 @@ def randomize(
         random_graph = nx.powerlaw_cluster_graph(len(input_graph.nodes()), len(input_graph.edges()))
     else:
         return "Randomization method not valid."
-    _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
-        input_graph=random_graph,
-        weighted=weighted,
-    )
     if weighted:
         for edge in random_graph.edges():
             random_graph[edge[0]][edge[1]]['weight'] = random.random()
+    _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
+        input_graph=random_graph,
+
+        weighted=weighted,
+    )
     model = embedding_training(
         train_graph_filename=train_graph_filename,
         method=method,
