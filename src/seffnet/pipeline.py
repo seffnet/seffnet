@@ -448,7 +448,7 @@ def randomize(
     seed=0,
 ):
     if randomization_method == 'xswap':
-        edges = [(int(edge[0]), int(edge[1])) for edge in input_graph.edges()]
+        edges = [(int(edge[0])-1, int(edge[1])-1) for edge in input_graph.edges()]
         permuted_edges, permutation_statistics = xswap.permute_edge_list(
             edges, allow_antiparallel=True, multiplier=10, seed=seed)
         random_graph = nx.DiGraph()
