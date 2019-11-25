@@ -464,9 +464,7 @@ def randomize(
         node: str(node)
         for node in random_graph.nodes()
     }
-    print(random_graph.nodes())
     random_graph = nx.relabel_nodes(random_graph, relabel)
-    print(random_graph.nodes())
     _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
         input_graph=random_graph,
         weighted=weighted,
@@ -491,7 +489,6 @@ def randomize(
         embeddings = model.get_embeddings_train()
     else:
         embeddings = model.get_embeddings()
-    print(embeddings)
     _results = dict(
         input=input_graph,
         method=method,
