@@ -304,7 +304,7 @@ def update(
 @SEED
 @WEIGHTED
 @PREDICTION_TASK
-@click.option('--randomization', type=click.Choice(['xswap', 'random']))
+@click.option('--randomization', type=click.Choice(['xswap', 'random', 'node_shuffle']))
 def repeat(
     input_path,
     training_path,
