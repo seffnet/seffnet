@@ -465,7 +465,7 @@ def randomize(
         graph_train = nx.relabel_nodes(graph_train, relabel)
         testing_graph = nx.MultiGraph()
         testing_graph.add_edges_from(testing_pos_edges)
-        random_graph = nx.compose(graph_train, random_graph)
+        random_graph = nx.compose(graph_train, testing_graph)
         if weighted:
             nx.write_weighted_edgelist(graph_train, train_graph_filename)
         else:
