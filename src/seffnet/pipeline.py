@@ -445,27 +445,44 @@ def randomize(
     weighted: bool = False,
 ):
     seed = random.randrange(2**10)
+    random_graph = None
     if randomization_method == 'xswap':
         edges = [(int(edge[0])-1, int(edge[1])-1) for edge in input_graph.edges()]
-        permuted_edges, permutation_statistics = xswap.permute_edge_list( edges, multiplier=100, seed=seed)
+        permuted_edges, permutation_statistics = xswap.permute_edge_list(edges, multiplier=100, seed=seed)
         random_graph = nx.DiGraph()
         random_graph.add_edges_from(permuted_edges)
     elif randomization_method == 'random':
         random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()), seed=seed)
+    elif randomization_method == 'node_shuffle':
+        _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
+            input_graph=input_graph,
+            weighted=weighted,
+        )
+        nodes = list(graph_train.nodes())
+        nodes_shuffled = nodes.copy()
+        random.shuffle(nodes_shuffled)
+        relabel = {nodes[i]: nodes_shuffled[i]
+                   for i in range(len(nodes)-1)}
+        graph_train = nx.relabel_nodes(graph_train, relabel)
+        if weighted:
+            nx.write_weighted_edgelist(graph_train, train_graph_filename)
+        else:
+            nx.write_edgelist(graph_train, train_graph_filename, data=False)
     else:
         return "Randomization method not valid."
-    if weighted:
-        for edge in random_graph.edges():
-            random_graph[edge[0]][edge[1]]['weight'] = random.random()
-    relabel = {
-        node: str(node)
-        for node in random_graph.nodes()
-    }
-    random_graph = nx.relabel_nodes(random_graph, relabel)
-    _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
-        input_graph=random_graph,
-        weighted=weighted,
-    )
+    if random_graph is not None:
+        if weighted:
+            for edge in random_graph.edges():
+                random_graph[edge[0]][edge[1]]['weight'] = random.random()
+        relabel = {
+            node: str(node)
+            for node in random_graph.nodes()
+        }
+        random_graph = nx.relabel_nodes(random_graph, relabel)
+        _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
+            input_graph=random_graph,
+            weighted=weighted,
+        )
     model = embedding_training(
         train_graph_filename=train_graph_filename,
         method=method,
