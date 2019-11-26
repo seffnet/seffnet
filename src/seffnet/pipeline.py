@@ -463,7 +463,7 @@ def randomize(
         relabel = {nodes[i]: nodes_shuffled[i]
                    for i in range(len(nodes)-1)}
         graph_train = nx.relabel_nodes(graph_train, relabel)
-        testing_graph = nx.MultiGraph()
+        testing_graph = nx.Graph()
         testing_graph.add_edges_from(testing_pos_edges)
         random_graph = nx.compose(graph_train, testing_graph)
         if weighted:
