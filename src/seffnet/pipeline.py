@@ -444,7 +444,7 @@ def randomize(
     order: int = 3,
     weighted: bool = False,
 ):
-    seed = random.randrange(2**32 - 1)
+    seed = random.randrange(2**10)
     if randomization_method == 'xswap':
         edges = [(int(edge[0])-1, int(edge[1])-1) for edge in input_graph.edges()]
         permuted_edges, permutation_statistics = xswap.permute_edge_list( edges, multiplier=100, seed=seed)
@@ -487,7 +487,7 @@ def randomize(
     else:
         embeddings = model.get_embeddings()
     _results = dict(
-        input=input_graph,
+        input=randomization_method,
         method=method,
         dimension=dimensions,
         user=getpass.getuser(),
