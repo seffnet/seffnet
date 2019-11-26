@@ -445,10 +445,10 @@ def randomize(
     weighted: bool = False,
 ):
     seed = random.randrange(2**10)
-    random_graph = nx.DiGraph()
     if randomization_method == 'xswap':
         edges = [(int(edge[0])-1, int(edge[1])-1) for edge in input_graph.edges()]
         permuted_edges, permutation_statistics = xswap.permute_edge_list(edges, multiplier=100, seed=seed)
+        random_graph = nx.DiGraph()
         random_graph.add_edges_from(permuted_edges)
     elif randomization_method == 'random':
         random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()), seed=seed)
@@ -472,7 +472,7 @@ def randomize(
             nx.write_edgelist(graph_train, train_graph_filename, data=False)
     else:
         return "Randomization method not valid."
-    if random_graph is not None:
+    if randomization_method != 'node_shuffle':
         if weighted:
             for edge in random_graph.edges():
                 random_graph[edge[0]][edge[1]]['weight'] = random.random()
