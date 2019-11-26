@@ -67,7 +67,7 @@ def study_to_json(study: optuna.Study, prediction_task) -> Mapping[str, Any]:
 
 def create_graphs(*, input_path, training_path, testing_path, weighted):
     """Create the training/testing graphs needed for evalution."""
-    input_graph = read_graph(input, weighted=weighted)
+    input_graph = read_graph(input_path, weighted=weighted)
     if training_path and testing_path is not None:
         graph_train, testing_pos_edges, train_graph_filename = train_test_graph(
             training_path,
