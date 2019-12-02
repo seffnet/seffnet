@@ -326,7 +326,10 @@ def train_model(
     if training_model_path is not None:
         model.save_model(training_model_path)
     model.save_embeddings(embeddings_path)
-    original_graph = nx.read_edgelist(input_path)
+    if weighted:
+        original_graph = nx.read_weighted_edgelist(input_path)
+    else:
+        original_graph = nx.read_edgelist(input_path)
     if method == 'LINE':
         embeddings = model.get_embeddings_train()
     else:
