@@ -14,7 +14,6 @@ from bionev.embed_train import embedding_training
 from bionev.pipeline import create_prediction_model, do_link_prediction, do_node_classification
 from bionev.utils import read_node_labels, read_graph, split_train_test_graph
 from tqdm import tqdm
-import xswap
 
 from .optimization import (
     deepwalk_optimization, grarep_optimization, hope_optimization, line_optimization,
@@ -445,12 +444,7 @@ def randomize(
     weighted: bool = False,
 ):
     seed = random.randrange(2**10)
-    if randomization_method == 'xswap':
-        edges = [(int(edge[0])-1, int(edge[1])-1) for edge in input_graph.edges()]
-        permuted_edges, permutation_statistics = xswap.permute_edge_list(edges, multiplier=100, seed=seed)
-        random_graph = nx.DiGraph()
-        random_graph.add_edges_from(permuted_edges)
-    elif randomization_method == 'random':
+    if randomization_method == 'random':
         random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()), seed=seed)
     elif randomization_method == 'node_shuffle':
         _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
@@ -461,7 +455,7 @@ def randomize(
         nodes_shuffled = nodes.copy()
         random.shuffle(nodes_shuffled)
         relabel = {nodes[i]: nodes_shuffled[i]
-                   for i in range(len(nodes)-1)}
+                   for i in range(len(nodes))}
         graph_train = nx.relabel_nodes(graph_train, relabel)
         testing_graph = nx.Graph()
         testing_graph.add_edges_from(testing_pos_edges)
