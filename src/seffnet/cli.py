@@ -50,7 +50,7 @@ LABELS_FILE = click.option('--labels-file', default='', help='The labels file fo
 TRAINING_MODEL_PATH = click.option('--training-model-path', help='The path to save the model used for training')
 PREDICTIVE_MODEL_PATH = click.option('--predictive-model-path', help='The path to save the prediction model')
 EMBEDDINGS_PATH = click.option('--embeddings-path', help='The path to save the embeddings file')
-CLASSIFIER_TYPE = click.option('--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF']),
+CLASSIFIER_TYPE = click.option('--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF', 'ENCV']),
                                help='Choose type of classifier for predictive model')
 WEIGHTED = click.option('--weighted', is_flag=True, help='True if graph is weighted.')
 
