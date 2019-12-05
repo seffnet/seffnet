@@ -473,10 +473,7 @@ def randomize(
         if weighted:
             for edge in random_graph.edges():
                 random_graph[edge[0]][edge[1]]['weight'] = random.random()
-        relabel = {
-            node: str(node)
-            for node in random_graph.nodes()
-        }
+        relabel = dict(zip(nodes, nodes_shuffled))
         random_graph = nx.relabel_nodes(random_graph, relabel)
         _, graph_train, testing_pos_edges, train_graph_filename = split_train_test_graph(
             input_graph=random_graph,
