@@ -62,7 +62,7 @@ class Predictor:
     graph: Optional[nx.Graph] = None
     positive_control: bool = True
     #: The precision at which results are reported
-    precision: int = 3
+    precision: int = 5
 
     @classmethod
     def from_paths(

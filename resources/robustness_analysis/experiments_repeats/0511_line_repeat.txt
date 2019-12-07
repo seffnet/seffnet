@@ -1,0 +1,142 @@
+{
+  "0": {
+    "date": "2019-11-05-112145",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9047269883169575,
+      "auc_pr": 0.9582906663639232,
+      "auc_roc": 0.9433520721812325,
+      "f1": 0.900905023388245,
+      "mcc": 0.8118729755631399
+    },
+    "user": "choyt"
+  },
+  "1": {
+    "date": "2019-11-05-113111",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9054683808313373,
+      "auc_pr": 0.9588136758288783,
+      "auc_roc": 0.9440861047490738,
+      "f1": 0.9015518543344164,
+      "mcc": 0.8135158847412765
+    },
+    "user": "choyt"
+  },
+  "2": {
+    "date": "2019-11-05-114047",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9037737693698978,
+      "auc_pr": 0.9580180192199426,
+      "auc_roc": 0.9426385175252836,
+      "f1": 0.8994919711010696,
+      "mcc": 0.8104948193275153
+    },
+    "user": "choyt"
+  },
+  "3": {
+    "date": "2019-11-05-115006",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9033093806520995,
+      "auc_pr": 0.956939556055869,
+      "auc_roc": 0.9411140462669771,
+      "f1": 0.8990507298152496,
+      "mcc": 0.8095051998044853
+    },
+    "user": "choyt"
+  },
+  "4": {
+    "date": "2019-11-05-115944",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9065275129947369,
+      "auc_pr": 0.9584569720251312,
+      "auc_roc": 0.9428817649465149,
+      "f1": 0.9026267769997879,
+      "mcc": 0.8156771967528281
+    },
+    "user": "choyt"
+  },
+  "5": {
+    "date": "2019-11-05-120852",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9039611542911147,
+      "auc_pr": 0.9576162546468496,
+      "auc_roc": 0.9427996740827005,
+      "f1": 0.8999575659848934,
+      "mcc": 0.810522603796048
+    },
+    "user": "choyt"
+  },
+  "6": {
+    "date": "2019-11-05-121823",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9052728487396328,
+      "auc_pr": 0.9589369954445703,
+      "auc_roc": 0.9440965534544028,
+      "f1": 0.9012795367516577,
+      "mcc": 0.8132113153545348
+    },
+    "user": "choyt"
+  },
+  "7": {
+    "date": "2019-11-05-122749",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9031708787538087,
+      "auc_pr": 0.9574952335436822,
+      "auc_roc": 0.9428204798939445,
+      "f1": 0.899183116034847,
+      "mcc": 0.8088768016904576
+    },
+    "user": "choyt"
+  },
+  "8": {
+    "date": "2019-11-05-123712",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9002216030372652,
+      "auc_pr": 0.9559159868700672,
+      "auc_roc": 0.9401917498218029,
+      "f1": 0.895951743766195,
+      "mcc": 0.8031528920663551
+    },
+    "user": "choyt"
+  },
+  "9": {
+    "date": "2019-11-05-124629",
+    "dimension": 276,
+    "input": "/home/bio/groupshare/rana/src/SE_KGE/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9047351354874452,
+      "auc_pr": 0.9577887222272176,
+      "auc_roc": 0.9424970325394102,
+      "f1": 0.9008925014620751,
+      "mcc": 0.8119150519540813
+    },
+    "user": "choyt"
+  }
+}
