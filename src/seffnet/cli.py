@@ -15,11 +15,12 @@ import numpy as np
 from bionev.pipeline import create_prediction_model
 from bionev.utils import split_train_test_graph
 
-from .constants import DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_TRAINING_SET, DEFAULT_TESTING_SET
-from .find_relations import RESULTS_TYPE_TO_NAMESPACE
+from .constants import (
+    DEFAULT_FULLGRAPH_PICKLE, DEFAULT_GRAPH_PATH, DEFAULT_TESTING_SET, DEFAULT_TRAINING_SET,
+    RESULTS_TYPE_TO_NAMESPACE,
+)
 from .graph_preprocessing import get_mapped_graph
 from .pipeline import do_evaluation, do_optimization, repeat_experiment, train_model
-
 
 INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
                           help='Input graph file. Only accepted edgelist format.')
@@ -28,7 +29,7 @@ TESTING_PATH = click.option('--testing-path', help='testing graph file. Only acc
 METHOD = click.option('--method', required=True,
                       type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
                       help='The NRL method to train the model')
-SEED = click.option('--seed', type=int, default=random.randrange(2**32 - 1))
+SEED = click.option('--seed', type=int, default=random.randrange(2 ** 32 - 1))
 DIMENSIONS = click.option('--dimensions', type=int, default=200, help='The dimensions of embeddings.')
 NUMBER_WALKS = click.option('--number-walks', type=int, default=8, help='The number of walks for random-walk methods.')
 WALK_LENGTH = click.option('--walk-length', type=int, default=32, help='The walk length for random-walk methods.')
@@ -357,10 +358,14 @@ def repeat(
     click.echo(results)
 
 
+number_predictions_option = click.option('-n', '--number-predictions', type=int, default=30)
+result_type_option = click.option('-t', '--result-type', type=click.Choice(RESULTS_TYPE_TO_NAMESPACE))
+
+
 @main.command()
 @click.argument('curie')
-@click.option('-n', '--number-predictions', type=int, default=30)
-@click.option('-t', '--result-type', type=click.Choice(RESULTS_TYPE_TO_NAMESPACE))
+@number_predictions_option
+@result_type_option
 def predict(curie: str, number_predictions: int, result_type: str):
     """Predict for a given entity."""
     from .default_predictor import predictor
@@ -370,6 +375,28 @@ def predict(curie: str, number_predictions: int, result_type: str):
 
     results = predictor.find_new_relations(
         node_curie=curie,
+        k=number_predictions,
+        results_type=result_type,
+    )
+    for result in results['predictions']:
+        click.echo(json.dumps(result, indent=2, sort_keys=True))
+
+
+@main.command()
+@click.argument('smiles')
+@number_predictions_option
+@result_type_option
+def predictc(smiles: str, number_predictions: int, result_type: str):
+    """Predict for a chemical by SMILES string."""
+    from .default_predictor import predictor
+    from .new_chemical_predictor import ChemicalPredictor
+    from .constants import DEFAULT_CHEMICALS_MAPPING_PATH
+    c = ChemicalPredictor(
+        predictor=predictor,
+        chemical_mapping_path=DEFAULT_CHEMICALS_MAPPING_PATH,
+    )
+    results = c.find_smiles_relations(
+        smiles=smiles,
         k=number_predictions,
         results_type=result_type,
     )

@@ -2,7 +2,6 @@
 
 """Utilities for :mod:`seffnet`."""
 
-
 import json
 import os
 import random
@@ -13,7 +12,7 @@ import optuna
 import pandas as pd
 import pybel
 import seaborn as sns
-from bionev.pipeline import train_test_graph, split_train_test_graph
+from bionev.pipeline import split_train_test_graph, train_test_graph
 from bionev.utils import read_graph
 
 from .constants import DEFAULT_MAPPING_PATH
@@ -82,7 +81,7 @@ def create_graphs(*, input_path, training_path, testing_path, weighted):
     return input_graph, graph_train, testing_pos_edges, train_graph_filename
 
 
-def create_subgraph(
+def create_subgraph(  # noqa: C901
     *,
     fullgraph_path,
     source_name=None,
@@ -169,9 +168,9 @@ def create_subgraph(
 
 
 def get_boxplot(
-        *,
-        dir_path: str,
-        metric: str = 'mcc',
+    *,
+    dir_path: str,
+    metric: str = 'mcc',
 ):
     """
     Make boxplot from repeat output.
@@ -184,7 +183,7 @@ def get_boxplot(
     metric_list = []
 
     for filename in os.listdir(dir_path):
-        with open(dir_path+filename) as json_file:
+        with open(dir_path + filename) as json_file:
             data = json.load(json_file)
             for key in data.keys():
                 method.append(data[key]['method'])

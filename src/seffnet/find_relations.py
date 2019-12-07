@@ -18,14 +18,20 @@ import pandas as pd
 from bionev.utils import load_embedding
 from sklearn.linear_model import LogisticRegression
 
+from .constants import RESULTS_TYPE_TO_NAMESPACE
+
 __all__ = [
     'Embeddings',
-    'RESULTS_TYPE_TO_NAMESPACE',
     'Predictor',
 ]
 
 NodeInfo = Mapping[str, str]
 Embeddings = Mapping[str, np.ndarray]
+RelationsResults = Tuple[List[NodeInfo], List[np.ndarray], List[bool]]
+
+
+class MissingCurie(ValueError):
+    """Raised when a CURIE can't be found."""
 
 
 def _load_embedding(path: str) -> Embeddings:
@@ -35,13 +41,6 @@ def _load_embedding(path: str) -> Embeddings:
         str(node_id): np.array(node_vector)
         for node_id, node_vector in rv.items()
     }
-
-
-RESULTS_TYPE_TO_NAMESPACE = {
-    'chemical': 'pubchem.compound',
-    'phenotype': 'umls',
-    'target': 'uniprot',
-}
 
 
 @dataclass
@@ -118,16 +117,37 @@ class Predictor:
         :param results_type: can be 'phenotype', 'chemical', 'target', or None
         :param k: the amount of relations we want to find for the entity
         :return: a list of tuples containing the predicted entities and their probabilities
+        :raises: MissingCurie
         """
         node_id = self._lookup_node(node_id=node_id, node_curie=node_curie, node_name=node_name)
         if node_id is None:
-            raise Exception('The curie you input does not exist.')
+            raise MissingCurie('The curie you input does not exist.')
 
         node_info = self._get_entity_json(node_id)
 
         namespace = RESULTS_TYPE_TO_NAMESPACE.get(results_type)
-        node_list, relations_list, relation_novelties = self._find_relations_helper(node_id, namespace=namespace)
+        relations_results = self._find_relations_helper(
+            source_id=node_id,
+            source_vector=self.embeddings[node_id],
+            namespace=namespace,
+        )
 
+        return self._handle_relations_results(
+            relations_results=relations_results,
+            k=k,
+            results_type=results_type,
+            node_info=node_info,
+        )
+
+    def _handle_relations_results(
+        self,
+        *,
+        relations_results: RelationsResults,
+        k: Optional[int],
+        results_type: Optional[str],
+        node_info,
+    ):
+        node_list, relations_list, relation_novelties = relations_results
         prediction_list = self.get_probabilities(
             nodes=node_list,
             relations=relations_list,
@@ -202,12 +222,12 @@ class Predictor:
 
     def _find_relations_helper(
         self,
+        *,
         source_id: str,
         namespace: Optional[str] = None,
-    ) -> Tuple[List[NodeInfo], List[np.ndarray], List[bool]]:
+        source_vector: np.ndarray,
+    ) -> RelationsResults:
         node_list, relations_list, relation_novelties = [], [], []
-        source_vector = self.embeddings[source_id]
-
         for target_id, target_vector in self.embeddings.items():
             if source_id == target_id:
                 continue
@@ -223,6 +243,7 @@ class Predictor:
             node_list.append(node_info)
             relation_novelties.append(novel)
 
+            # apply that hadamard operator
             relation = source_vector * target_vector
             relations_list.append(relation.tolist())
 
