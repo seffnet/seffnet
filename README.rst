@@ -32,12 +32,19 @@ If you've installed ``seffnet`` locally, you can use the default model from the 
     results = predictor.find_new_relations(curie='pubchem.compound:5095')
     ...   
 
-Or you can use the default model from CLI:
+You can use the default model in the CLI:
 
 .. code-block:: bash
 
     $ seffnet predict pubchem.compound:5095
-    
+
+You can predict on new chemicals via their SMILES strings based on their similarity
+to chemicals included in the network. Warning: we haven't benchmarked how well this
+actually works yet.
+
+.. code-block:: bash
+
+    $ seffnet predictc "C1=CC=C(C=C1)C2=CC=C(C=C2)CCO"
 
 Rebuilding the resources
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
