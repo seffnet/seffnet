@@ -8,6 +8,8 @@ __all__ = [
     'DRUGBANK_NAMESPACE',
     'PUBCHEM_NAMESPACE',
     'UNIPROT_NAMESPACE',
+    'UMLS_NAMESPACE',
+    'RESULTS_TYPE_TO_NAMESPACE',
     'HERE',
     'RESOURCES',
     'DEFAULT_DRUGBANK_PICKLE',
@@ -33,12 +35,19 @@ __all__ = [
     'DEFAULT_GRAPH_WEIGHTED_PATH',
     'DEFAULT_WEIGHTED_FULLGRAPH_PICKLE',
     'DEFAULT_WEIGHTED_TESTING_SET',
-    'DEFAULT_WEIGHTED_TRAINING_SET'
+    'DEFAULT_WEIGHTED_TRAINING_SET',
 ]
 
 DRUGBANK_NAMESPACE = 'drugbank'
 PUBCHEM_NAMESPACE = 'pubchem.compound'
 UNIPROT_NAMESPACE = 'uniprot'
+UMLS_NAMESPACE = 'umls'
+
+RESULTS_TYPE_TO_NAMESPACE = {
+    'chemical': PUBCHEM_NAMESPACE,
+    'phenotype': UMLS_NAMESPACE,
+    'target': UNIPROT_NAMESPACE,
+}
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 RESOURCES = os.path.abspath(os.path.join(HERE, os.pardir, os.pardir, 'resources'))

@@ -12,7 +12,7 @@ import networkx as nx
 import numpy as np
 from bionev.embed_train import embedding_training
 from bionev.pipeline import create_prediction_model, do_link_prediction, do_node_classification
-from bionev.utils import read_node_labels, read_graph, split_train_test_graph
+from bionev.utils import read_graph, read_node_labels, split_train_test_graph
 from tqdm import tqdm
 
 from .optimization import (
@@ -446,7 +446,8 @@ def randomize(
     order: int = 3,
     weighted: bool = False,
 ):
-    seed = random.randrange(2**10)
+    """Randomize a graph."""
+    seed = random.randrange(2 ** 10)
     if randomization_method == 'random':
         random_graph = nx.gnm_random_graph(len(input_graph.nodes()), len(input_graph.edges()), seed=seed)
     elif randomization_method == 'node_shuffle':

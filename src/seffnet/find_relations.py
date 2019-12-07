@@ -18,9 +18,10 @@ import pandas as pd
 from bionev.utils import load_embedding
 from sklearn.linear_model import LogisticRegression
 
+from .constants import RESULTS_TYPE_TO_NAMESPACE
+
 __all__ = [
     'Embeddings',
-    'RESULTS_TYPE_TO_NAMESPACE',
     'Predictor',
 ]
 
@@ -40,13 +41,6 @@ def _load_embedding(path: str) -> Embeddings:
         str(node_id): np.array(node_vector)
         for node_id, node_vector in rv.items()
     }
-
-
-RESULTS_TYPE_TO_NAMESPACE = {
-    'chemical': 'pubchem.compound',
-    'phenotype': 'umls',
-    'target': 'uniprot',
-}
 
 
 @dataclass
@@ -132,12 +126,28 @@ class Predictor:
         node_info = self._get_entity_json(node_id)
 
         namespace = RESULTS_TYPE_TO_NAMESPACE.get(results_type)
-        node_list, relations_list, relation_novelties = self._find_relations_helper(
+        relations_results = self._find_relations_helper(
             source_id=node_id,
             source_vector=self.embeddings[node_id],
             namespace=namespace,
         )
 
+        return self._handle_relations_results(
+            relations_results=relations_results,
+            k=k,
+            results_type=results_type,
+            node_info=node_info,
+        )
+
+    def _handle_relations_results(
+        self,
+        *,
+        relations_results: RelationsResults,
+        k: Optional[int],
+        results_type: Optional[str],
+        node_info,
+    ):
+        node_list, relations_list, relation_novelties = relations_results
         prediction_list = self.get_probabilities(
             nodes=node_list,
             relations=relations_list,
@@ -209,38 +219,6 @@ class Predictor:
         """Get the probability of the edge between the two nodes."""
         edge_embedding = self.get_edge_embedding(source_id, target_id)
         return self._predict_helper([edge_embedding.tolist()])[0]
-
-    def _find_smiles_relations_helper(
-        self,
-        smiles: str,
-        namespace: Optional[str] = None
-    ) -> RelationsResults:
-        self._find_relations_helper(
-            source_id=f'smiles:{smiles}',
-            source_vector=self._get_smiles_vector(smiles),
-            namespace=namespace,
-        )
-
-    def _get_smiles_vector(self, smiles: str) -> np.ndarray:
-        """Get the smiles vector"""
-        # 1. parse smiles
-        source_fingerprint = self._get_fingerprint(smiles)
-        # 2. get distance to all chemicals
-        other_fingerprints = ...
-
-        vs = np.array([
-            self.embeddings[target_id] * self._chemical_similarity(source_fingerprint, target_fingerprint)
-            for target_id, target_fingerprint in other_fingerprints.items()
-        ])
-        return vs.mean(axis=1)
-
-    @staticmethod
-    def _get_fingerprint(smiles: str):
-        return NotImplemented
-
-    @staticmethod
-    def _chemical_similarity(fp1, fp2) -> float:
-        return 0.0
 
     def _find_relations_helper(
         self,
