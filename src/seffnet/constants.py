@@ -71,8 +71,8 @@ DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST = os.path.join(
 PREDICTIVE_MODELS = os.path.join(RESOURCES, "predictive_models")
 EMBEDDINGS = os.path.join(RESOURCES, "embeddings")
 TRAINING_MODELS = os.path.join(RESOURCES, "training_models")
-DEFAULT_EMBEDDINGS_PATH = os.path.join(EMBEDDINGS, "0411_weighted_node2vec_emb.embeddings")
-DEFAULT_PREDICTIVE_MODEL_PATH = os.path.join(PREDICTIVE_MODELS, "0411_weighted_node2vec_predictive_model.pkl")
+DEFAULT_EMBEDDINGS_PATH = os.path.join(EMBEDDINGS, "0812_weighted_node2vec_emb.embeddings")
+DEFAULT_PREDICTIVE_MODEL_PATH = os.path.join(PREDICTIVE_MODELS, "0812_weighted_node2vec_predictive_model.pkl")
 
 MAPPING = os.path.join(RESOURCES, "mapping")
 DEFAULT_CHEMICALS_MAPPING_PATH = os.path.join(MAPPING, "chemicals_mapping.tsv")
