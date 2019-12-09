@@ -89,7 +89,7 @@ def get_gene_names(uniprot_list, from_id='ACC+ID', to_id='GENENAME'):
         'from': from_id,
         'to': to_id,
         'format': 'tab',
-        'query': uniprot_ids
+        'query': uniprot_ids,
     }
     data = urllib.parse.urlencode(params)
     data = data.encode('utf-8')

@@ -4,12 +4,15 @@
 
 import os
 
+from pybel.dsl import Abundance, Pathology, Protein
+
 __all__ = [
     'DRUGBANK_NAMESPACE',
     'PUBCHEM_NAMESPACE',
     'UNIPROT_NAMESPACE',
     'UMLS_NAMESPACE',
     'RESULTS_TYPE_TO_NAMESPACE',
+    'RESULTS_TYPE_TO_DSL',
     'HERE',
     'RESOURCES',
     'DEFAULT_DRUGBANK_PICKLE',
@@ -48,6 +51,11 @@ RESULTS_TYPE_TO_NAMESPACE = {
     'phenotype': UMLS_NAMESPACE,
     'target': UNIPROT_NAMESPACE,
 }
+RESULTS_TYPE_TO_DSL = {
+    'chemical': Abundance,
+    'phenotype': Pathology,
+    'target': Protein,
+}
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 RESOURCES = os.path.abspath(os.path.join(HERE, os.pardir, os.pardir, 'resources'))
@@ -61,11 +69,11 @@ DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_PICKLE = os.path.join(BASIC_GRAPHS, 'fullgraph
 DEFAULT_FULLGRAPH_WITHOUT_CHEMSIM_EDGELIST = os.path.join(BASIC_GRAPHS, 'fullgraph_without_chemsim.edgelist')
 DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_PICKLE = os.path.join(
     BASIC_GRAPHS,
-    'fullgraph_weighted_without_chemsim.pickle'
+    'fullgraph_weighted_without_chemsim.pickle',
 )
 DEFAULT_FULLGRAPH_WEIGHTED_WITHOUT_CHEMSIM_EDGELIST = os.path.join(
     BASIC_GRAPHS,
-    'fullgraph_weighted_without_chemsim.edgelist'
+    'fullgraph_weighted_without_chemsim.edgelist',
 )
 
 PREDICTIVE_MODELS = os.path.join(RESOURCES, "predictive_models")
