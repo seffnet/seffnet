@@ -37,7 +37,7 @@ def run_study(
         study_name=study_name,
         storage=storage,
         load_if_exists=True,
-        direction='maximize'
+        direction='maximize',
     )
     study.set_user_attr('Author', getuser())
     study.set_user_attr('Date', datetime.datetime.now().strftime("%Y-%m-%d %H:%M"))
@@ -57,7 +57,7 @@ def predict_and_evaluate(
     trial,
     labels,
     node_list,
-    classifier_type: Optional[str] = None
+    classifier_type: Optional[str] = None,
 ) -> float:
     """Predict and evaluate the NRL model.
 
@@ -83,7 +83,7 @@ def predict_and_evaluate(
             original_graph=graph,
             train_graph=graph_train,
             test_pos_edges=testing_pos_edges,
-            classifier_type=classifier_type
+            classifier_type=classifier_type,
         )
         trial.set_user_attr('mcc', round(mcc, 3))
         trial.set_user_attr('auc_roc', round(auc_roc, 3))
@@ -96,7 +96,7 @@ def predict_and_evaluate(
             embeddings=embeddings,
             node_list=node_list,
             labels=labels,
-            classifier_type=classifier_type
+            classifier_type=classifier_type,
         )
         trial.set_user_attr('accuracy', round(accuracy, 3))
         trial.set_user_attr('micro_f1', round(micro_f1, 3))

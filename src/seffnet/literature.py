@@ -92,14 +92,14 @@ def query(query, targets):
                 "targets": targets,
                 "date": time.strftime("%Y-%m-%d %H:%M"),
                 "articles": articles_list,
-            }, fp
+            }, fp,
         )
     click.echo(f"Results exported to {os.path.join(os.path.dirname(__file__), 'result.json')}")
 
 
 def query_europe_pmc(
-        query_entity: str,
-        target_entities: Union[str, List[str], Tuple[str, str], List[Tuple[str, str]]],
+    query_entity: str,
+    target_entities: Union[str, List[str], Tuple[str, str], List[Tuple[str, str]]],
 ) -> Iterable[Mapping[str, str]]:
     """Query Europe PMC API by entity.
 
@@ -167,17 +167,17 @@ def _query_api(string: str, cursor_mark: Optional[str] = None, page_size: int = 
     if response.status_code != 200:
         raise ConnectionError(
             f'Unsuccessful response {response.status_code} from EBI. '
-            f'Please check that the EBI API works and that you have access to the Internet.'
+            f'Please check that the EBI API works and that you have access to the Internet.',
         )
 
     return response.json()
 
 
 def _get_matching_annotations_for_articles(
-        *,
-        query: str,
-        articles: List[Dict],
-        entity_tuples: List[Tuple[str, str]],
+    *,
+    query: str,
+    articles: List[Dict],
+    entity_tuples: List[Tuple[str, str]],
 ) -> Iterable[Mapping[str, str]]:
     for article in articles:
         matching_annotations = _get_matching_annotations_for_article(
@@ -192,10 +192,10 @@ def _get_matching_annotations_for_articles(
 
 
 def _get_matching_annotations_for_article(
-        *,
-        string,
-        article,
-        entity_tuples: List[Tuple[str, str]],
+    *,
+    string,
+    article,
+    entity_tuples: List[Tuple[str, str]],
 ) -> Optional[Mapping[str, str]]:
     matching_annotations = _check_annotation_present(
         article['annotations'],
@@ -205,10 +205,11 @@ def _get_matching_annotations_for_article(
         return {
             'searched term': string,
             'co-occurrence(s) found': [
-                {"namespace": _NAMESPACE_FIXER_INVERSE.get(namespace, namespace),
-                 "identifier": identifier,
-                 "exact_term": exact_term,
-                 }
+                {
+                    "namespace": _NAMESPACE_FIXER_INVERSE.get(namespace, namespace),
+                    "identifier": identifier,
+                    "exact_term": exact_term,
+                }
                 for namespace, identifier, exact_term in matching_annotations
             ],
             'source': article['source'],
@@ -218,8 +219,8 @@ def _get_matching_annotations_for_article(
 
 
 def _check_annotation_present(
-        annotations: Iterable[Dict],
-        entity_tuples: List[Tuple[str, str]],
+    annotations: Iterable[Dict],
+    entity_tuples: List[Tuple[str, str]],
 ) -> Set[Tuple[str, str, str]]:
     """Check if annotation is present in the article.
 

@@ -22,13 +22,17 @@ from .constants import (
 from .graph_preprocessing import get_mapped_graph
 from .pipeline import do_evaluation, do_optimization, repeat_experiment, train_model
 
-INPUT_PATH = click.option('--input-path', default=DEFAULT_GRAPH_PATH,
-                          help='Input graph file. Only accepted edgelist format.')
+INPUT_PATH = click.option(
+    '--input-path', default=DEFAULT_GRAPH_PATH,
+    help='Input graph file. Only accepted edgelist format.',
+)
 TRAINING_PATH = click.option('--training-path', help='training graph file. Only accepted edgelist format.')
 TESTING_PATH = click.option('--testing-path', help='testing graph file. Only accepted edgelist format.')
-METHOD = click.option('--method', required=True,
-                      type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
-                      help='The NRL method to train the model')
+METHOD = click.option(
+    '--method', required=True,
+    type=click.Choice(['node2vec', 'DeepWalk', 'HOPE', 'GraRep', 'LINE', 'SDNE']),
+    help='The NRL method to train the model',
+)
 SEED = click.option('--seed', type=int, default=random.randrange(2 ** 32 - 1))
 DIMENSIONS = click.option('--dimensions', type=int, default=200, help='The dimensions of embeddings.')
 NUMBER_WALKS = click.option('--number-walks', type=int, default=8, help='The number of walks for random-walk methods.')
@@ -41,18 +45,24 @@ BETA = click.option('--beta', type=int, default=2, help='The beta parameter for 
 EPOCHS = click.option('--epochs', type=int, default=30, help='The epochs for deep learning methods')
 KSTEP = click.option('--kstep', type=int, default=30, help='The kstep parameter for GraRep')
 ORDER = click.option('--order', default=2, type=int, help='The order parameter for LINE. Could be 1, 2 or 3')
-EVALUATION_FILE = click.option('--evaluation-file', type=click.File('w'), default=sys.stdout,
-                               help='The path to save evaluation results.')
-PREDICTION_TASK = click.option('--prediction-task', default='link_prediction',
-                               type=click.Choice(['link_prediction', 'node_classification']),
-                               required=True,
-                               help='The prediction task for the model')
+EVALUATION_FILE = click.option(
+    '--evaluation-file', type=click.File('w'), default=sys.stdout,
+    help='The path to save evaluation results.',
+)
+PREDICTION_TASK = click.option(
+    '--prediction-task', default='link_prediction',
+    type=click.Choice(['link_prediction', 'node_classification']),
+    required=True,
+    help='The prediction task for the model',
+)
 LABELS_FILE = click.option('--labels-file', default='', help='The labels file for node classification')
 TRAINING_MODEL_PATH = click.option('--training-model-path', help='The path to save the model used for training')
 PREDICTIVE_MODEL_PATH = click.option('--predictive-model-path', help='The path to save the prediction model')
 EMBEDDINGS_PATH = click.option('--embeddings-path', help='The path to save the embeddings file')
-CLASSIFIER_TYPE = click.option('--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF', 'ENCV']),
-                               help='Choose type of classifier for predictive model')
+CLASSIFIER_TYPE = click.option(
+    '--classifier-type', type=click.Choice(['LR', 'EN', 'SVM', 'RF', 'ENCV']),
+    help='Choose type of classifier for predictive model',
+)
 WEIGHTED = click.option('--weighted', is_flag=True, help='True if graph is weighted.')
 
 
@@ -228,8 +238,10 @@ def train(
 @click.option('--updated-graph-path', required=True, help='The path to save the updated fullgraph')
 @click.option('--chemsim-graph-path', required=True, help='The path to save the chemical similarity graph')
 @click.option('--training-model-path', required=True, help='The path to save the model used for training')
-@click.option('--new-training-model-path', required=True,
-              help='the path of the updated training model')
+@click.option(
+    '--new-training-model-path', required=True,
+    help='the path of the updated training model',
+)
 @EMBEDDINGS_PATH
 @PREDICTIVE_MODEL_PATH
 @SEED
@@ -257,9 +269,13 @@ def update(
             raise Exception('You need RDKit to update model')
         click.secho('Updating graph', fg='blue', bold=True)
         pickled_graph_path = updated_graph_path.split('.')[0] + '.pickle'
-        new_graph = add_new_chemicals(chemicals_list=new_chemicals, graph=old_graph,
-                                      updated_graph_path=updated_graph_path, chemsim_graph_path=chemsim_graph_path,
-                                      pickled_graph_path=pickled_graph_path)
+        new_graph = add_new_chemicals(
+            pubchem_ids=new_chemicals,
+            graph=old_graph,
+            updated_graph_path=updated_graph_path,
+            chemsim_graph_path=chemsim_graph_path,
+            pickled_graph_path=pickled_graph_path,
+        )
         graph = Og.Graph()
         graph.read_g(new_graph)
     else:
@@ -279,7 +295,7 @@ def update(
         create_prediction_model(
             embeddings=model.get_embeddings(),
             original_graph=original_graph,
-            save_model=predictive_model_path
+            save_model=predictive_model_path,
         )
     click.secho('Process is complete', fg='blue', bold=True)
 
@@ -461,7 +477,7 @@ def rebuild():
 
     click.secho('Rebuilding combined graph with chemical similarities', fg='blue', bold=True)
     chemsim_graph = get_similarity_graph(rebuild=True)
-    fullgraph_with_chemsim = get_combined_graph_similarity(fullgraph, chemsim_graph)
+    fullgraph_with_chemsim = get_combined_graph_similarity(fullgraph_path=fullgraph, chemsim_graph_path=chemsim_graph)
     _echo_graph(fullgraph_with_chemsim)
 
     click.secho('Rebuilding training and testing sets', fg='blue', bold=True)

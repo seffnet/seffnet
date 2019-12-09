@@ -8,6 +8,7 @@
 ignore =
     # Line break after operator
     W504
+    W503
     # Complaining about assert statements
     S101
     # Complains about random number generators

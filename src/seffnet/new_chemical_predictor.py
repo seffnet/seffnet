@@ -33,7 +33,7 @@ class ChemicalPredictor:
     def __init__(
         self,
         predictor: Predictor,
-        chemical_mapping_path: str
+        chemical_mapping_path: str,
     ):  # noqa: D107
         self.predictor = predictor
         chemical_mapping_df = pd.read_csv(chemical_mapping_path, sep='\t', dtype={'pubchem_id': str, 'smiles': str})
@@ -87,5 +87,5 @@ class ChemicalPredictor:
             relations_results=relations_results,
             results_type=results_type,
             k=k,
-            node_info=dict(namespace='smiles', identifier=smiles, entity_type='drug')
+            node_info=dict(namespace='smiles', identifier=smiles, entity_type='drug'),
         )

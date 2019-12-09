@@ -81,7 +81,7 @@ class Predictor:
                 namespace=namespace,
                 identifier=identifier,
                 name=name,
-                entity_type=entity_type
+                entity_type=entity_type,
             )
             node_curie_to_id[namespace, identifier] = node_id
             node_name_to_id[name] = node_id
@@ -272,7 +272,7 @@ class Predictor:
             {
                 'lor': round(lor, self.precision),
                 'novel': novel,
-                **node
+                **node,
             }
             for node, lor, novel in zip(nodes, probabilities, relation_novelties)
         ]
