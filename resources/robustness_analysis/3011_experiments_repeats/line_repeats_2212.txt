@@ -1,0 +1,702 @@
+{
+  "0": {
+    "date": "2019-12-20-003741",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9026244894412097,
+      "auc_pr": 0.9581199568258136,
+      "auc_roc": 0.9423613890597604,
+      "f1": 0.8979089790897908,
+      "mcc": 0.8087070431245593
+    },
+    "user": "aldis"
+  },
+  "1": {
+    "date": "2019-12-20-012842",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8956830624837055,
+      "auc_pr": 0.9545919413279119,
+      "auc_roc": 0.9397525277516683,
+      "f1": 0.8902526828264821,
+      "mcc": 0.7952698959370107
+    },
+    "user": "aldis"
+  },
+  "2": {
+    "date": "2019-12-20-022504",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8995176848874598,
+      "auc_pr": 0.9546097363383557,
+      "auc_roc": 0.9409912220580626,
+      "f1": 0.8945820892120439,
+      "mcc": 0.80256162600705
+    },
+    "user": "aldis"
+  },
+  "3": {
+    "date": "2019-12-20-032303",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8988007299904406,
+      "auc_pr": 0.9554964954254854,
+      "auc_roc": 0.9391187149910729,
+      "f1": 0.8933632471784071,
+      "mcc": 0.8017817048827421
+    },
+    "user": "aldis"
+  },
+  "4": {
+    "date": "2019-12-20-042048",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9029286521247936,
+      "auc_pr": 0.9580684043541774,
+      "auc_roc": 0.9421714643881418,
+      "f1": 0.8978579429851634,
+      "mcc": 0.8098589799814333
+    },
+    "user": "aldis"
+  },
+  "5": {
+    "date": "2019-12-20-052104",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8933149387329452,
+      "auc_pr": 0.9533681975965462,
+      "auc_roc": 0.9368742530315578,
+      "f1": 0.8875917087296411,
+      "mcc": 0.7907402365769741
+    },
+    "user": "aldis"
+  },
+  "6": {
+    "date": "2019-12-20-061544",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8924676284001043,
+      "auc_pr": 0.9513880407005025,
+      "auc_roc": 0.9350975187501158,
+      "f1": 0.8871098338408203,
+      "mcc": 0.7884954258659026
+    },
+    "user": "aldis"
+  },
+  "7": {
+    "date": "2019-12-20-070602",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.896258798991918,
+      "auc_pr": 0.9542188826030745,
+      "auc_roc": 0.9383004859737951,
+      "f1": 0.8908371816560743,
+      "mcc": 0.7964565033010079
+    },
+    "user": "aldis"
+  },
+  "8": {
+    "date": "2019-12-20-080227",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.901950986356131,
+      "auc_pr": 0.957331705725968,
+      "auc_roc": 0.9420232002315758,
+      "f1": 0.8970879985405787,
+      "mcc": 0.8075163095462613
+    },
+    "user": "aldis"
+  },
+  "9": {
+    "date": "2019-12-20-090003",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9008972799165725,
+      "auc_pr": 0.9563224752912636,
+      "auc_roc": 0.9415953535720423,
+      "f1": 0.8961938897422769,
+      "mcc": 0.8051070465193383
+    },
+    "user": "aldis"
+  },
+  "10": {
+    "date": "2019-12-20-095959",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8989419483792475,
+      "auc_pr": 0.9562115478528996,
+      "auc_roc": 0.9413033707632662,
+      "f1": 0.8937225109956017,
+      "mcc": 0.8017608535031264
+    },
+    "user": "aldis"
+  },
+  "11": {
+    "date": "2019-12-20-105920",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9022660119927001,
+      "auc_pr": 0.956713124765177,
+      "auc_roc": 0.9417739782047947,
+      "f1": 0.8975506439381,
+      "mcc": 0.8079625198118306
+    },
+    "user": "aldis"
+  },
+  "12": {
+    "date": "2019-12-20-115601",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.901244894412097,
+      "auc_pr": 0.95770007511689,
+      "auc_roc": 0.9423013803780076,
+      "f1": 0.8961681228941808,
+      "mcc": 0.8063544532906024
+    },
+    "user": "aldis"
+  },
+  "13": {
+    "date": "2019-12-20-124453",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9029069262188233,
+      "auc_pr": 0.9570469653708891,
+      "auc_roc": 0.9419376328821321,
+      "f1": 0.898105291958321,
+      "mcc": 0.8094166899739396
+    },
+    "user": "aldis"
+  },
+  "14": {
+    "date": "2019-12-20-134001",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9013100721300078,
+      "auc_pr": 0.9569348652858258,
+      "auc_roc": 0.9412223984797523,
+      "f1": 0.896151252243293,
+      "mcc": 0.8066110186650308
+    },
+    "user": "aldis"
+  },
+  "15": {
+    "date": "2019-12-20-143837",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9050034761449552,
+      "auc_pr": 0.9576156060222584,
+      "auc_roc": 0.9410587584348795,
+      "f1": 0.9003748049077798,
+      "mcc": 0.8135267414705064
+    },
+    "user": "aldis"
+  },
+  "16": {
+    "date": "2019-12-20-153757",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8865799078821587,
+      "auc_pr": 0.9475189243649939,
+      "auc_roc": 0.9331897965327651,
+      "f1": 0.8806019646185691,
+      "mcc": 0.7770654321226506
+    },
+    "user": "aldis"
+  },
+  "17": {
+    "date": "2019-12-20-163744",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.901244894412097,
+      "auc_pr": 0.9570841435264441,
+      "auc_roc": 0.9417483407106003,
+      "f1": 0.8961159168561666,
+      "mcc": 0.8064309417268605
+    },
+    "user": "aldis"
+  },
+  "18": {
+    "date": "2019-12-20-173412",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9019944381680716,
+      "auc_pr": 0.9574145700282203,
+      "auc_roc": 0.9417410273103417,
+      "f1": 0.8977816047676237,
+      "mcc": 0.8067341806010451
+    },
+    "user": "aldis"
+  },
+  "19": {
+    "date": "2019-12-20-182400",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8982684452941687,
+      "auc_pr": 0.9553222655580215,
+      "auc_roc": 0.9391612964073714,
+      "f1": 0.8927692219614131,
+      "mcc": 0.8007601034504235
+    },
+    "user": "aldis"
+  },
+  "20": {
+    "date": "2019-12-20-192056",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9013100721300078,
+      "auc_pr": 0.9579794876627116,
+      "auc_roc": 0.9427701030636801,
+      "f1": 0.89653680146682,
+      "mcc": 0.8060587656094556
+    },
+    "user": "aldis"
+  },
+  "21": {
+    "date": "2019-12-20-195657",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9071326149300426,
+      "auc_pr": 0.9597985198568686,
+      "auc_roc": 0.9440196754275392,
+      "f1": 0.9025921494901157,
+      "mcc": 0.8178268771911339
+    },
+    "user": "aldis"
+  },
+  "22": {
+    "date": "2019-12-20-203046",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8955201181889285,
+      "auc_pr": 0.9537556685008266,
+      "auc_roc": 0.9379059701807815,
+      "f1": 0.8906473838597448,
+      "mcc": 0.7942004185941618
+    },
+    "user": "aldis"
+  },
+  "23": {
+    "date": "2019-12-20-210415",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8943251933605632,
+      "auc_pr": 0.9537299799572382,
+      "auc_roc": 0.9382094347541949,
+      "f1": 0.8883942912211463,
+      "mcc": 0.7931428214635211
+    },
+    "user": "aldis"
+  },
+  "24": {
+    "date": "2019-12-20-220051",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.897899104892674,
+      "auc_pr": 0.9541253262438449,
+      "auc_roc": 0.9368966982883733,
+      "f1": 0.8924464177413634,
+      "mcc": 0.7999207883809356
+    },
+    "user": "aldis"
+  },
+  "25": {
+    "date": "2019-12-20-230120",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9035478404449465,
+      "auc_pr": 0.9584086819808382,
+      "auc_roc": 0.942621020905136,
+      "f1": 0.8989012240250498,
+      "mcc": 0.8105273059680052
+    },
+    "user": "aldis"
+  },
+  "26": {
+    "date": "2019-12-20-235939",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9001042843486573,
+      "auc_pr": 0.9559993926983652,
+      "auc_roc": 0.9392222401508201,
+      "f1": 0.89526911600574,
+      "mcc": 0.803641734558895
+    },
+    "user": "aldis"
+  },
+  "27": {
+    "date": "2019-12-21-005743",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.895954636308334,
+      "auc_pr": 0.9533841215015526,
+      "auc_roc": 0.9381060035254308,
+      "f1": 0.8909310376241231,
+      "mcc": 0.7952907595501746
+    },
+    "user": "aldis"
+  },
+  "28": {
+    "date": "2019-12-21-014610",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8976492569740158,
+      "auc_pr": 0.9542158007184222,
+      "auc_roc": 0.9393336257761994,
+      "f1": 0.8924625639152667,
+      "mcc": 0.7990247106740014
+    },
+    "user": "aldis"
+  },
+  "29": {
+    "date": "2019-12-21-024213",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9028091596419571,
+      "auc_pr": 0.957893284280128,
+      "auc_roc": 0.9424149797536912,
+      "f1": 0.8980480189614504,
+      "mcc": 0.8091553828813404
+    },
+    "user": "aldis"
+  },
+  "30": {
+    "date": "2019-12-21-033830",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8972147388546102,
+      "auc_pr": 0.9545694135195752,
+      "auc_roc": 0.9396013380461927,
+      "f1": 0.8925236829550874,
+      "mcc": 0.7974738084526463
+    },
+    "user": "aldis"
+  },
+  "31": {
+    "date": "2019-12-21-043603",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9054705831233163,
+      "auc_pr": 0.9589062587035244,
+      "auc_roc": 0.9432061372952343,
+      "f1": 0.9008477279978122,
+      "mcc": 0.8144899382543678
+    },
+    "user": "aldis"
+  },
+  "32": {
+    "date": "2019-12-21-053658",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9054705831233163,
+      "auc_pr": 0.9577465578491293,
+      "auc_roc": 0.9412763738659,
+      "f1": 0.9009177236809145,
+      "mcc": 0.8143875015601449
+    },
+    "user": "aldis"
+  },
+  "33": {
+    "date": "2019-12-21-063256",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8972907795255062,
+      "auc_pr": 0.9558098456348078,
+      "auc_roc": 0.9411035507693923,
+      "f1": 0.8923255628565898,
+      "mcc": 0.797982515078308
+    },
+    "user": "aldis"
+  },
+  "34": {
+    "date": "2019-12-21-085111",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9018749456852351,
+      "auc_pr": 0.9560467659538942,
+      "auc_roc": 0.9404926958738918,
+      "f1": 0.897572259578859,
+      "mcc": 0.8066015766575576
+    },
+    "user": "aldis"
+  },
+  "35": {
+    "date": "2019-12-21-122347",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9014621534717998,
+      "auc_pr": 0.9568439876096622,
+      "auc_roc": 0.9418234670884603,
+      "f1": 0.8962543603819981,
+      "mcc": 0.8070015877308885
+    },
+    "user": "aldis"
+  },
+  "36": {
+    "date": "2019-12-22-014042",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8968997132180412,
+      "auc_pr": 0.9540734089717702,
+      "auc_roc": 0.9389335756074254,
+      "f1": 0.8920950009663813,
+      "mcc": 0.7969659669235031
+    },
+    "user": "aldis"
+  },
+  "37": {
+    "date": "2019-12-22-025851",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8980837750934214,
+      "auc_pr": 0.9554118795755502,
+      "auc_roc": 0.9410865006439153,
+      "f1": 0.8932359233465337,
+      "mcc": 0.7994710884094524
+    },
+    "user": "aldis"
+  },
+  "38": {
+    "date": "2019-12-22-033143",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8968453984531155,
+      "auc_pr": 0.953576422483429,
+      "auc_roc": 0.9367821921718934,
+      "f1": 0.8919066590779737,
+      "mcc": 0.797025413906502
+    },
+    "user": "aldis"
+  },
+  "39": {
+    "date": "2019-12-22-040550",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8979099678456591,
+      "auc_pr": 0.9552270964244315,
+      "auc_roc": 0.9386343870178084,
+      "f1": 0.8925648177785908,
+      "mcc": 0.7997892118282964
+    },
+    "user": "aldis"
+  },
+  "40": {
+    "date": "2019-12-22-043922",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9036130181628574,
+      "auc_pr": 0.9575330597591099,
+      "auc_roc": 0.9414356827012222,
+      "f1": 0.8990775600268429,
+      "mcc": 0.8105064839182426
+    },
+    "user": "aldis"
+  },
+  "41": {
+    "date": "2019-12-22-051056",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9001694620665682,
+      "auc_pr": 0.9559951887387009,
+      "auc_roc": 0.9401687477379626,
+      "f1": 0.8950002285087518,
+      "mcc": 0.8042468960160327
+    },
+    "user": "aldis"
+  },
+  "42": {
+    "date": "2019-12-22-130601",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9013643868949335,
+      "auc_pr": 0.9557860602584465,
+      "auc_roc": 0.939152822322252,
+      "f1": 0.8961906068505053,
+      "mcc": 0.8067466131758354
+    },
+    "user": "aldis"
+  },
+  "43": {
+    "date": "2019-12-22-134109",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8959220474493786,
+      "auc_pr": 0.9555803242510621,
+      "auc_roc": 0.9401526539148557,
+      "f1": 0.8901047222508975,
+      "mcc": 0.7963194555847486
+    },
+    "user": "aldis"
+  },
+  "44": {
+    "date": "2019-12-22-141359",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8961393065090815,
+      "auc_pr": 0.9536753553700102,
+      "auc_roc": 0.939298372864639,
+      "f1": 0.8916367263206809,
+      "mcc": 0.7950285525584959
+    },
+    "user": "aldis"
+  },
+  "45": {
+    "date": "2019-12-22-144502",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8991048926740245,
+      "auc_pr": 0.9550776533983159,
+      "auc_roc": 0.9383697234926369,
+      "f1": 0.8939362795477903,
+      "mcc": 0.8020280755310571
+    },
+    "user": "aldis"
+  },
+  "46": {
+    "date": "2019-12-22-152246",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.9018749456852351,
+      "auc_pr": 0.9569406376858652,
+      "auc_roc": 0.9410745780172771,
+      "f1": 0.8969247446796371,
+      "mcc": 0.8074832999364393
+    },
+    "user": "aldis"
+  },
+  "47": {
+    "date": "2019-12-22-160419",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8940318936299644,
+      "auc_pr": 0.9519436279291627,
+      "auc_roc": 0.9369314234871744,
+      "f1": 0.8885817733258711,
+      "mcc": 0.7918623763076856
+    },
+    "user": "aldis"
+  },
+  "48": {
+    "date": "2019-12-22-163910",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.901950986356131,
+      "auc_pr": 0.9570772600481103,
+      "auc_roc": 0.9402622732601416,
+      "f1": 0.8967205986681007,
+      "mcc": 0.8080575443893577
+    },
+    "user": "aldis"
+  },
+  "49": {
+    "date": "2019-12-22-171154",
+    "dimension": 150,
+    "input": "C:\\Users\\aldis\\Documents\\GitHub\\seffnet\\resources\\basic_graphs\\fullgraph_weighted_with_chemsim.edgelist",
+    "method": "LINE",
+    "results": {
+      "accuracy": 0.8917506735030851,
+      "auc_pr": 0.9511243252013533,
+      "auc_roc": 0.9332812848382465,
+      "f1": 0.8856477284463468,
+      "mcc": 0.7880031825450222
+    },
+    "user": "aldis"
+  }
+}

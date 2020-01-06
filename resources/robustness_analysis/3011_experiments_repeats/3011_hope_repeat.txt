@@ -1,0 +1,702 @@
+{
+  "0": {
+    "date": "2019-11-30-065800",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8767054836186668,
+      "auc_pr": 0.9501370246004001,
+      "auc_roc": 0.9325875773875185,
+      "f1": 0.8612503361775995,
+      "mcc": 0.7728327719064019
+    },
+    "user": "choyt"
+  },
+  "1": {
+    "date": "2019-11-30-070102",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8788128964977839,
+      "auc_pr": 0.9506461963875469,
+      "auc_roc": 0.9331645510470202,
+      "f1": 0.8638748566268883,
+      "mcc": 0.776559795270763
+    },
+    "user": "choyt"
+  },
+  "2": {
+    "date": "2019-11-30-070420",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.877259494220909,
+      "auc_pr": 0.9519625435939854,
+      "auc_roc": 0.9332623936182998,
+      "f1": 0.8620407565231194,
+      "mcc": 0.7735813068915877
+    },
+    "user": "choyt"
+  },
+  "3": {
+    "date": "2019-11-30-070742",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8786934040149474,
+      "auc_pr": 0.9505457564199636,
+      "auc_roc": 0.9329366055679386,
+      "f1": 0.8636324781106132,
+      "mcc": 0.7765685623516057
+    },
+    "user": "choyt"
+  },
+  "4": {
+    "date": "2019-11-30-071110",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8769879203962805,
+      "auc_pr": 0.9510983675279475,
+      "auc_roc": 0.9327496814956131,
+      "f1": 0.8615647921760391,
+      "mcc": 0.7734200856045882
+    },
+    "user": "choyt"
+  },
+  "5": {
+    "date": "2019-11-30-071451",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8783566524724081,
+      "auc_pr": 0.9500892069541217,
+      "auc_roc": 0.9331539269336202,
+      "f1": 0.8631987881157154,
+      "mcc": 0.7760074194766902
+    },
+    "user": "choyt"
+  },
+  "6": {
+    "date": "2019-11-30-071811",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8769010167723994,
+      "auc_pr": 0.9501377256567676,
+      "auc_roc": 0.9323503148045447,
+      "f1": 0.8614602181035748,
+      "mcc": 0.773257554849167
+    },
+    "user": "choyt"
+  },
+  "7": {
+    "date": "2019-11-30-072138",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8779873120709134,
+      "auc_pr": 0.951090355746852,
+      "auc_roc": 0.9336010681499095,
+      "f1": 0.8628303453666163,
+      "mcc": 0.7751401716532669
+    },
+    "user": "choyt"
+  },
+  "8": {
+    "date": "2019-11-30-072514",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.878584774485096,
+      "auc_pr": 0.9506662339773249,
+      "auc_roc": 0.9335044849146236,
+      "f1": 0.8636003075308445,
+      "mcc": 0.7761349430320589
+    },
+    "user": "choyt"
+  },
+  "9": {
+    "date": "2019-11-30-072840",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8783783783783784,
+      "auc_pr": 0.951571060358726,
+      "auc_roc": 0.9332276906042032,
+      "f1": 0.8633367511351986,
+      "mcc": 0.7757858140625721
+    },
+    "user": "choyt"
+  },
+  "10": {
+    "date": "2019-11-30-073139",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8779438602589728,
+      "auc_pr": 0.95019963657207,
+      "auc_roc": 0.9326323978069231,
+      "f1": 0.8626338696268765,
+      "mcc": 0.7753970731009978
+    },
+    "user": "choyt"
+  },
+  "11": {
+    "date": "2019-11-30-073459",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8767054836186668,
+      "auc_pr": 0.9497653811575149,
+      "auc_roc": 0.9324842327735052,
+      "f1": 0.8611247063429914,
+      "mcc": 0.7731252438974375
+    },
+    "user": "choyt"
+  },
+  "12": {
+    "date": "2019-11-30-073818",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.877487616233597,
+      "auc_pr": 0.9501779107395611,
+      "auc_roc": 0.9325623852394673,
+      "f1": 0.862120397085432,
+      "mcc": 0.7744610338658218
+    },
+    "user": "choyt"
+  },
+  "13": {
+    "date": "2019-11-30-074141",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.877650560528374,
+      "auc_pr": 0.9504930543429354,
+      "auc_roc": 0.9330820607632978,
+      "f1": 0.8622583130526239,
+      "mcc": 0.7749021034039719
+    },
+    "user": "choyt"
+  },
+  "14": {
+    "date": "2019-11-30-074511",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8784544190492743,
+      "auc_pr": 0.9511613821504397,
+      "auc_roc": 0.9333467580375412,
+      "f1": 0.8633237647346241,
+      "mcc": 0.7761725853547942
+    },
+    "user": "choyt"
+  },
+  "15": {
+    "date": "2019-11-30-074843",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8780090379768837,
+      "auc_pr": 0.9503385928170722,
+      "auc_roc": 0.9331840596625739,
+      "f1": 0.8627743291460971,
+      "mcc": 0.7753730623714602
+    },
+    "user": "choyt"
+  },
+  "16": {
+    "date": "2019-11-30-075206",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8781611193186756,
+      "auc_pr": 0.9504263666071706,
+      "auc_roc": 0.9340161739448196,
+      "f1": 0.8630558472320579,
+      "mcc": 0.7754262079231952
+    },
+    "user": "choyt"
+  },
+  "17": {
+    "date": "2019-11-30-075545",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8774224385156861,
+      "auc_pr": 0.9498218252306103,
+      "auc_roc": 0.932947334468667,
+      "f1": 0.8621212121212122,
+      "mcc": 0.7741541186450034
+    },
+    "user": "choyt"
+  },
+  "18": {
+    "date": "2019-11-30-075930",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8779221343530025,
+      "auc_pr": 0.9502819427364784,
+      "auc_roc": 0.9328412240828181,
+      "f1": 0.8627537187660292,
+      "mcc": 0.775014336585418
+    },
+    "user": "choyt"
+  },
+  "19": {
+    "date": "2019-11-30-080308",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8771074128791171,
+      "auc_pr": 0.9499269458445454,
+      "auc_roc": 0.9326629633736231,
+      "f1": 0.861579121242154,
+      "mcc": 0.773946163943035
+    },
+    "user": "choyt"
+  },
+  "20": {
+    "date": "2019-11-30-080640",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.877965586164943,
+      "auc_pr": 0.9503240532702821,
+      "auc_roc": 0.9324113121216948,
+      "f1": 0.8627958670216664,
+      "mcc": 0.7751191017306149
+    },
+    "user": "choyt"
+  },
+  "21": {
+    "date": "2019-11-30-081014",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8781502563656904,
+      "auc_pr": 0.9499139093836508,
+      "auc_roc": 0.9333367088383989,
+      "f1": 0.8630453096956157,
+      "mcc": 0.7754000269607282
+    },
+    "user": "choyt"
+  },
+  "22": {
+    "date": "2019-11-30-081349",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8787259928739029,
+      "auc_pr": 0.9513530132204187,
+      "auc_roc": 0.9329708009299132,
+      "f1": 0.863684094849691,
+      "mcc": 0.776600144712918
+    },
+    "user": "choyt"
+  },
+  "23": {
+    "date": "2019-11-30-081732",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8782045711306161,
+      "auc_pr": 0.9516795503645548,
+      "auc_roc": 0.9325971253067411,
+      "f1": 0.8629373364954401,
+      "mcc": 0.7759082353853535
+    },
+    "user": "choyt"
+  },
+  "24": {
+    "date": "2019-11-30-082110",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8768141131485183,
+      "auc_pr": 0.9506311930239937,
+      "auc_roc": 0.9327844015022491,
+      "f1": 0.8612742219612448,
+      "mcc": 0.7732847260318854
+    },
+    "user": "choyt"
+  },
+  "25": {
+    "date": "2019-11-30-082444",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8776940123403146,
+      "auc_pr": 0.9504030423703362,
+      "auc_roc": 0.9327811259542246,
+      "f1": 0.862411555522968,
+      "mcc": 0.7747465419945774
+    },
+    "user": "choyt"
+  },
+  "26": {
+    "date": "2019-11-30-082818",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8773029460328495,
+      "auc_pr": 0.9506848070113474,
+      "auc_roc": 0.9335438120235722,
+      "f1": 0.8621030655971872,
+      "mcc": 0.7736392346931814
+    },
+    "user": "choyt"
+  },
+  "27": {
+    "date": "2019-11-30-083155",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8778895454940471,
+      "auc_pr": 0.9519629801031801,
+      "auc_roc": 0.9336625440902595,
+      "f1": 0.8627656847065718,
+      "mcc": 0.7748342245596511
+    },
+    "user": "choyt"
+  },
+  "28": {
+    "date": "2019-11-30-083456",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8778460936821065,
+      "auc_pr": 0.9508011710290825,
+      "auc_roc": 0.9324466771368152,
+      "f1": 0.8624750816344001,
+      "mcc": 0.7753112442553111
+    },
+    "user": "choyt"
+  },
+  "29": {
+    "date": "2019-11-30-083803",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8777591900582254,
+      "auc_pr": 0.9518584901917453,
+      "auc_roc": 0.9326207664135338,
+      "f1": 0.8624176254111089,
+      "mcc": 0.7750379534475114
+    },
+    "user": "choyt"
+  },
+  "30": {
+    "date": "2019-11-30-084149",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8784978708612149,
+      "auc_pr": 0.9509458953958703,
+      "auc_roc": 0.9333956953716909,
+      "f1": 0.8634326809196469,
+      "mcc": 0.7761206333618471
+    },
+    "user": "choyt"
+  },
+  "31": {
+    "date": "2019-11-30-084531",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8772269053619536,
+      "auc_pr": 0.9501694673492634,
+      "auc_roc": 0.9326870436903645,
+      "f1": 0.8618067103589944,
+      "mcc": 0.7739735142728091
+    },
+    "user": "choyt"
+  },
+  "32": {
+    "date": "2019-11-30-084919",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8777048752932998,
+      "auc_pr": 0.9504501418605381,
+      "auc_roc": 0.9322747657372613,
+      "f1": 0.8624422668067742,
+      "mcc": 0.774725583947036
+    },
+    "user": "choyt"
+  },
+  "33": {
+    "date": "2019-11-30-085305",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8777157382462849,
+      "auc_pr": 0.9514894027087673,
+      "auc_roc": 0.93250887903622,
+      "f1": 0.8623114840319483,
+      "mcc": 0.775083407455186
+    },
+    "user": "choyt"
+  },
+  "34": {
+    "date": "2019-11-30-085644",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8771725905970279,
+      "auc_pr": 0.9502468824827539,
+      "auc_roc": 0.9329117926839321,
+      "f1": 0.8617371207767275,
+      "mcc": 0.7738818235959409
+    },
+    "user": "choyt"
+  },
+  "35": {
+    "date": "2019-11-30-090022",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8783566524724081,
+      "auc_pr": 0.9506979509432778,
+      "auc_roc": 0.9333119913014208,
+      "f1": 0.863145287446226,
+      "mcc": 0.7761333779139791
+    },
+    "user": "choyt"
+  },
+  "36": {
+    "date": "2019-11-30-090402",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8780199009298688,
+      "auc_pr": 0.9503815322895078,
+      "auc_roc": 0.9330238103373835,
+      "f1": 0.8628820534111583,
+      "mcc": 0.7751718014410798
+    },
+    "user": "choyt"
+  },
+  "37": {
+    "date": "2019-11-30-090744",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8777809159641957,
+      "auc_pr": 0.9507202739848999,
+      "auc_roc": 0.932919946978896,
+      "f1": 0.8624857914614322,
+      "mcc": 0.7749799260014898
+    },
+    "user": "choyt"
+  },
+  "38": {
+    "date": "2019-11-30-091125",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8782806118015121,
+      "auc_pr": 0.9506062778366073,
+      "auc_roc": 0.9332887646237892,
+      "f1": 0.863191824475294,
+      "mcc": 0.7756673217906248
+    },
+    "user": "choyt"
+  },
+  "39": {
+    "date": "2019-11-30-091505",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8771182758321022,
+      "auc_pr": 0.9500932496261218,
+      "auc_roc": 0.9323989705817526,
+      "f1": 0.8616810545107726,
+      "mcc": 0.7737585314317086
+    },
+    "user": "choyt"
+  },
+  "40": {
+    "date": "2019-11-30-091848",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8778460936821065,
+      "auc_pr": 0.9504279841426486,
+      "auc_roc": 0.9324442724564475,
+      "f1": 0.8624380696067039,
+      "mcc": 0.7753985469058705
+    },
+    "user": "choyt"
+  },
+  "41": {
+    "date": "2019-11-30-092234",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8782588858955418,
+      "auc_pr": 0.9510685412494564,
+      "auc_roc": 0.93379790076091,
+      "f1": 0.8630101822537862,
+      "mcc": 0.775992011373161
+    },
+    "user": "choyt"
+  },
+  "42": {
+    "date": "2019-11-30-092622",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8779547232119579,
+      "auc_pr": 0.9500389571159041,
+      "auc_roc": 0.9321338598223778,
+      "f1": 0.8627953837699213,
+      "mcc": 0.7750694292952078
+    },
+    "user": "choyt"
+  },
+  "43": {
+    "date": "2019-11-30-093004",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8769118797253845,
+      "auc_pr": 0.9496536324225494,
+      "auc_roc": 0.9322729100103269,
+      "f1": 0.8614436469020164,
+      "mcc": 0.7733468976500781
+    },
+    "user": "choyt"
+  },
+  "44": {
+    "date": "2019-11-30-093351",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8777591900582254,
+      "auc_pr": 0.9496210322063623,
+      "auc_roc": 0.9327354471755602,
+      "f1": 0.8622896653001284,
+      "mcc": 0.7753395770978603
+    },
+    "user": "choyt"
+  },
+  "45": {
+    "date": "2019-11-30-093731",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8782480229425567,
+      "auc_pr": 0.9505600131879695,
+      "auc_roc": 0.9334108102357078,
+      "f1": 0.8629761846545063,
+      "mcc": 0.7760210992577817
+    },
+    "user": "choyt"
+  },
+  "46": {
+    "date": "2019-11-30-094116",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8780090379768837,
+      "auc_pr": 0.9510687640294406,
+      "auc_roc": 0.9336930572632953,
+      "f1": 0.8628949553157201,
+      "mcc": 0.775090940103491
+    },
+    "user": "choyt"
+  },
+  "47": {
+    "date": "2019-11-30-094502",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8778786825410619,
+      "auc_pr": 0.9504328794274446,
+      "auc_roc": 0.9333668646960875,
+      "f1": 0.862731690639576,
+      "mcc": 0.7748626845451918
+    },
+    "user": "choyt"
+  },
+  "48": {
+    "date": "2019-11-30-094840",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.8780742156947945,
+      "auc_pr": 0.9504683025442728,
+      "auc_roc": 0.9337207775236341,
+      "f1": 0.8628644038804584,
+      "mcc": 0.7754674268929547
+    },
+    "user": "choyt"
+  },
+  "49": {
+    "date": "2019-11-30-095219",
+    "dimension": 297,
+    "input": "/home/bio/groupshare/rana/src/seffnet/resources/basic_graphs/fullgraph_weighted_with_chemsim.edgelist",
+    "method": "HOPE",
+    "results": {
+      "accuracy": 0.878345789519423,
+      "auc_pr": 0.9511688930707389,
+      "auc_roc": 0.9330572799763106,
+      "f1": 0.8632082961804834,
+      "mcc": 0.7759341006341915
+    },
+    "user": "choyt"
+  }
+}
