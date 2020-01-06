@@ -8,6 +8,7 @@ import random
 from itertools import chain
 from typing import Any, Mapping
 
+import matplotlib.pyplot as plt
 import networkx as nx
 import optuna
 import pandas as pd
@@ -127,7 +128,7 @@ def create_subgraph(  # noqa: C901
     source_namespace = RESULTS_TYPE_TO_NAMESPACE[source_type]
     if source_type == 'chemical':
         source = source_dsl(namespace=source_namespace, identifier=source_identifier)  # FIXME why no source_name?
-    elif source_type == 'protein':
+    elif source_type == 'target':
         source = source_dsl(namespace=source_namespace, identifier=source_identifier, name=source_name)
     elif source_type == 'phenotype':
         source = source_dsl(namespace=source_namespace, identifier=source_identifier, name=source_name)
@@ -138,7 +139,7 @@ def create_subgraph(  # noqa: C901
     target_namespace = RESULTS_TYPE_TO_NAMESPACE[target_type]
     if target_type == 'chemical':
         target = target_dsl(namespace=target_namespace, identifier=target_identifier)  # FIXME why no target_name?
-    elif target_type == 'protein':
+    elif target_type == 'target':
         target = target_dsl(namespace=target_namespace, identifier=target_identifier, name=target_name)
     elif target_type == 'phenotype':
         target = target_dsl(namespace=target_namespace, identifier=target_identifier, name=target_name)
@@ -197,9 +198,22 @@ def get_boxplot(
         with open(os.path.join(dir_path, filename)) as file:
             data = json.load(file)
         for v in data.values():
-            method.append(v['method'])
-            metric_list.append(v['results'][metric])
-
+            if v['input'] == 'node_shuffle':
+                method.append('shuffle')
+                metric_list.append(v['results'][metric])
+            elif v['input'] == 'random':
+                method.append('random')
+                metric_list.append(v['results'][metric])
+            else:
+                method.append(v['method'])
+                metric_list.append(v['results'][metric])
     df = pd.DataFrame(list(zip(method, metric_list)), columns=['method', metric])
+    df = df.sort_values(by=[metric], ascending=False)
+    plt.figure(figsize=(12, 10))
+    sns.set(font_scale=1.5)
+    sns.set_style("whitegrid")
     boxplot = sns.boxplot(x="method", y=metric, data=df)
-    return boxplot
+    boxplot.set_title('Robustness Analysis', fontdict={'fontsize':36})
+    boxplot.set_xlabel('')
+    boxplot.set_ylabel('MCC', fontdict={'fontsize':24})
+    return df, boxplot

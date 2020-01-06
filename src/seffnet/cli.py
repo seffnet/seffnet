@@ -321,6 +321,7 @@ def update(
 @SEED
 @WEIGHTED
 @PREDICTION_TASK
+@CLASSIFIER_TYPE
 @click.option('--randomization', type=click.Choice(['xswap', 'random', 'node_shuffle']))
 def repeat(
     input_path,
@@ -344,6 +345,7 @@ def repeat(
     weighted,
     prediction_task,
     randomization,
+    classifier_type,
 ):
     """Repeat training n times."""
     np.random.seed(seed)
@@ -370,6 +372,7 @@ def repeat(
         weighted=weighted,
         prediction_task=prediction_task,
         randomization=randomization,
+        classifier_type=classifier_type,
     )
     click.echo(results)
 

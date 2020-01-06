@@ -373,6 +373,7 @@ def repeat_experiment(
     weighted: bool = False,
     prediction_task,
     randomization=None,
+    classifier_type='LR',
 ):
     """Repeat an experiment several times."""
     if randomization is None:
@@ -398,6 +399,7 @@ def repeat_experiment(
                 evaluation_file=None,
                 weighted=weighted,
                 prediction_task=prediction_task,
+                classifier_type=classifier_type,
             )
             for i in tqdm(range(n), desc="Repeating experiment")
         }
