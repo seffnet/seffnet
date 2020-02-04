@@ -32,6 +32,20 @@ If you've installed ``seffnet`` locally, you can use the default model from the 
     results = predictor.find_new_relations(curie='pubchem.compound:5095')
     ...   
 
+You can get the embeddings for phenotype entities with
+
+.. code-block:: python
+
+   import itertools as itt
+   from seffnet.default_predictor import predictor
+
+   phenotype_to_embedding = {
+       node_data['identifier']: predictor.embeddings[node_id]
+       for node_id, node_data in predictor.node_id_to_info.items()
+       if node_data['namespace'] == 'umls'
+   }
+   # could use sklearn.metrics.pairwise.cosine_similarity on the values in this dict
+
 You can use the default model in the CLI:
 
 .. code-block:: bash
